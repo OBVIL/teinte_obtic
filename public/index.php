@@ -64,7 +64,7 @@ use \Oeuvres\Kit\{Http, Route};
 
         <p>Le développement de cette interface a été financé par l’<a href="https://obtic.sorbonne-universite.fr/">ObTIC</a>.</p>
 
-        <p>Teinte est un logiciel libre développé par <a onmouseover="this.href='mailto'+'\x3A'+'frederic.glorieux'+'\x40'+'fictif.org'" href="#">Frédéric Glorieux</a> (cf <a href="http://github.com/oeuvres/teinte">github.com/oeuvres/teinte</a>). Vous pouvez librement l’utiliser. Vous pouvez aussi financer des développements supplémentaires pour mieux ajuster le logiciel à vos projets. Et les utilisateurs vous remercient pour tous <a href="https://github.com/oeuvres/teinte/issues">bugs signalés</a>.</p>
+        <p>Ce logiciel libre a été développé par <a onmouseover="this.href='mailto'+'\x3A'+'frederic.glorieux'+'\x40'+'fictif.org'" href="#">Frédéric Glorieux</a>, les sources sont visibles sur <a href="https://github.com/OBVIL/obtic_teinte">Github</a>.
 
       </div>
       <div id="download">
