@@ -1,0 +1,27 @@
+{
+    "name": "obtic/teinte",
+    "description": "The ObTIC text transformer",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Obtic\\Teinte\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Frédéric Glorieux",
+            "email": "frederic.glorieux@fictif.org",
+            "role": "Developer"
+        }
+    ],
+    "funding": [
+        {
+            "type": "other",
+            "url": "https://obtic.sorbonne-universite.fr/"
+        }
+    ],
+    "require": {
+        "oeuvres/teinte": "dev-main"
+    },
+    "minimum-stability": "dev"
+}
