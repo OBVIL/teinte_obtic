@@ -13,8 +13,7 @@ if (is_readable($config_file)) {
 }
 if (!isset($pars['workdir']) || !$pars['workdir']) {
     $config['workdir'] = sys_get_temp_dir();
-} else {
-    $config['workdir'] = rtrim($config['workdir'], '\/') . '/'; 
 }
+$config['workdir'] = rtrim($config['workdir'], '\/') . '/'; 
 // cookie name
 const TEINTE = "teinte";
