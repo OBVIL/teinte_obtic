@@ -144,7 +144,7 @@ function dropInit() {
             const name = file.name.replace(/\.[^/.]+$/, "");
             for (let i = 0, length = downs.length; i < length; i++) {
                 const format2 = downs[i];
-                console.log(format2);
+                if (!formats[format2]) continue;
                 let ext = formats[format2].ext;
                 html += '\n<a class="download format ' + format2 +'" href="download.php?format=' + format2 + '">' 
                 + '<div class="filename">' + name + ext + '</div>'
