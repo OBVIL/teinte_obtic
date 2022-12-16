@@ -9,7 +9,8 @@ use Oeuvres\Teinte\Format\{File, Tei};
 use Oeuvres\Teinte\Tei2\{Tei2toc,Tei2article};
 
 // for debug, output ERRORS to http client
-Log::setLogger(new LoggerTxt(LogLevel::WARNING, 'Teinte, download [{datetime}] '));
+// do not log xml warnings like : Teinte, download [2022-12-16 05:01:27] 392:21 err:539
+// Log::setLogger(new LoggerTxt(LogLevel::WARNING, 'Teinte, download [{datetime}] '));
 
 // 
 

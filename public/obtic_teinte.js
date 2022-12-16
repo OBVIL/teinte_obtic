@@ -28,17 +28,21 @@ const formats = {
         "ext":".md",
         "mime":"text/plain; charset=utf-8"
     },
+    "md": {
+        "ext":".md",
+        "mime":"text/plain; charset=utf-8"
+    },
     "tei": {
         "ext":".xml",
         "mime":"text/xml"
     }
 };
 const conversions = {
-    "docx": ["tei", "epub", "html", "md"],
-    "tei": ["docx", "epub", "html", "md"],
     "docx": ["tei", "html", "markdown"],
-    "tei": ["html", "docx", "markdown"],
-    "markdown": [],
+    "tei": ["docx", "html", "markdown"],
+    "docx": ["tei", "html", "markdown"],
+    "epub": ["tei", "docx", "html", "markdown"],
+    "markdown": ["tei", "docx", "html"],
 }
 
 
@@ -140,9 +144,9 @@ function dropInit() {
             const name = file.name.replace(/\.[^/.]+$/, "");
             for (let i = 0, length = downs.length; i < length; i++) {
                 const format2 = downs[i];
+                console.log(format2);
                 let ext = formats[format2].ext;
-                html += '\n<a class="download" href="download.php?format=' + format2 + '">' 
-                + '<div class="format ' + format2 + '"></div>'
+                html += '\n<a class="download format ' + format2 +'" href="download.php?format=' + format2 + '">' 
                 + '<div class="filename">' + name + ext + '</div>'
                 + '</a>';
             }

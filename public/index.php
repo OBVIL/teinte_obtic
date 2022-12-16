@@ -37,11 +37,11 @@ use \Oeuvres\Kit\{Http, Route};
 
             <div class="format docx" title="DOCX : texte bureautique (LibreOffice, Microsoft.Word…)"></div>
 
-            <div class="todo format epub" title="EPUB : livre électronique ouvert"></div>
+            <div class="format epub" title="EPUB : livre électronique ouvert"></div>
 
             <div class="todo format html" title="HTML : page internet"></div>
 
-            <div class="todo format markdown" title="MarkDown : texte brut légèrement formaté"></div>
+            <div class="format markdown" title="MarkDown : texte brut légèrement formaté"></div>
 
           </div>
         </header>

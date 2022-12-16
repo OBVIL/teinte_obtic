@@ -272,13 +272,17 @@ div.format {
 }
 
 a.download {
-    padding: 0 0.5rem;
+    padding: 0 0.5rem 0 5.5rem;
     color: #000;
     text-decoration: none;
     position: relative;
     z-index: 2;
-    display: flex;
     align-items: center;
+    height: 5rem;
+    display: flex;
+    background: no-repeat;
+    background-position: left;
+    overflow-wrap: anywhere;
 }
 a.download:hover {
     box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
@@ -292,7 +296,7 @@ a.download div.format {
 }
 
 a.download:hover {
-    background: #fff;
+    background-color: #fff;
 }
 
 

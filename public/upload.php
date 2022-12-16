@@ -4,7 +4,7 @@ include_once(__DIR__ . '/inc.php');
 
 use Psr\Log\LogLevel;
 use Oeuvres\Kit\{Filesys, Http, I18n, Log, LoggerWeb};
-use Oeuvres\Teinte\Format\{Docx, File, Markdown, Tei};
+use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
 use Oeuvres\Teinte\Tei2\{Tei2article};
 
 function cookie($cookie)
@@ -91,6 +91,7 @@ else if ($format === "tei") {
     cookie($cookie);
     flush();
     echo  $upload['name'] . "<br/>";
+    flush();
     echo $tei->toXml('article');
 }
 else if ($format === "markdown") {
@@ -98,13 +99,27 @@ else if ($format === "markdown") {
     $cookie['tei_basename'] = basename($tei_file);
     cookie($cookie);
     flush();
+    echo  $upload['name'] . "<br/>";
     $source = new Markdown();
     $source->load($src_file);
-    $html = "<article>";
-    $html .= $source->html();
-    $html .= "</article>";
+    $html = $source->html();
+    echo $source->html();
+    flush();
+    // transform to TEI
+    file_put_contents($tei_file, $source->tei());
+}
+else if ($format === "epub") {
+    $cookie['epub_basename'] = basename($src_file);
+    $cookie['tei_basename'] = basename($tei_file);
+    cookie($cookie);
+    flush();
+    $source = new Epub();
+    $source->load($src_file);
+    // directly article
     echo  $upload['name'] . "<br/>";
-    echo $html;
+    $tei_dom = $source->teiToDoc();
+    echo Tei2article::toXml($tei_dom);
+    file_put_contents($tei_file, $tei_dom->saveXML());
 }
 else {
     echo I18n::_('upload.format404', $upload["name"],  $format);

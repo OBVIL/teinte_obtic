@@ -58,24 +58,28 @@
         },
         {
             "name": "erusev/parsedown-extra",
-            "version": "0.8.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erusev/parsedown-extra.git",
-                "reference": "91ac3ff98f0cea243bdccc688df43810f044dcef"
+                "reference": "fd33d68349630d18d56367712a64445a6e0bc83e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/91ac3ff98f0cea243bdccc688df43810f044dcef",
-                "reference": "91ac3ff98f0cea243bdccc688df43810f044dcef",
+                "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/fd33d68349630d18d56367712a64445a6e0bc83e",
+                "reference": "fd33d68349630d18d56367712a64445a6e0bc83e",
                 "shasum": ""
             },
             "require": {
-                "erusev/parsedown": "^1.7.4"
+                "erusev/parsedown": "^1.8.0|^1.8.0-beta-4",
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.3.6"
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.8.35"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-0": {
@@ -103,27 +107,32 @@
             ],
             "support": {
                 "issues": "https://github.com/erusev/parsedown-extra/issues",
-                "source": "https://github.com/erusev/parsedown-extra/tree/0.8.x"
+                "source": "https://github.com/erusev/parsedown-extra/tree/master"
             },
-            "time": "2019-12-30T23:20:37+00:00"
+            "time": "2021-10-25T08:46:29+00:00"
         },
         {
             "name": "oeuvres/kit",
-            "version": "v1.0.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "7bc6a46a0abfdef25a2daeaf1843455ea62d7298"
+                "reference": "2179f15ef4ad0505010d151fbdfa8ada5f49f452"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/7bc6a46a0abfdef25a2daeaf1843455ea62d7298",
-                "reference": "7bc6a46a0abfdef25a2daeaf1843455ea62d7298",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/2179f15ef4ad0505010d151fbdfa8ada5f49f452",
+                "reference": "2179f15ef4ad0505010d151fbdfa8ada5f49f452",
                 "shasum": ""
             },
             "require": {
+                "ext-mbstring": "*",
+                "ext-xsl": "*",
+                "ext-zip": "*",
+                "php": ">=7.2",
                 "psr/log": "1.1.4"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -141,11 +150,22 @@
                 }
             ],
             "description": "Routing, logging, templating… small code for big texts",
+            "keywords": [
+                "log",
+                "logging",
+                "router",
+                "routing",
+                "template",
+                "templating",
+                "xml",
+                "xsl",
+                "xslt"
+            ],
             "support": {
                 "issues": "https://github.com/oeuvres/kit/issues",
-                "source": "https://github.com/oeuvres/kit/tree/v1.0.0"
+                "source": "https://github.com/oeuvres/kit/tree/main"
             },
-            "time": "2022-12-09T21:00:10+00:00"
+            "time": "2022-12-15T22:22:04+00:00"
         },
         {
             "name": "oeuvres/teinte",
@@ -153,23 +173,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_php.git",
-                "reference": "90eddd922fed5de7d55d94d9b1cffc986af86064"
+                "reference": "3b531095ae0eaf89465a80f4188c2e2bc8e6c623"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/90eddd922fed5de7d55d94d9b1cffc986af86064",
-                "reference": "90eddd922fed5de7d55d94d9b1cffc986af86064",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/3b531095ae0eaf89465a80f4188c2e2bc8e6c623",
+                "reference": "3b531095ae0eaf89465a80f4188c2e2bc8e6c623",
                 "shasum": ""
             },
             "require": {
-                "erusev/parsedown": "^1.7",
-                "erusev/parsedown-extra": "^0.8.1",
-                "oeuvres/kit": "^1.0",
+                "erusev/parsedown-extra": "dev-master",
+                "oeuvres/kit": "dev-main",
                 "php": ">=7.2"
             },
             "default-branch": true,
             "bin": [
-                "teinte"
+                "bin/teinte"
             ],
             "type": "library",
             "autoload": {
@@ -192,7 +211,7 @@
                 "issues": "https://github.com/oeuvres/teinte_php/issues",
                 "source": "https://github.com/oeuvres/teinte_php/tree/main"
             },
-            "time": "2022-12-12T15:55:24+00:00"
+            "time": "2022-12-16T03:57:05+00:00"
         },
         {
             "name": "psr/log",
