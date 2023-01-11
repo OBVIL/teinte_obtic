@@ -6,7 +6,7 @@
 
 ## Installation sur un serveur Debian en SSH
 
-Cette installation suppose que vous avez déjà un serveur web opérationnel pour les applications php.
+Cette installation suppose un serveur web opérationnel pour les applications php.
 
 ```bash
 # installer le gestionnaire de paquets php (composer)
