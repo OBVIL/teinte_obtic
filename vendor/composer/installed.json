@@ -1,0 +1,321 @@
+{
+    "packages": [
+        {
+            "name": "erusev/parsedown",
+            "version": "1.8.0-beta-7",
+            "version_normalized": "1.8.0.0-beta7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/erusev/parsedown.git",
+                "reference": "fe7a50eceb4a3c867cc9fa9c0aa906b1067d1955"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/fe7a50eceb4a3c867cc9fa9c0aa906b1067d1955",
+                "reference": "fe7a50eceb4a3c867cc9fa9c0aa906b1067d1955",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35"
+            },
+            "time": "2019-03-17T18:47:21+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-0": {
+                    "Parsedown": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Emanuil Rusev",
+                    "email": "hello@erusev.com",
+                    "homepage": "http://erusev.com"
+                }
+            ],
+            "description": "Parser for Markdown.",
+            "homepage": "http://parsedown.org",
+            "keywords": [
+                "markdown",
+                "parser"
+            ],
+            "support": {
+                "issues": "https://github.com/erusev/parsedown/issues",
+                "source": "https://github.com/erusev/parsedown/tree/1.8.0-beta-7"
+            },
+            "install-path": "../erusev/parsedown"
+        },
+        {
+            "name": "erusev/parsedown-extra",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/erusev/parsedown-extra.git",
+                "reference": "fd33d68349630d18d56367712a64445a6e0bc83e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/fd33d68349630d18d56367712a64445a6e0bc83e",
+                "reference": "fd33d68349630d18d56367712a64445a6e0bc83e",
+                "shasum": ""
+            },
+            "require": {
+                "erusev/parsedown": "^1.8.0|^1.8.0-beta-4",
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.3.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35"
+            },
+            "time": "2021-10-25T08:46:29+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-0": {
+                    "ParsedownExtra": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Emanuil Rusev",
+                    "email": "hello@erusev.com",
+                    "homepage": "http://erusev.com"
+                }
+            ],
+            "description": "An extension of Parsedown that adds support for Markdown Extra.",
+            "homepage": "https://github.com/erusev/parsedown-extra",
+            "keywords": [
+                "markdown",
+                "markdown extra",
+                "parsedown",
+                "parser"
+            ],
+            "support": {
+                "issues": "https://github.com/erusev/parsedown-extra/issues",
+                "source": "https://github.com/erusev/parsedown-extra/tree/master"
+            },
+            "install-path": "../erusev/parsedown-extra"
+        },
+        {
+            "name": "oeuvres/kit",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/oeuvres/kit.git",
+                "reference": "d4cc320ae850811f6f20644366ec9e299c4db3b1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/d4cc320ae850811f6f20644366ec9e299c4db3b1",
+                "reference": "d4cc320ae850811f6f20644366ec9e299c4db3b1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "ext-xsl": "*",
+                "ext-zip": "*",
+                "php": ">=7.2",
+                "psr/log": "1.1.4"
+            },
+            "time": "2023-03-20T15:34:28+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Oeuvres\\Kit\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Frédéric Glorieux",
+                    "email": "frederic.glorieux@fictif.org"
+                }
+            ],
+            "description": "Routing, logging, templating… small code for big texts",
+            "keywords": [
+                "log",
+                "logging",
+                "router",
+                "routing",
+                "template",
+                "templating",
+                "xml",
+                "xsl",
+                "xslt"
+            ],
+            "support": {
+                "issues": "https://github.com/oeuvres/kit/issues",
+                "source": "https://github.com/oeuvres/kit/tree/main"
+            },
+            "install-path": "../oeuvres/kit"
+        },
+        {
+            "name": "oeuvres/teinte",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/oeuvres/teinte_php.git",
+                "reference": "934d76655435e8fe46e867c59b049bf14e92eb02"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/934d76655435e8fe46e867c59b049bf14e92eb02",
+                "reference": "934d76655435e8fe46e867c59b049bf14e92eb02",
+                "shasum": ""
+            },
+            "require": {
+                "erusev/parsedown-extra": "dev-master",
+                "ext-tidy": "*",
+                "oeuvres/kit": "dev-main",
+                "oeuvres/xsl": "dev-main",
+                "php": ">=7.2"
+            },
+            "time": "2023-02-25T00:15:15+00:00",
+            "default-branch": true,
+            "bin": [
+                "bin/teinte"
+            ],
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Oeuvres\\Teinte\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Frédéric Glorieux",
+                    "email": "frederic.glorieux@fictif.org"
+                }
+            ],
+            "description": "Transform texts from and to : TEI, DOCX, HTML, EPUB, MD…",
+            "support": {
+                "issues": "https://github.com/oeuvres/teinte_php/issues",
+                "source": "https://github.com/oeuvres/teinte_php/tree/main"
+            },
+            "install-path": "../oeuvres/teinte"
+        },
+        {
+            "name": "oeuvres/xsl",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/oeuvres/teinte_xsl.git",
+                "reference": "d5759012a746e69ded7ee90f9ebde07ac3cc33b1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/d5759012a746e69ded7ee90f9ebde07ac3cc33b1",
+                "reference": "d5759012a746e69ded7ee90f9ebde07ac3cc33b1",
+                "shasum": ""
+            },
+            "time": "2023-03-27T00:47:47+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Oeuvres\\Xsl\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Frédéric Glorieux",
+                    "email": "frederic.glorieux@fictif.org"
+                }
+            ],
+            "description": "XSLT-1.0 package to transform texts, from and to, TEI",
+            "support": {
+                "issues": "https://github.com/oeuvres/teinte_xsl/issues",
+                "source": "https://github.com/oeuvres/teinte_xsl/tree/main"
+            },
+            "install-path": "../oeuvres/xsl"
+        },
+        {
+            "name": "psr/log",
+            "version": "1.1.4",
+            "version_normalized": "1.1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/d49695b909c3b7628b6289db5479a1c204601f11",
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "time": "2021-05-03T11:20:27+00:00",
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Log\\": "Psr/Log/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for logging libraries",
+            "homepage": "https://github.com/php-fig/log",
+            "keywords": [
+                "log",
+                "psr",
+                "psr-3"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/log/tree/1.1.4"
+            },
+            "install-path": "../psr/log"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": []
+}

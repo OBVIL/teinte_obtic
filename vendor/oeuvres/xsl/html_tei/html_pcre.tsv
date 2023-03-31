@@ -1,0 +1,6 @@
+search	replace	?comment
+
+<span[^>]*>(\s*)</span>	$1	
+</i>(\s*)<i>	$1
+&nbsp;	 
+

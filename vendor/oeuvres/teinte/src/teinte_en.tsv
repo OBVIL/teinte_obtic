@@ -1,0 +1,25 @@
+key	message
+Epub.load	No file loaded, use Epub::load($epub_file) before
+Epub.container404	“%s”, epub invalid, no “META-INF/container.xml” entry found
+Epub.opf400	“%s”, epub invalid, no link found for an opf file, in “META-INF/container.xml” entry
+Epub.opf0	“%s”, epub invalid, opf file empty
+Epub.opfel404	“%s!%s”, epub invalid, <%s> element required
+Epub.ncx400	“%s!%s”, epub invalid, no link found for a toc.ncx
+Epub.spine404	“%s”, <spine> invalid, idref="%s" nor fond in <manifest>
+Epub.chop.404	“%s!%s”, not found
+Epub.chop.body	“%s!%s”, no <body>
+Epub.chop.anchor	“%s!%s”, id="%s" anchor not found
+Epub.chop.to.no_anchor	“%s”, from %s to %s, same file no to anchor, OK ?  
+Epub.chop.to.anchor404	“%s”, from %s to %s, “%s” anchor not found
+File.contents	File::contents(), no contents, no file loaded, use File::load()
+File.noload	“%s”, have you load something ? Markdown::load()
+Zip.404	“%s!%s”, entry not found
+ZipArchive::ER_EXISTS	“%s”, file already exists
+ZipArchive::ER_INCONS	“%s”, zip archive inconsistent
+ZipArchive::ER_INVAL	“%s”, invalid argument
+ZipArchive::ER_MEMORY	“%s”, malloc failure
+ZipArchive::ER_NOENT	“%s”, no such file
+ZipArchive::ER_NOZIP	“%s”, is not a zip archive
+ZipArchive::ER_OPEN	“%s”, can't open file
+ZipArchive::ER_READ	“%s”, can't read file
+ZipArchive::ER_SEEK	“%s”, seek error

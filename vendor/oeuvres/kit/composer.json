@@ -1,0 +1,26 @@
+{
+    "name": "oeuvres/kit",
+    "description": "Routing, logging, templating… small code for big texts",
+    "keywords": ["xml", "xslt", "xsl", "router", "routing", "log", "logging", "template", "templating"],
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "autoload": {
+        "psr-4": {
+            "Oeuvres\\Kit\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Frédéric Glorieux",
+            "email": "frederic.glorieux@fictif.org"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.2",
+        "psr/log": "1.1.4",
+        "ext-mbstring": "*",
+        "ext-xsl": "*",
+        "ext-zip": "*"
+    }
+}

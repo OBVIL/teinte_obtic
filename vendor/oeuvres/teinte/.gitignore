@@ -1,0 +1,24 @@
+/vendor
+composer.lock
+/examples/data/_*
+/examples/out/
+/work
+
+# generated garbage (especially LaTeX)
+.~*
+~$*
+~WRL*
+.DS_Store
+*.aux
+*.bak
+*.cb
+*.cb2
+*.dvi
+*.fdb_latexmk
+*.fls
+*.idx
+*.log
+*.out
+*.swp
+*.toc
+*.xdv

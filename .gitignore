@@ -1,3 +1,2 @@
-composer.phar
-/vendor/
-composer.lock
+# put composer libs in there state before a git tag
+work/

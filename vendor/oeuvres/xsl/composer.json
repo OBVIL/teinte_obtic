@@ -1,0 +1,19 @@
+{
+    "name": "oeuvres/xsl",
+    "description": "XSLT-1.0 package to transform texts, from and to, TEI",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Frédéric Glorieux",
+            "email": "frederic.glorieux@fictif.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Oeuvres\\Xsl\\": ""
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
