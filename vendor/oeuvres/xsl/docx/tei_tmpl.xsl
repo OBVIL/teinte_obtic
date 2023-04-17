@@ -33,6 +33,7 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
   <!-- indent should be OK now ? -->
   <xsl:output encoding="UTF-8" indent="no" method="xml"/>
   <xsl:param name="template"/>
+  <xsl:param name="pb" select="1"/>
   <xsl:variable name="tei" select="document($template)"/>
   <xsl:variable name="lf" select="'&#10;'"/>
   <xsl:variable name="ABC">ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŒÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöùúûüýÿþ,:; ?()/\ ._-{}[]</xsl:variable>
@@ -246,7 +247,7 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
         <xsl:variable name="n">
           <xsl:number level="any"/>
         </xsl:variable>
-        <xsl:value-of select="$n +1"/>
+        <xsl:value-of select="$n - 1 + $pb"/>
       </xsl:attribute>
     </pb>
   </xsl:template>

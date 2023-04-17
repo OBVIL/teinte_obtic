@@ -15,7 +15,7 @@ if (isset($argv[1])) {
 Log::setLogger(new LoggerCli(LogLevel::DEBUG));
 
 $source = new Docx();
-$source->template(dirname(__DIR__).'/templates/jamesfr');
+$source->user_template(dirname(__DIR__).'/templates/jamesfr');
 $src_name = pathinfo($docx_file, PATHINFO_FILENAME);
 
 $source->load($docx_file);

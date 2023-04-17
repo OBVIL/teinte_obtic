@@ -74,12 +74,12 @@ class Docx extends Zip
         return $this->dom;
     }
 
-    function tei(): void
+    function tei(?array $pars = null): void
     {
         $this->pkg();
-        $this->teilike();
+        $this->teilike($pars);
         $this->pcre();
-        $this->tmpl();
+        $this->tmpl($pars);
     }
 
     /**
@@ -151,16 +151,17 @@ class Docx extends Zip
     }
 
     /**
-     * Build a lite TEI with some custom tags like <i> or <sc>, esier to clean
+     * Build a lite TEI with some custom tags like <i> or <sc>, easier to clean
      * with regex
      */
-    function teilike():void
+    function teilike(?array $pars = null):void
     {
         // DO NOT indent, reuse dom object with right props
         Xt::loadXml($this->xml, $this->dom);
         $this->dom = Xt::transformToDoc(
             Xpack::dir() . 'docx/docx_teilike.xsl', 
             $this->dom,
+            $pars
         );
         // out that as xml for pcre
         $this->xml = Xt::transformToXml(
@@ -185,15 +186,18 @@ class Docx extends Zip
     /**
      * Clean teilike and apply template
      */
-    function tmpl(): void
+    function tmpl(?array $pars = null): void
     {
         // xml should come from pcre transform
         Xt::loadXml($this->xml, $this->dom);
+        if (!isset($pars["template" ])) {
+            $pars["template" ] = $this->tmpl;
+        }
         // TEI regularisations and model fusion
         $this->dom = Xt::transformToDoc(
             Xpack::dir() . 'docx/tei_tmpl.xsl',
             $this->dom,
-            array("template" => $this->tmpl)
+            $pars
         );
         // delete old xml
         $this->xml = null;

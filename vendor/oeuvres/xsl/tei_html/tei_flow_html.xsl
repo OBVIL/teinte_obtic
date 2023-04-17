@@ -1099,12 +1099,12 @@ Tables
         </span>
       </xsl:when>
       <xsl:when test="$rend = ''">
-        <em>
+        <i>
           <xsl:call-template name="atts"/>
           <xsl:apply-templates>
             <xsl:with-param name="from" select="$from"/>
           </xsl:apply-templates>
-        </em>
+        </i>
       </xsl:when>
       <xsl:when test="starts-with($rend, 'it')">
         <i>
@@ -1129,6 +1129,14 @@ Tables
             <xsl:with-param name="from" select="$from"/>
           </xsl:apply-templates>
         </sub>
+      </xsl:when>
+      <xsl:when test="starts-with($rend, 'sc')">
+        <span rend="sc">
+          <xsl:call-template name="atts"/>
+          <xsl:apply-templates>
+            <xsl:with-param name="from" select="$from"/>
+          </xsl:apply-templates>
+        </span>
       </xsl:when>
       <xsl:when test="starts-with($rend, 'exp')">
         <sup>
