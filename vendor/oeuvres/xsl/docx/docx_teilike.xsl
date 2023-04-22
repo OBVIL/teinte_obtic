@@ -11,7 +11,7 @@
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
   xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
 
-  xmlns:teinte="https://oeuvres.github.io/teinte"
+  xmlns:teinte="https://github.com/oeuvres/teinte_xsl"
 
   xmlns="http://www.tei-c.org/ns/1.0"
   exclude-result-prefixes="a mc pic pkg r rels teinte w wp"
@@ -96,16 +96,16 @@
     </xsl:variable>
     <xsl:variable name="rend" select="normalize-space($_rend)"/>
     <xsl:choose>
+      <xsl:when test="$lvl != '' and not(ancestor::w:tc|ancestor::w:footnote|ancestor::w:footnote)">
+        <head level="{$lvl+1}">
+          <xsl:apply-templates select="w:hyperlink | w:r"/>
+        </head>
+      </xsl:when>
       <!-- list item, TODO listStyle, see in w:pPr/w:numPr/w:numId/@w:val -->
       <xsl:when test="w:pPr/w:numPr">
         <item level="{w:pPr/w:numPr/w:ilvl/@w:val + 1}">
           <xsl:apply-templates select="w:hyperlink | w:r"/>
         </item>
-      </xsl:when>
-      <xsl:when test="$lvl != '' and not(ancestor::w:tc|ancestor::w:footnote|ancestor::w:footnote)">
-        <head level="{$lvl+1}">
-          <xsl:apply-templates select="w:hyperlink | w:r"/>
-        </head>
       </xsl:when>
       <xsl:when test="$val = '' or key('teinte_0', $val)">
         <p>
@@ -134,6 +134,17 @@
           <xsl:if test="$teinte_p/@attribute">
             <xsl:attribute name="{$teinte_p/@attribute}">
               <xsl:value-of select="$teinte_p/@value"/>
+            </xsl:attribute>
+          </xsl:if>
+          <xsl:apply-templates select="w:hyperlink | w:r"/>
+        </xsl:element>
+      </xsl:when>
+      <!-- Output unknown style -->
+      <xsl:when test="$val != ''">
+        <xsl:element name="{$val}">
+          <xsl:if test="$rend != ''">
+            <xsl:attribute name="rend">
+              <xsl:value-of select="$rend"/>
             </xsl:attribute>
           </xsl:if>
           <xsl:apply-templates select="w:hyperlink | w:r"/>

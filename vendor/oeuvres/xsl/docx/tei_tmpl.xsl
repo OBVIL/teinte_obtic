@@ -161,7 +161,21 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
       </xsl:for-each>
     </xsl:copy>
   </xsl:template>
-  <xsl:template match="tei:list/tei:list"/>
+  <!-- empty list -->
+  <xsl:template match="tei:list">
+    <xsl:choose>
+      <xsl:when test="normalize-space(.) = ''"/>
+      <xsl:otherwise>
+        <xsl:copy>
+          <xsl:apply-templates select="node() | @*"/>
+        </xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
+    
+  </xsl:template>
+  <xsl:template match="tei:list/tei:list">
+    <xsl:apply-templates/>
+  </xsl:template>
   <!-- 
   not logic but possible
   

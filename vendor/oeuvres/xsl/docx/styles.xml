@@ -31,9 +31,9 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
     doc (true) #IMPLIED
   >
 ]>
-<sheet xmlns="https://oeuvres.github.io/teinte">
+<sheet xmlns="https://github.com/oeuvres/teinte_xsl">
   <!-- styles to filter -->
-  <style level="0" name="ancredenotedebasdepage"/> 
+  <style level="0" name="ancredenotedebasdepage"/>
   <style level="0" name="ancredenotedefin"/>
   <style level="0" name="appelnotedebasdep"/>
   <style level="0" name="appeldenotedefin"/>
@@ -85,6 +85,7 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="creator" element="byline"/>
   <style level="p" name="dateline" element="dateline" doc="true"/>
   <style level="p" name="date" element="dateline"/>
+  <style level="p" name="date1" element="dateline"/>
   <style level="p" name="datesjournaux" element="label" attribute="type" value="dateline"/>
   <style level="p" name="datejournal" element="label" attribute="type" value="dateline"/>
   <style level="p" name="def" element="def" parent="entryFree" doc="true"/>
