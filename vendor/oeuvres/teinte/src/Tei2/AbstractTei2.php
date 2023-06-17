@@ -106,18 +106,6 @@ abstract class AbstractTei2
     }
 
     /**
-     * Allow to set a a template directory
-     */
-    static public function template(?string $dir = null)
-    {
-        if ($dir && !is_dir($dir)) {
-            throw new \InvalidArgumentException(
-                "Template: \"\033[91m$dir\033[0m\" is not a valid directory."
-            );
-        }
-    }
-
-    /**
      * Write transformation as an Uri, which is mainly, a file
      */
     static abstract public function toUri(DOMDocument $dom, string $dstFile, ?array $pars = null);

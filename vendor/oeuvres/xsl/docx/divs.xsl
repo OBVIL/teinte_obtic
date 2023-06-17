@@ -103,14 +103,17 @@
   <xsl:template match="tei:item/@level"/>
 
 
-  <xsl:template match="tei:head">
+  <xsl:template match="tei:head[@level]">
     <xsl:choose>
+      <!-- <head> in a figure (<figure>, <table>, <list>…) should not have a level  -->
+      <xsl:when test="ancestor::tei:figure"/>
       <xsl:when test="ancestor::tei:item"/>
+      <xsl:when test="ancestor::tei:list"/>
       <xsl:when test="ancestor::tei:note"/>
       <xsl:when test="ancestor::tei:table"/>
       <xsl:otherwise>
         <xsl:variable name="level" select="@level"/>
-        <xsl:variable name="prev" select="preceding::tei:head[1]/@level"/>
+        <xsl:variable name="prev" select="preceding::tei:head[@level][1]/@level"/>
         <xsl:if test="$prev">
           <xsl:call-template name="tagClose">
             <xsl:with-param name="tag">div</xsl:with-param>

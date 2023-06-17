@@ -1,22 +1,23 @@
 search	replace	?comment
 # Variables		
 
-($inline)	(author|b|emph|foreign|em|hi|i|id|phr|ref|sc|seg|strong|sup|tech|title|u)	
+($inline)	(author|b|bg_\w+|emph|foreign|em|hi|i|id|phr|ref|sc|seg|strong|sup|tech|title|u)	
 ($atts)	( [^>]*)?	
 ($pun)	([,;:\.!?—–  \s]+)	keep () or [] in inlines
 ($block)	(head|note|p)	
+($parent)	(address|argument|castItem|castList|entryFree|epigraph|index|lg|notep|postscript|quote|set)	
 		
-# variables block ends with the first replacement rule
+# variables ends with the first replacement rule
 
 &lt;	‹	
 &gt;	›	
-&amp;	＆
+&amp;	＆	special unicode amp
 
 # SECTIONS
 
 <\?(div|list)\?>	<\1>	generated hierarchy
 <\?(div|list) /\?>	</\1>	generated hierarchy
-
+\n* *</($parent)>\s*<($parent)[^>]*> *\n*	\n\n
 
 -[\*]\n	-\n	odd chars from OCR
 
@@ -30,8 +31,8 @@ search	replace	?comment
 
 
 (<($block)($atts)>) +	\1	<block>   spaces
-<note($atts)> *[\[\(]?(nde|NdE)[\]\) ] *	"<note\1 resp=""editor"">"	note, editor
-<note($atts)> *[\[\(]?(nda|NdA)[\]\) ] *	"<note\1 resp=""author"">"	note, author
+<note($atts)>(\s*<p>)?\s*[\[\(]?(nde|NdE)[\]\)\. ] *	"<note\1 resp=""editor"">\2"	note, editor
+<note($atts)>(\s*<p>)?\s*[\[\(]?(nda|NdA)[\]\)\. ] *	"<note\1 resp=""author"">\2"	note, author
 \s*(<pb($atts)/>)\s*(</($block)>)	\n\3\n\1	ending <pb/> out of blocks
 [——\-]\s*(<lb($atts)/>) *([^\s<>]+) *	\3\n\1	caesura, 
 (\s*)(<lb($atts)/>)(</($inline)>)([^ \p{L}<>]*) *	\4\6\1\2	<lb/></hi>.

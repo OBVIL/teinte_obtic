@@ -507,12 +507,14 @@ Gobal TEI parameters and variables are divided in different categories
       <xsl:otherwise>
         <xsl:for-each select="$element">
           <xsl:choose>
+            <!-- mixed content -->
+            <xsl:when test="../text()[normalize-space(.) != '']">true</xsl:when>
             <!-- Children of <div>, block -->
             <xsl:when test="parent::tei:div"/>
             <!-- Brother of a block, block -->
             <xsl:when test="../tei:p|../tei:l|../tei:lg|../tei:list|../tei:table"/>
             <xsl:when test="parent::tei:cell and self::tei:quote"/>
-            <xsl:when test="not(self::tei:note) and (ancestor::tei:p | ancestor::tei:l)">true</xsl:when>
+            <xsl:when test="not(self::tei:note) and (ancestor::tei:p | ancestor::tei:l | ancestor::tei:bibl)">true</xsl:when>
             <xsl:when test="parent::tei:titlePage"/>
             <xsl:when test="parent::tei:body"/>
             <xsl:when test="parent::tei:front"/>
@@ -1184,7 +1186,7 @@ Could be correct for a text only version in <xsl:value-of select=""/>
     <xsl:text> </xsl:text>
   </xsl:template>
   <xsl:template match="text()" mode="title">
-    <xsl:variable name="text" select="translate(., ' ', '')"/>
+    <xsl:variable name="text" select="translate(., '', '')"/>
     <xsl:if test="translate(substring($text, 1,1), concat(' ', $lf, $cr, $tab), '') = ''">
       <xsl:text> </xsl:text>
     </xsl:if>

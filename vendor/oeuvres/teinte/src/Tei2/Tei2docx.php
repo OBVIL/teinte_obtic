@@ -21,7 +21,6 @@ Check::extension('zip');
 class Tei2docx extends AbstractTei2
 {
     /** A docx file used as a template */
-    static private ?string $template_docx = "";
     const EXT = '.docx';
     const NAME = "docx";
 
@@ -35,36 +34,18 @@ class Tei2docx extends AbstractTei2
     public static function init()
     {
         parent::init();
-        // set default template
-        self::$template_docx = Xpack::dir() . '/tei_docx/template.docx';
     }
 
 
     /**
-     * Set a docx file as a template,
-     * usually the same for a collection of tei docs.
+     * Return a configured template or default
      */
-    static function template(?string $dir = null):string
+    static private function template(?array $pars=null):string
     {
-        $dir = Filesys::normdir($dir);
-        $template_docx = null;
-        if ($dir && is_dir($dir)) {
-            $template_docx =  $dir . basename($dir) . ".docx";
-            // first doc of dir ?
-            if (!is_file($template_docx)) {
-                $glob = glob($dir . "*.docx");
-                if (!$glob || count($glob) < 1) {
-                    $template_docx= null;
-                } else {
-                    $template_docx = $glob[0];
-                }
-            }
+        if ($pars && isset($pars['template'])) {
+            return $pars['template'];
         }
-        if ($template_docx) {
-            Log::info(__CLASS__ . "::" . __FUNCTION__ . " $template_docx");
-            self::$template_docx = $template_docx;
-        }
-        return self::$template_docx;
+        return Xpack::dir() . '/tei_docx/template.docx';
     }
 
     /**
@@ -93,9 +74,15 @@ class Tei2docx extends AbstractTei2
         if (!Filesys::writable($dst_file)) {
             throw new Exception("“{$dst_file}” not writable as a destination file");
         }
+        $template = self::template($pars);
+        if (!Filesys::readable($template)) {
+            throw new Exception("“{$template}” not readble as a template file");
+        }
+
+        if (!copy($template, $dst_file)) {
+            throw new Exception("“{$dst_file}” not writable. May be this destination is open in Ms.Word");
+        }
         $name = pathinfo($dom->documentURI, PATHINFO_FILENAME);
-        $template_docx = self::$template_docx; // should have been set
-        copy($template_docx, $dst_file);
         $zip = new ZipArchive();
         $zip->open($dst_file);
 

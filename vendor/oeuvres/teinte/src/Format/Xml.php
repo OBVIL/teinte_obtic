@@ -25,8 +25,6 @@ class Xml extends File
     protected ?string $xml = null;
     /** DOM Document to process */
     protected $dom;
-    /** Xpath processor for the doc */
-    protected $xpath;
 
     /**
      * Is there a dom loaded ?
@@ -44,8 +42,9 @@ class Xml extends File
         if (!parent::{__FUNCTION__}(...func_get_args())) {
             return false;
         }
-        $this->xpath = null;
-        $this->dom = $this->loadXml($this->contents());
+        $this->dom = null;
+        $this->xml = null;
+        $this->loadXml($this->contents());
         return true;
     }
 
@@ -56,12 +55,16 @@ class Xml extends File
     {
         $xml = static::lint($xml);
         $this->xml = $xml;
-        $this->dom = Xt::loadXml($this->xml);
+        // spaces are normalized upper, keep them
+        // set dom properties before loading
+        $dom = new DOMDocument();
+        $dom->substituteEntities = true;
+        $dom->preserveWhiteSpace = true;
+        $dom->formatOutput = false;
+        $this->dom = Xt::loadXml($xml, $dom);
         if (!$this->dom) {
             throw new Exception("XML malformation");
         }
-        // spaces are normalized upper, keep them
-        $this->dom->preserveWhiteSpace = true;
         return $this->dom;
     }
 
@@ -74,20 +77,21 @@ class Xml extends File
     }
 
     /**
-     * Set and return an XPath processor
+     * Return an XPath processor (do not cache here, dom may have been modified)
      */
     public function xpath()
     {
-        if (isset($this->xpath) && $this->xpath) return $this->xpath;
-        $this->xpath = Xt::xpath($this->dom);
-        return $this->xpath;
+        return Xt::xpath($this->dom);
     }
 
     /**
-     * Return xml as loaded
+     * Return xml state (maybe transformed and diverges from origi)
      */
     public function xml(): string
     {
+        if ($this->xml === null) {
+            $this->xml = $this->contents();
+        }
         return $this->xml;
     }
 }

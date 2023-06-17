@@ -20,6 +20,9 @@ XSLT 1.0, compatible browser, PHP, Python, Java…
   <xsl:param name="xslbase">
     <xsl:call-template name="xslbase"/>
   </xsl:param>
+  <!-- 
+  https://oeuvres.github.io/teinte_theme/
+  -->
   <xsl:param name="theme">https://oeuvres.github.io/teinte_theme/</xsl:param>
   <!-- used as a body class -->
   <xsl:param name="folder"/>
@@ -42,13 +45,16 @@ XSLT 1.0, compatible browser, PHP, Python, Java…
       <head>
         <meta charset="UTF-8"/>
         <meta name="modified" content="{$date}"/>
-        <!-- déclaration classes css locale (permettre la surcharge si généralisation) -->
-        <!-- à travailler
-        <xsl:apply-templates select="/*/tei:teiHeader/tei:encodingDesc/tei:tagsDecl"/>
-        -->
         <link rel="stylesheet" type="text/css" href="{$theme}teinte.css"/>
         <link rel="stylesheet" type="text/css" href="{$theme}teinte.layout.css"/>
         <link rel="stylesheet" type="text/css" href="{$theme}teinte.tree.css"/>
+        <!-- local css links -->
+        <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:encodingDesc/tei:styleDefDecl[@scheme='css'][@source]">
+          <link rel="stylesheet" type="text/css" href="{@source}"/>
+        </xsl:for-each>
+        <!-- tagsDecl ? 
+        <xsl:apply-templates select="/*/tei:teiHeader/tei:encodingDesc/tei:tagsDecl"/>
+        -->
       </head>
       <body>
         <xsl:if test="normalize-space($bodyclass)">
@@ -61,29 +67,8 @@ XSLT 1.0, compatible browser, PHP, Python, Java…
             <xsl:apply-templates/>
           </div>
           <aside id="sidebar">
+            <xsl:call-template name="side-header"/>
             <nav>
-              <header>
-                <a>
-                  <xsl:attribute name="href">
-                    <xsl:for-each select="/*/tei:text">
-                      <xsl:call-template name="href"/>
-                    </xsl:for-each>
-                  </xsl:attribute>
-                  <xsl:if test="$byline">
-                    <xsl:copy-of select="$byline"/>
-                    <xsl:text> </xsl:text>
-                  </xsl:if>
-                  <xsl:if test="$docdate != ''">
-                    <span class="docDate">
-                      <xsl:text> (</xsl:text>
-                      <xsl:value-of select="$docdate"/>
-                      <xsl:text>)</xsl:text>
-                    </span>
-                  </xsl:if>
-                  <br/>
-                  <xsl:copy-of select="$doctitle"/>
-                </a>
-              </header>
               <xsl:call-template name="toc"/>
             </nav>
           </aside>
@@ -91,6 +76,31 @@ XSLT 1.0, compatible browser, PHP, Python, Java…
         <script type="text/javascript" charset="utf-8" src="{$theme}teinte.tree.js">//</script>
       </body>
     </html>
+  </xsl:template>
+  <!-- Metadata in toc panel -->
+  <xsl:template name="side-header">
+     <header>
+      <a>
+        <xsl:attribute name="href">
+          <xsl:for-each select="/*/tei:text">
+            <xsl:call-template name="href"/>
+          </xsl:for-each>
+        </xsl:attribute>
+        <xsl:if test="$byline != ''">
+          <xsl:copy-of select="$byline"/>
+          <xsl:text> </xsl:text>
+        </xsl:if>
+        <xsl:if test="$docdate != ''">
+          <span class="docDate">
+            <xsl:text> (</xsl:text>
+            <xsl:value-of select="$docdate"/>
+            <xsl:text>)</xsl:text>
+          </span>
+        </xsl:if>
+        <br/>
+        <xsl:copy-of select="$doctitle"/>
+      </a>
+    </header>
   </xsl:template>
   <!-- Metadata maybe controlled with this view -->
   <xsl:template match="tei:index">

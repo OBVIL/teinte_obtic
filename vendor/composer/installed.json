@@ -118,12 +118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "c40a2dc962480b989a05181dd216c6d9d57c0d54"
+                "reference": "369f0c3e902963fdbbaff8c61c3d01d0973c031c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/c40a2dc962480b989a05181dd216c6d9d57c0d54",
-                "reference": "c40a2dc962480b989a05181dd216c6d9d57c0d54",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/369f0c3e902963fdbbaff8c61c3d01d0973c031c",
+                "reference": "369f0c3e902963fdbbaff8c61c3d01d0973c031c",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,7 @@
                 "php": ">=7.2",
                 "psr/log": "1.1.4"
             },
-            "time": "2023-04-11T14:10:57+00:00",
+            "time": "2023-06-12T17:17:01+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",
@@ -177,12 +177,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_php.git",
-                "reference": "7a6f477fec08c01f6412d8225ae5eddced3d7345"
+                "reference": "e793a7280822785c988379846a6536ecf7499a54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/7a6f477fec08c01f6412d8225ae5eddced3d7345",
-                "reference": "7a6f477fec08c01f6412d8225ae5eddced3d7345",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/e793a7280822785c988379846a6536ecf7499a54",
+                "reference": "e793a7280822785c988379846a6536ecf7499a54",
                 "shasum": ""
             },
             "require": {
@@ -192,7 +192,7 @@
                 "oeuvres/xsl": "dev-main",
                 "php": ">=7.2"
             },
-            "time": "2023-04-14T12:29:15+00:00",
+            "time": "2023-06-14T10:16:40+00:00",
             "default-branch": true,
             "bin": [
                 "bin/teinte"
@@ -228,15 +228,15 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_xsl.git",
-                "reference": "7598f0b15a79b971607275aa764d88fa9b577c04"
+                "reference": "80ec7463855517a9bee5c189f51b1b1ac85c7890"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/7598f0b15a79b971607275aa764d88fa9b577c04",
-                "reference": "7598f0b15a79b971607275aa764d88fa9b577c04",
+                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/80ec7463855517a9bee5c189f51b1b1ac85c7890",
+                "reference": "80ec7463855517a9bee5c189f51b1b1ac85c7890",
                 "shasum": ""
             },
-            "time": "2023-04-22T22:19:57+00:00",
+            "time": "2023-06-11T22:49:31+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",

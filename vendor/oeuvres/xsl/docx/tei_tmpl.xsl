@@ -733,41 +733,7 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
         </xsl:choose>
       </xsl:attribute>
       <xsl:copy-of select="@*"/>
-      <!-- first -->
-      <xsl:for-each select="node()">
-        <xsl:choose>
-          <xsl:when test="self::tei:graphic">
-            <xsl:value-of select="$lf"/>
-            <xsl:text>  </xsl:text>
-            <xsl:apply-templates select="."/>
-          </xsl:when>
-          <xsl:when test="self::tei:ref[starts-with(., 'http')]">
-            <xsl:value-of select="$lf"/>
-            <xsl:text>  </xsl:text>
-            <graphic url="{normalize-space(.)}"/>
-          </xsl:when>
-        </xsl:choose>
-      </xsl:for-each>
-      <xsl:variable name="head">
-        <xsl:for-each select="node()">
-          <xsl:choose>
-            <xsl:when test="self::tei:lb"/>
-            <xsl:when test="self::tei:graphic"/>
-            <xsl:when test="self::tei:ref[starts-with(., 'http')]"/>
-            <xsl:otherwise>
-              <xsl:apply-templates select="."/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:for-each>
-      </xsl:variable>
-      <xsl:if test="$head != ''">
-        <xsl:value-of select="$lf"/>
-        <xsl:text>  </xsl:text>
-        <head>
-          <xsl:copy-of select="$head"/>
-        </head>
-      </xsl:if>
-      <xsl:value-of select="$lf"/>
+      <xsl:apply-templates/>
     </xsl:copy>
   </xsl:template>
   <!-- Wash some inline typo in headings -->

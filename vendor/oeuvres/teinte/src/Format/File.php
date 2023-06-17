@@ -101,6 +101,7 @@ class File
         $this->filename = pathinfo($file, PATHINFO_FILENAME);
         $this->filemtime = filemtime($file);
         $this->filesize = filesize($file); // ?? if URL ?
+        $this->contents = null;
         return true;
     }
 

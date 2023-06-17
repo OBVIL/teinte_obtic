@@ -113,6 +113,10 @@ Feuille de style pour équivalence entre HTML et TEI
   <class name="niv1tit center" tei="head"/>
   <class name="note" tei="note"/>
   <class name="num" tei="num"/>
+  <!-- ocr Athi trust -->
+  <class name="ocr_par" tei="p"/>
+  <class name="ocrx_line" tei="l"/>
+  <class name="ocrx_word" html="span" tei=""/>
   <class name="opener" tei="opener"/>
   <class name="p" tei="p"/>
   <class name="pagenum" tei="pb"/>

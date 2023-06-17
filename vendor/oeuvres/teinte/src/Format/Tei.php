@@ -21,16 +21,30 @@ use Oeuvres\Teinte\Tei2\{AbstractTei2};
  */
 class Tei extends Xml
 {
+    /** Array of templates, registred by format when relevant */
+    protected array $templates = [];
 
-    /** A template directory for different resources */
-    protected ?string $template = null;
+    private function pars(string $format, ?array $pars = null)
+    {
+        if (isset($this->templates[$format])) {
+            if (!is_array($pars)) {
+                $pars = [];
+            }
+            else if (isset($pars['template'])) {
+                return;
+            }
+            $pars['template'] = $this->templates[$format];
+        }
+        return $pars;
+    }
+
     /**
      * Transform current dom and write to file.
      */
     public function toUri(string $format, String $uri, ?array $pars = null)
     {
         $transfo = AbstractTei2::transfo($format);
-        $transfo::template($this->template);
+        $pars = $this->pars($format, $pars);
         $transfo::toUri($this->dom, $uri, $pars);
     }
 
@@ -41,7 +55,7 @@ class Tei extends Xml
     public function toXml(string $format, ?array $pars = null): string
     {
         $transfo = AbstractTei2::transfo($format);
-        $transfo::template($this->template);
+        $pars = $this->pars($format, $pars);
         return $transfo::toXml($this->dom, $pars);
     }
 
@@ -52,7 +66,7 @@ class Tei extends Xml
     public function toDoc(string $format, ?array $pars = null): DOMDocument
     {
         $transfo = AbstractTei2::transfo($format);
-        $transfo::template($this->template);
+        $pars = $this->pars($format, $pars);
         return $transfo::toDoc($this->dom, $pars);
     }
 
@@ -68,18 +82,23 @@ class Tei extends Xml
     }
 
     /**
-     * Set a template directory here
+     * Set a template for a format
      */
-    public function template(?string $dir = null)
+    public function template(string $format, string $tmpl_file)
     {
-        if ($dir && !is_dir($dir)) {
+        if (!is_file($tmpl_file)) {
             throw new \InvalidArgumentException(
-                "Template: \"\033[91m$dir\033[0m\" is not a valid directory."
+                "Template: \"\033[91m$tmpl_file\033[0m\" is not a valid file"
             );
         }
-        $this->template = $dir;
+        if (!AbstractTei2::has($format)) {
+            throw new \InvalidArgumentException(
+                "Template: \"\033[91m$format\033[0m\" format not yet available as a TEI export"
+            );
+        }
+        // validate extension ?
+        $this->templates[$format] = $tmpl_file;
     }
-
 
 
     /**
@@ -88,7 +107,7 @@ class Tei extends Xml
      */
     public static function lint(string $xml): string
     {
-        $block = "(ab|bibl|byline|dateline|desc|head|l|label|lb|p|signed|salute)";
+        $block = "(ab|bibl|byline|dateline|desc|entry|entryFree|head|l|label|lb|p|signed|salute)";
         $re_norm = array(
             '@\r\n?@' => "\n", // normalize EOL
             '@[ \t]*\n[ \t]*@' => "\n", // suppress trailing spaces

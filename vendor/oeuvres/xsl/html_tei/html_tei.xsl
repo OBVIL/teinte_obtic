@@ -114,6 +114,7 @@ STRUCTURE
   
   <xsl:template name="map_xml">
     <xsl:param name="map_class"/>
+      <xsl:comment>map_xml, $map_class='<xsl:value-of select="$map_class"/>'</xsl:comment>
     <xsl:if test="normalize-space($map_class) = ''">
       <xsl:message terminate="yes">map_xml, dev error $map_class='<xsl:value-of select="$map_class"/>'</xsl:message>
     </xsl:if>

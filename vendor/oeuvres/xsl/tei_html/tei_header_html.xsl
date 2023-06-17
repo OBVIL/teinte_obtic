@@ -12,14 +12,10 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
 
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:tei="http://www.tei-c.org/ns/1.0" 
-  xmlns:html="http://www.w3.org/1999/xhtml"
-  xmlns:epub="http://www.idpf.org/2007/ops"
-  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-  exclude-result-prefixes="tei html rdf rdfs"
+  exclude-result-prefixes="tei"
 >
-  <xsl:import href="../tei_common.xsl"/>
-
+  <xsl:variable name="up" >ABCDEFGHIJKLMNOPQRSTUVWXYZÀÂÄÉÈÊÏÎÔÖÛÜÇÆŒàâäéèêëïîöôüûæœ_ ,.'’ #</xsl:variable>
+  <xsl:variable name="low">abcdefghijklmnopqrstuvwxyzaaaeeeiioouuceeaaaeeeeiioouuee_</xsl:variable>
   <!-- 
 <h3>teiHeader</h3>
   -->
@@ -87,8 +83,7 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
       <xsl:call-template name="headatts">
         <xsl:with-param name="class">data</xsl:with-param>
       </xsl:call-template>
-      <caption>
-        <xsl:call-template name="message"/>
+      <caption class="revisionDesc">
       </caption>
       <xsl:apply-templates/>
     </table>
@@ -189,7 +184,7 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
             <xsl:if test="tei:date">, </xsl:if>
             <xsl:apply-templates select="tei:date"/>
             <xsl:if test="tei:availability/tei:licence[@target]">, </xsl:if>
-            <xsl:apply-templates select="tei:availability/tei:licence[@target][1]/@target"/>
+            <xsl:apply-templates select="tei:availability/tei:licence"/>
             <xsl:text>.</xsl:text>
           </div>
           <!--
@@ -209,14 +204,6 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
     <xsl:param name="el">div</xsl:param>
     <xsl:element name="{$el}" namespace="http://www.w3.org/1999/xhtml">
       <xsl:call-template name="headatts"/>
-      <xsl:variable name="message">
-        <xsl:call-template name="message"/>
-      </xsl:variable>
-      <xsl:if test="string($message) != '' and string($message) != local-name()">
-        <b>
-          <xsl:value-of select="$message"/>
-        </b>
-      </xsl:if>
       <xsl:apply-templates/>
     </xsl:element>
   </xsl:template>
@@ -237,25 +224,14 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
       <xsl:otherwise>
         <p>
           <xsl:call-template name="headatts"/>
-          <xsl:variable name="message">
-            <xsl:call-template name="message"/>
-          </xsl:variable>
           <xsl:choose>
             <xsl:when test="tei:bibl">
               <xsl:for-each select="tei:bibl">
-                <b>
-                  <xsl:value-of select="$message"/>
-                  <xsl:text> : </xsl:text>
-                </b>
                 <xsl:apply-templates select="./node()"/>
                 <xsl:if test="position()!=last()"><br/></xsl:if>
               </xsl:for-each>
             </xsl:when>
             <xsl:when test="tei:msDesc">
-              <b>
-                <xsl:value-of select="$message"/>
-                <xsl:text> : </xsl:text>
-              </b>
               <xsl:apply-templates select="tei:msDesc[1]"/>
             </xsl:when>
             <xsl:otherwise>
@@ -307,39 +283,15 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
   <xsl:template match="tei:licence">
     <div>
       <xsl:call-template name="headatts"/>
-      <xsl:variable name="message">
-        <xsl:call-template name="message"/>
-      </xsl:variable>
-      <xsl:if test="string($message) != ''">
         <a href="{@target}">
-          <xsl:value-of select="$message"/>
+          <xsl:apply-templates/>
         </a>
-      </xsl:if>
-      <xsl:apply-templates/>
     </div>
-  </xsl:template>
-  <xsl:template match="tei:licence/@target">
-    <a href="{.}">
-      <xsl:call-template name="message">
-        <xsl:with-param name="id">license</xsl:with-param>
-      </xsl:call-template>
-      <xsl:choose>
-        <xsl:when test="contains(., 'creativecommons.org')"> cc</xsl:when>
-        <xsl:otherwise>
-        </xsl:otherwise>
-      </xsl:choose>
-    </a>
   </xsl:template>
   <!-- Éléments avec intitulé -->
   <xsl:template match="tei:fileDesc/tei:titleStmt/tei:funder | tei:fileDesc/tei:titleStmt/tei:edition | tei:fileDesc/tei:titleStmt/tei:editor | tei:fileDesc/tei:titleStmt/tei:extent">
     <div>
       <xsl:call-template name="headatts"/>
-      <xsl:variable name="message">
-        <xsl:call-template name="message"/>
-      </xsl:variable>
-      <xsl:if test="string($message) != ''">
-        <span class="label"><xsl:value-of select="$message"/><xsl:text> : </xsl:text></span>
-      </xsl:if>
       <xsl:apply-templates/>
     </div>
   </xsl:template>
@@ -386,23 +338,13 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
     ">
     <div>
       <xsl:call-template name="headatts"/>
-      <xsl:variable name="message">
-        <xsl:call-template name="message"/>
-      </xsl:variable>
-      <xsl:if test="string($message) != ''">
-        <span class="label"><xsl:value-of select="$message"/></span>
-      </xsl:if>
       <xsl:variable name="name" select="local-name()"/>
       <xsl:apply-templates/>
       <xsl:for-each select="following-sibling::*[local-name() = $name]">
         <xsl:choose>
           <xsl:when test="following-sibling::*[local-name() = $name]">, </xsl:when>
           <xsl:otherwise>
-            <xsl:text> </xsl:text>
-            <xsl:call-template name="message">
-              <xsl:with-param name="id">and</xsl:with-param>
-            </xsl:call-template>
-            <xsl:text> </xsl:text>
+            <xsl:text> &amp; </xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:call-template name="header_name"/>
@@ -423,7 +365,7 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
     </a>
   </xsl:template>
   <xsl:template match="tei:teiHeader//tei:hi">
-    <xsl:variable name="rend" select="translate(@rend, $idfrom, $idto)"></xsl:variable>
+    <xsl:variable name="rend" select="translate(@rend, $up, $low)"></xsl:variable>
     <xsl:choose>
       <xsl:when test=". =''"/>
       <!-- si @rend est un nom d'élément HTML -->
@@ -497,7 +439,6 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
       <xsl:otherwise>
         <p>
           <xsl:call-template name="headatts"/>
-          <xsl:call-template name="message"/>
           <xsl:for-each select="../tei:titleStmt/tei:respStmt | tei:respStmt">
             <xsl:choose>
               <xsl:when test="position() = 1"/>
@@ -653,10 +594,7 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
     </xsl:choose>
     <xsl:apply-templates select="tei:title" mode="txt"/>
   </xsl:template>
-  <!-- Titres obtenus depuis tei.rdfs -->
-  <xsl:template match="tei:publicationStmt | tei:titleStmt" mode="title">
-    <xsl:call-template name="message"/>
-  </xsl:template>
+
 
   <!-- CSS declaration, should be called from <head> -->
   <xsl:template match="tei:tagsDecl">
@@ -791,4 +729,5 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
       <xsl:value-of select="local-name()"/>
     </xsl:attribute>
   </xsl:template>
+
 </xsl:transform>

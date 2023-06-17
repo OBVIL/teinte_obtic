@@ -4,17 +4,19 @@
   
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
   xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"
   xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage"
   xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
   xmlns:rels="http://schemas.openxmlformats.org/package/2006/relationships"
+  xmlns:v="urn:schemas-microsoft-com:vml"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
   xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
 
   xmlns:teinte="https://github.com/oeuvres/teinte_xsl"
 
   xmlns="http://www.tei-c.org/ns/1.0"
-  exclude-result-prefixes="a mc pic pkg r rels teinte w wp"
+  exclude-result-prefixes="a mc pic pkg r rels teinte o v w wp"
   >
   <xsl:output encoding="UTF-8" indent="no" omit-xml-declaration="yes"/>
   <xsl:variable name="UC">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
@@ -93,10 +95,12 @@
     <xsl:variable name="_rend">
       <xsl:if test="number(w:pPr/w:ind/@w:hanging) &gt; 150"> hanging </xsl:if>
       <xsl:if test="number(w:pPr/w:ind/@w:firstLine) &gt; 150"> indent </xsl:if>
+      <xsl:text> </xsl:text>
+      <xsl:value-of select="w:pPr/w:jc/@w:val"/>
     </xsl:variable>
     <xsl:variable name="rend" select="normalize-space($_rend)"/>
     <xsl:choose>
-      <xsl:when test="$lvl != '' and not(ancestor::w:tc|ancestor::w:footnote|ancestor::w:footnote)">
+      <xsl:when test="$lvl != '' and not(ancestor::w:tc|ancestor::w:footnote)">
         <head level="{$lvl+1}">
           <xsl:apply-templates select="w:hyperlink | w:r"/>
         </head>
@@ -119,7 +123,13 @@
       </xsl:when>
       <xsl:when test="$teinte_p/@parent != ''">
         <xsl:element name="{$teinte_p/@parent}">
+          <xsl:text>&#10;  </xsl:text>
           <xsl:element name="{$teinte_p/@element}">
+            <xsl:if test="$rend != ''">
+              <xsl:attribute name="rend">
+                <xsl:value-of select="$rend"/>
+              </xsl:attribute>
+            </xsl:if>
             <xsl:if test="$teinte_p/@attribute">
               <xsl:attribute name="{$teinte_p/@attribute}">
                 <xsl:value-of select="$teinte_p/@value"/>
@@ -127,6 +137,7 @@
             </xsl:if>
             <xsl:apply-templates select="w:hyperlink | w:r"/>
           </xsl:element>
+          <xsl:text>&#10;</xsl:text>
         </xsl:element>
       </xsl:when>
       <xsl:when test="$teinte_p/@element">
@@ -174,29 +185,98 @@
     <pb/>
     <xsl:text>&#10;</xsl:text>
   </xsl:template>
+  <xsl:template match="w:noBreakHyphen">
+    <xsl:text>‑</xsl:text>
+  </xsl:template>
   <!-- Do not output auto page break but only explicit page breaks -->
   <xsl:template match="w:lastRenderedPageBreak">
   </xsl:template>
   <xsl:template match="w:t">
     <xsl:value-of select="."/>
   </xsl:template>
-  <xsl:template match="w:drawing">
+  <!-- image 
+
+<w:drawing>
+  <wp:inline distT="0" distB="0" distL="0" distR="0" wp14:anchorId="46B9EEF1" wp14:editId="3570CC40">
+    <wp:extent cx="4558430" cy="3237230"/>
+    <wp:effectExtent l="0" t="0" r="1270" b="1270"/>
+    <wp:docPr id="4" name="Image 4"/>
+    <wp:cNvGraphicFramePr/>
+    <a:graphic>
+      <a:graphicData>
+        <pic:pic>
+          <pic:nvPicPr>
+            <pic:cNvPr id="1" name="Picture 1"/>
+            <pic:cNvPicPr/>
+          </pic:nvPicPr>
+          <pic:blipFill rotWithShape="1">
+
+            <a:blip r:embed="rId8"/>
+
+            <a:srcRect l="1094"/>
+            <a:stretch/>
+          </pic:blipFill>
+        </pic:pic>
+      </a:graphicData>
+    </a:graphic>
+  </wp:inline>
+</w:drawing>
+
+
+<w:pict>
+  <v:shape id="Image 1" o:spid="_x0000_i1025" type="#_x0000_t75" alt=":::Graphique cercle des sciences" style="width:159.2pt;height:37.1pt;visibility:visible;mso-wrap-style:square">
+    <v:imagedata r:id="rId7" o:title="Graphique cercle des sciences"/>
+  </v:shape>
+</w:pict>
+-->
+  <xsl:template match="w:drawing | w:pict">
     <xsl:text>&#10;</xsl:text>
     <figure>
       <xsl:text>&#10;  </xsl:text>
       <graphic>
         <xsl:variable name="target">
-          <xsl:call-template name="target">
-            <xsl:with-param name="id" select=".//a:blip/@r:embed"/>
-          </xsl:call-template>
+          <xsl:choose>
+            <xsl:when test="v:shape/v:imagedata">
+              <xsl:call-template name="target">
+                <xsl:with-param name="id" select="v:shape/v:imagedata/@r:id"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip">
+              <xsl:call-template name="target">
+                <xsl:with-param name="id" select="wp:inline/a:graphic/a:graphicData/pic:pic/pic:blipFill/a:blip/@r:embed"/>
+              </xsl:call-template>
+            </xsl:when>
+          </xsl:choose>
         </xsl:variable>
         <xsl:attribute name="url">
           <xsl:value-of select="$target"/>
         </xsl:attribute>
+        <xsl:apply-templates select="wp:inline/wp:extent"/>
       </graphic>
+      <xsl:apply-templates select="v:shape/v:imagedata/@o:title"/>
       <xsl:text>&#10;</xsl:text>
     </figure>
     <xsl:text>&#10;</xsl:text>
+  </xsl:template>
+
+  <!-- Image size
+  <wp:extent cx="4558430" cy="3237230"/>
+ -->
+  <xsl:template match="wp:extent">
+    <xsl:attribute name="width">
+      <xsl:value-of select="@cx"/>
+    </xsl:attribute>
+    <xsl:attribute name="height">
+      <xsl:value-of select="@cy"/>
+    </xsl:attribute>
+    <xsl:attribute name="subtype">unit:EMU</xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="v:imagedata/@o:title">
+    <xsl:text>&#10;  </xsl:text>
+    <head>
+      <xsl:value-of select="."/>
+    </head>
   </xsl:template>
   <!-- Do nothing with that -->
   <xsl:template match="w:rPr"/>
@@ -236,6 +316,12 @@ Seen
     <!-- process children in order, for line breaks, see <w:br/> in LibreOffice -->
     <xsl:variable name="t">
       <xsl:apply-templates select="*"/>
+    </xsl:variable>
+    
+    <!-- Background color -->
+    <xsl:variable name="hi">
+      <xsl:variable name="val" select="normalize-space(w:rPr/w:highlight/@w:val)"/>
+      <xsl:value-of select="$val"/>
     </xsl:variable>
     
     <!-- underline -->
@@ -284,7 +370,9 @@ Seen
         <xsl:when test="$val1 != ''">
           <xsl:value-of select="$val1"/>
         </xsl:when>
-        <xsl:otherwise>true</xsl:otherwise>
+        <xsl:when test="w:rPr/w:b">true</xsl:when>
+        <xsl:when test="$val2 = '0' or $val2 ='false' or $val2 = 'off'"/>
+        <xsl:otherwise/>
       </xsl:choose>
     </xsl:variable>
     
@@ -341,6 +429,7 @@ Seen
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+
     <xsl:variable name="xml4">
       <xsl:choose>
         <xsl:when test="$u = ''">
@@ -353,6 +442,21 @@ Seen
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+
+    <xsl:variable name="xml5">
+      <xsl:choose>
+        <xsl:when test="$b = ''">
+          <xsl:copy-of select="$xml4"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <b>
+            <xsl:copy-of select="$xml4"/>
+          </b>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+
     <xsl:variable name="el">
       <xsl:choose>
         <!-- Calibre 0 Text -->
@@ -360,48 +464,63 @@ Seen
       </xsl:choose>
       <xsl:value-of select="$class"/>
     </xsl:variable>
-    <!-- before text,  -->
-    <xsl:choose>
-      <xsl:when test="$class = ''">
-        <xsl:copy-of select="$xml4"/>
-      </xsl:when>
-      <!-- redundant -->
-      <xsl:when test="ancestor::w:hyperlink">
-        <xsl:copy-of select="$xml4"/>
-      </xsl:when>
-      <xsl:when test="$teinte_c/@element != ''">
-        <xsl:element name="{$teinte_c/@element}">
-          <xsl:copy-of select="$xml4"/>
-        </xsl:element>
-      </xsl:when>
-      <xsl:when test="key('teinte_0', $class)">
-        <xsl:copy-of select="$xml4"/>
-      </xsl:when>
-      <!-- auto style Calibre -->
-      <xsl:when test="substring($el, 1, 1) = '_' and $w:style/w:rPr">
-        <xsl:variable name="val" select="$w:style/w:rPr/w:i/@w:val"/>
-        <xsl:choose>
-          <xsl:when test="$val = '' or $val = '0' or $val ='false' or $val = 'off'">
-            <seg rend="{$class}">
-              <xsl:copy-of select="$xml4"/>
-            </seg>
-          </xsl:when>
-          <xsl:otherwise>
-            <i>
-              <xsl:copy-of select="$xml4"/>
-            </i>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="$class != ''">
-        <xsl:element name="{$el}">
-          <xsl:copy-of select="$xml4"/>
-        </xsl:element>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="$xml4"/>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:variable name="xml10">
+      <xsl:choose>
+        <xsl:when test="$class = ''">
+          <xsl:copy-of select="$xml5"/>
+        </xsl:when>
+        <!-- redundant -->
+        <xsl:when test="ancestor::w:hyperlink">
+          <xsl:copy-of select="$xml5"/>
+        </xsl:when>
+        <xsl:when test="$teinte_c/@element != ''">
+          <xsl:element name="{$teinte_c/@element}">
+            <xsl:copy-of select="$xml5"/>
+          </xsl:element>
+        </xsl:when>
+        <xsl:when test="key('teinte_0', $class)">
+          <xsl:copy-of select="$xml5"/>
+        </xsl:when>
+        <!-- auto style Calibre -->
+        <xsl:when test="substring($el, 1, 1) = '_' and $w:style/w:rPr">
+          <xsl:variable name="val" select="$w:style/w:rPr/w:i/@w:val"/>
+          <xsl:choose>
+            <xsl:when test="$val = '' or $val = '0' or $val ='false' or $val = 'off'">
+              <seg rend="{$class}">
+                <xsl:copy-of select="$xml5"/>
+              </seg>
+            </xsl:when>
+            <xsl:otherwise>
+              <i>
+                <xsl:copy-of select="$xml5"/>
+              </i>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:when test="$class != ''">
+          <xsl:element name="{$el}">
+            <xsl:copy-of select="$xml5"/>
+          </xsl:element>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy-of select="$xml5"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!-- Background level -->
+    <xsl:variable name="xml11">
+      <xsl:choose>
+        <xsl:when test="$hi != ''">
+          <xsl:element name="bg_{$hi}">
+            <xsl:copy-of select="$xml10"/>
+          </xsl:element>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy-of select="$xml10"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:copy-of select="$xml11"/>
   </xsl:template>
   <xsl:template match="w:sectPr"/>
   <!-- spaces -->
@@ -512,11 +631,17 @@ Seen
   <xsl:template match="w:fldChar"/>
   <xsl:template match="w:instrText">
     <xsl:variable name="text" select="normalize-space(.)"/>
-    <field>
-      <xsl:attribute name="name">
-        <xsl:value-of select="substring-before(concat($text, ' '), ' ')"/>
-      </xsl:attribute>
-      <xsl:value-of select="substring-before(substring-after($text, '&quot;'), '&quot;')"/>
-    </field>
+    <xsl:choose>
+      <!-- Is it bad ? -->
+      <xsl:when test="$text = ''"/>
+      <xsl:otherwise>
+        <field>
+          <xsl:attribute name="name">
+            <xsl:value-of select="substring-before(concat($text, ' '), ' ')"/>
+          </xsl:attribute>
+          <xsl:value-of select="substring-before(substring-after($text, '&quot;'), '&quot;')"/>
+        </field>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 </xsl:transform>

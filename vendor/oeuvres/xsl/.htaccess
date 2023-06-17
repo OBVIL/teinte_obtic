@@ -1,0 +1,4 @@
+<IfModule mod_headers.c>
+    # allow xslt loading cross domain
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
