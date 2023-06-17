@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-include_once(dirname(__DIR__) . '/vendor/autoload.php');
+include_once(__DIR__ . '/vendor/autoload.php');
 
 use \Oeuvres\Kit\{Http, Route};
 
@@ -15,19 +15,21 @@ use \Oeuvres\Kit\{Http, Route};
   <link rel="stylesheet" href="https://oeuvres.github.io/teinte_theme/teinte.css" />
   <link rel="stylesheet" href="https://oeuvres.github.io/teinte_theme/teinte.tree.css" />
   <script src="https://oeuvres.github.io/teinte_theme/teinte.tree.js"></script>
-  <link rel="stylesheet" href="<?= Route::home_href() ?>obtic_teinte.css" />
+  <link rel="stylesheet" href="<?= Route::home_href() ?>theme/obtic_teinte.css" />
   <title>ObTiC, Teinte, conversion de livres</title>
 </head>
 
 <body>
   <div id="win">
     <header id="header">
-      <form method="POST" action="<?= Route::home_href() ?>">
-        <a class="logo" href="." rel="home">
-          <img src="<?= Route::home_href() ?>img/obtic_logo.svg" alt="ObTIC" />
+        <a class="logo" href="https://obtic.sorbonne-universite.fr">
+          <img src="<?= Route::home_href() ?>theme/obtic_logo.svg" alt="ObTIC" />
         </a>
-      </form>
-      <div class="moto"><a href="http://github.com/oeuvres/teinte">Teinte</a>, la conversion des livres (TEI, DOCX, HTML, EPUB, TXT)</div>
+      <nav id="tabs">
+        <?= Route::tab('', 'Accueil') ?>
+        <?= Route::tab('contact', 'Contact') ?>
+        <a target="_blank" id="github" href="https://github.com/OBVIL/teinte_obtic">Open Source</a>
+      </nav>
     </header>
     <div id="row">
       <div id="upload">
@@ -38,8 +40,9 @@ use \Oeuvres\Kit\{Http, Route};
             <div class="format docx" title="DOCX : texte bureautique (LibreOffice, Microsoft.Word…)"></div>
 
             <div class="format epub" title="EPUB : livre électronique ouvert"></div>
-
+            <!--
             <div class="todo format html" title="HTML : page internet"></div>
+            -->
 
             <div class="format markdown" title="MarkDown : texte brut légèrement formaté"></div>
 
@@ -55,17 +58,7 @@ use \Oeuvres\Kit\{Http, Route};
         </div>
       </div>
       <div id="preview">
-        <h1>Teinte (développent en cours)</h1>
-        <p>Convertissez vos livres électroniques, <b>de</b>, et <b>vers</b>, plusieurs formats : TEI, DOCX, HTML, EPUB, MARKDOWN.</p>
-
-        <p>À gauche, déposez un de vos fichiers ; au centre, prévisualisez le contentu ; à droite, téléchargez un export dans le format de votre choix.</p>
-
-        <p>Cette installation est en développement, certains chemins de conversion ne sont pas encore fonctionnels.</p>
-
-        <p>Le développement de cette interface a été financé par l’<a href="https://obtic.sorbonne-universite.fr/">ObTIC</a>.</p>
-
-        <p>Ce logiciel libre a été développé par <a onmouseover="this.href='mailto'+'\x3A'+'frederic.glorieux'+'\x40'+'fictif.org'" href="#">Frédéric Glorieux</a>, les sources sont visibles sur <a href="https://github.com/OBVIL/obtic_teinte">Github</a>.
-
+        <?php Route::main(); ?>
       </div>
       <div id="download">
         <header>

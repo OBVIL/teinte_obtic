@@ -5,27 +5,27 @@
 }
 
 .format.docx {
-    background-image: url('img/icon_docx.svg');
+    background-image: url('icon_docx.svg');
 }
 
 .format.epub {
-    background-image: url('img/icon_epub.svg');
+    background-image: url('icon_epub.svg');
 }
 
 .format.html {
-    background-image: url('img/icon_html.svg');
+    background-image: url('icon_html.svg');
 }
 
 .format.md {
-    background-image: url('img/icon_markdown.svg');
+    background-image: url('icon_markdown.svg');
 }
 
 .format.markdown {
-    background-image: url('img/icon_markdown.svg');
+    background-image: url('icon_markdown.svg');
 }
 
 .format.tei {
-    background-image: url('img/icon_tei.svg');
+    background-image: url('icon_tei.svg');
 }
 
 
@@ -318,7 +318,7 @@ a.download:hover {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: url('img/obtic_monogram.svg');
+    background-image: url('obtic_monogram.svg');
 }
 
 .rule .monogram {
@@ -333,4 +333,43 @@ a.download:hover {
     border: 1px solid var(--bg1);
     margin: 0 10px;
     width: 35%;
+}
+
+#tabs {
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    position: relative;
+    height: 90px;
+}
+
+#tabs > a {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem;
+    color: var(--bg1);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a#github::after {
+    height: 100%;
+    content: ' ';
+    width: 48px;
+    background-position: center right;
+    background-size: 40px;
+    background-repeat: no-repeat;
+    background-image: url('github-mark.svg');
+
+}
+
+a:hover#github::after {
+    background-image: url('github-mark-white.svg');
+}
+
+#tabs a.selected,
+#tabs > a:hover {
+    color: var(--col2);
 }

@@ -129,30 +129,40 @@ function dropInit() {
     async function upload() {
         dropPreview.classList.remove("inactive");
         dropPreview.innerHTML = '<p class="center">Fichier en cours de traitement… (jusqu’à plusieurs secondes selon le format et la taille du fichier)</p>'
-        + '<img width="80%" class="waiting" src="img/waiting.svg"/>';
+        + '<img width="80%" class="waiting" src="theme/waiting.svg"/>';
         let timeStart = Date.now();
         let formData = new FormData();
         formData.append("file", file);
-        fetch('upload.php', {
+        // url is resolved from the script url
+        fetch('upload', {
             method: "POST",
             body: formData
         }).then((response) => {
-            let downs = conversions[format];
-            dropDownzone.classList.remove("inactive");
-            dropDownzone.classList.add("active");
-            let html = "";
-            const name = file.name.replace(/\.[^/.]+$/, "");
-            for (let i = 0, length = downs.length; i < length; i++) {
-                const format2 = downs[i];
-                if (!formats[format2]) continue;
-                let ext = formats[format2].ext;
-                html += '\n<a class="download format ' + format2 +'" href="download.php?format=' + format2 + '">' 
-                + '<div class="filename">' + name + ext + '</div>'
-                + '</a>';
+            if (response.ok) {
+                let downs = conversions[format];
+                dropDownzone.classList.remove("inactive");
+                dropDownzone.classList.add("active");
+                let html = "";
+                const name = file.name.replace(/\.[^/.]+$/, "");
+                for (let i = 0, length = downs.length; i < length; i++) {
+                    const format2 = downs[i];
+                    if (!formats[format2]) continue;
+                    let ext = formats[format2].ext;
+                    html += '\n<a class="download format ' + format2 +'" href="download?format=' + format2 + '">' 
+                    + '<div class="filename">' + name + ext + '</div>'
+                    + '</a>';
+                }
+                dropExports.innerHTML = html;
+                dropPreview.classList.add("active");
+                return response.text();    
             }
-            dropExports.innerHTML = html;
-            dropPreview.classList.add("active");
-            return response.text();
+            else if (response.status = 404) {
+                return "Erreur de développement, la page de téléchargement n’a pas été trouvée."
+            }
+            else {
+                return `HTTP error ${response.status}`;
+            }
+
         }).then((html) => {
             dropPreview.innerHTML = html;
             Tree.load();

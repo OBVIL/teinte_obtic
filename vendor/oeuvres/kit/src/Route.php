@@ -155,20 +155,20 @@ class Route {
     /**
      * Try a route with GET method 
      */
-    public static function get($route, $resource, $pars=null)
+    public static function get(...$args)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            self::route($route, $resource, $pars);
+            self::route(...$args);
         }
     }
 
     /**
      * Try a route with POST method 
      */
-    public static function post($route, $resource, $pars=null)
+    public static function post(...$args)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            self::route($route, $resource, $pars);
+            self::route(...$args);
         }
     }
 

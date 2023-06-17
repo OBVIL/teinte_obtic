@@ -117,12 +117,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "369f0c3e902963fdbbaff8c61c3d01d0973c031c"
+                "reference": "7815f859ee558760c77913531ced1c00757e9856"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/369f0c3e902963fdbbaff8c61c3d01d0973c031c",
-                "reference": "369f0c3e902963fdbbaff8c61c3d01d0973c031c",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/7815f859ee558760c77913531ced1c00757e9856",
+                "reference": "7815f859ee558760c77913531ced1c00757e9856",
                 "shasum": ""
             },
             "require": {
@@ -165,7 +165,7 @@
                 "issues": "https://github.com/oeuvres/kit/issues",
                 "source": "https://github.com/oeuvres/kit/tree/main"
             },
-            "time": "2023-06-12T17:17:01+00:00"
+            "time": "2023-06-17T11:06:04+00:00"
         },
         {
             "name": "oeuvres/teinte",

@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '4019dd6a24316a89910facd2ce010ba6a0fecd11',
+        'reference' => '24b14af8085d1c8720d58d8ed3ee41329d00e5ea',
         'name' => 'obtic/teinte',
         'dev' => true,
     ),
@@ -36,7 +36,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '4019dd6a24316a89910facd2ce010ba6a0fecd11',
+            'reference' => '24b14af8085d1c8720d58d8ed3ee41329d00e5ea',
             'dev_requirement' => false,
         ),
         'oeuvres/kit' => array(
@@ -47,7 +47,7 @@
             'aliases' => array(
                 0 => '9999999-dev',
             ),
-            'reference' => '369f0c3e902963fdbbaff8c61c3d01d0973c031c',
+            'reference' => '7815f859ee558760c77913531ced1c00757e9856',
             'dev_requirement' => false,
         ),
         'oeuvres/teinte' => array(
