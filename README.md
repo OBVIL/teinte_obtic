@@ -9,18 +9,12 @@
 Cette installation suppose un serveur web opérationnel pour les applications php.
 
 ```bash
-# installer le gestionnaire de paquets php (composer)
-sudo apt install composer
 # aller dans un dossier où il y a de la place
 cd /data/app/
 # obtenir les dernières sources du projet
 git clone https://github.com/OBVIL/teinte_obtic.git
-# rentrer dans l’application
-cd teinte_obtic
-# installer les librairies avec composer
-composer install
 # créer un lien symbolique du dossier Apache vers l’appli
-sudo ln -s `pwd`/public  /var/www/html/teinte
+sudo ln -s /data/app/teinte_obtic /public  /var/www/html/teinte
 ```
 
 

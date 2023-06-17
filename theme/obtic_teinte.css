@@ -139,10 +139,18 @@ a.logo>img {
     opacity: 0.2;
 }
 
+#win > article {
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
 #preview {
     max-width: 40rem;
     overflow: auto;
 }
+
 
 img.waiting {
     display: block;
@@ -167,6 +175,16 @@ img.waiting {
 
 #banner {
     width: 100%;
+}
+
+iframe {
+    margin: 0;
+    padding: 0;
+    border: solid 4px var(--col1);
+    background-color: var(--bg1);
+    box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
+    width: 100%;
+    height: 15rem;
 }
 
 .card {

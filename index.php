@@ -4,18 +4,30 @@ include_once(__DIR__ . '/vendor/autoload.php');
 
 /** Routage */
 
-use Oeuvres\Kit\{Route, I18n, Http};
+use Psr\Log\{LogLevel};
+use Oeuvres\Kit\{Route, I18n, Http, Log, LoggerWeb};
 
-// upload file, without pars and template
-Route::post('/upload', __DIR__ . '/code/upload.php', [], null);
-// download file, without pars and template
-Route::get('/download', __DIR__ . '/code/download.php', [], null);
+// debug routing
+// Log::setLogger(new LoggerWeb(LogLevel::DEBUG));
 
-// register the template in which include content
-Route::template(__DIR__ . '/template.php');
+// upload file
+Route::post('/upload', __DIR__ . '/actions/upload.php', [], null);
+// download transformed uploaded file
+Route::get('/download', __DIR__ . '/actions/download.php', [], null);
+// Run the daemon on the work directory
+Route::route(
+    '/working', // path to request
+    __DIR__ . '/actions/working.php', // contents to include
+    [], // parameters
+    __DIR__ . '/tmpl_action.php' // template
+);
+
+
+// register the default template in which include content
+Route::template(__DIR__ . '/tmpl.php');
 
 // welcome page
-Route::get('/', __DIR__ . '/pages/presentation.html');
+Route::get('/', __DIR__ . '/pages/accueil.php');
 // try if a local php page is available
 Route::get('/(.*)', __DIR__ . '/pages/$1.php');
 // or a local html page
