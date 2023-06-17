@@ -22,9 +22,12 @@ use Psr\Log\{AbstractLogger, InvalidArgumentException, LogLevel, LoggerInterface
  */
 class Log
 {
+    /** name of default logger */
     const MAIN = "main";
     /** different channels to log in */
     static private $loggers = [];
+    /** last message */
+    static private $last = [];
 
     /**
      * System is unusable.
@@ -34,9 +37,9 @@ class Log
      *
      * @return void
      */
-    static public function emergency($message, array $context = []): void
+    static public function emergency($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::EMERGENCY, $message, $context);
+        self::log(LogLevel::EMERGENCY, $message, $context, $channel);
     }
 
     /**
@@ -50,9 +53,9 @@ class Log
      *
      * @return void
      */
-    static public function alert($message, array $context = []): void
+    static public function alert($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::ALERT, $message, $context);
+        self::log(LogLevel::ALERT, $message, $context, $channel);
     }
 
     /**
@@ -65,9 +68,9 @@ class Log
      *
      * @return void
      */
-    static public function critical($message, array $context = []): void
+    static public function critical($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::CRITICAL, $message, $context);
+        self::log(LogLevel::CRITICAL, $message, $context, $channel);
     }
 
     /**
@@ -79,9 +82,9 @@ class Log
      *
      * @return void
      */
-    static public function error($message, array $context = []): void
+    static public function error($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::ERROR, $message, $context);
+        self::log(LogLevel::ERROR, $message, $context, $channel);
     }
 
     /**
@@ -95,9 +98,9 @@ class Log
      *
      * @return void
      */
-    static public function warning($message, array $context = []): void
+    static public function warning($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::WARNING, $message, $context);
+        self::log(LogLevel::WARNING, $message, $context, $channel);
     }
 
     /**
@@ -108,9 +111,9 @@ class Log
      *
      * @return void
      */
-    static public function notice($message, array $context = []): void
+    static public function notice($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::NOTICE, $message, $context);
+        self::log(LogLevel::NOTICE, $message, $context, $channel);
     }
 
     /**
@@ -123,9 +126,9 @@ class Log
      *
      * @return void
      */
-    static public function info($message, array $context = []): void
+    static public function info($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::INFO, $message, $context);
+        self::log(LogLevel::INFO, $message, $context, $channel);
     }
 
     /**
@@ -136,9 +139,9 @@ class Log
      *
      * @return void
      */
-    static public function debug($message, array $context = []): void
+    static public function debug($message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::log(LogLevel::DEBUG, $message, $context);
+        self::log(LogLevel::DEBUG, $message, $context, $channel);
     }
 
     /**
@@ -150,9 +153,13 @@ class Log
      *
      * @return void
      */
-    static public function log(string $level, $message, array $context = []): void
+    static public function log(string $level, $message, array $context = [], ?string $channel = self::MAIN): void
     {
-        self::$loggers[self::MAIN]->log($level, $message, $context);
+        // log error of logging ?
+        if (!isset(self::$loggers[$channel])) $channel = self::MAIN;
+        // always store last messsage
+        self::$last[$channel] = $message;
+        self::$loggers[$channel]->log($level, $message, $context);
     }
 
     /**
@@ -165,12 +172,11 @@ class Log
     }
 
     /**
-     * return last error message if logger allow it or false
+     * return last error message
      */
     static public function last(): string
     {
-        if (!method_exists(self::$loggers[self::MAIN], 'last')) return false;
-        return self::$loggers[self::MAIN]->last();
+        return self::$last[self::MAIN];
     }
 
     /**

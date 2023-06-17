@@ -176,7 +176,7 @@ class Filesys
     /**
      * A safe mkdir dealing with rights
      * 
-     * @return mixed true if done, "message" on error
+     * @return true if done, false on error
      */
     static function mkdir(string $dir):bool
     {
@@ -184,7 +184,7 @@ class Filesys
 
         // nothing done, ok.
         if (is_dir($dir)) {
-            return false;
+            return true;
         }
         if (!self::writable($dir)) return false;
         if (!mkdir($dir, 0775, true)) {

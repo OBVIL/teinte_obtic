@@ -36,8 +36,6 @@ abstract class Logger extends AbstractLogger
     private const COUNTS_INIT = [0,0,0,0,0,0,0,0,0];
     /** Couters to record numbers of errors */
     private $counts = self::COUNTS_INIT;
-    /** Last message */
-    private $last = "";
     /** Default prefix for message */
     private $prefix = "[{level}] "; 
     /** Default suffix for message (ex: clossing tag forr html) */
@@ -116,7 +114,6 @@ abstract class Logger extends AbstractLogger
         $context['lapse'] = "+" . (number_format(microtime(true) - $this->time_lapse, 3)) . "s.";
         $this->time_lapse = microtime(true);
         $mess = $this->interpolate($this->prefix . $message . $this->suffix, $context);
-        $this->last = $mess;
         $this->write($level, $mess);
         return true;
     }
@@ -190,14 +187,6 @@ abstract class Logger extends AbstractLogger
         for($i = $verbosity; $i < 9; $i++) {
             $this->counts[$i]++;
         }
-    }
-
-    /**
-     * Return last nmessage (nice for debug)
-     */
-    public function last():string
-    {
-        return $this->last;
     }
 
     /**
