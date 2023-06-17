@@ -309,19 +309,23 @@ class Route {
     {
         $start = strpos(self::$html, "<$tag");
         // no body to slice, return all
-        if ($start < 0 && $tag == 'body') {
-            echo $html;
+        if ($start === false && $tag == 'body') {
+            echo self::$html;
             return;
         }
         // other tag, show nothing
-        else if ($start < 0) {
+        else if ($start === false) {
             return;
         }
         // body tag with possible attributes
         $start = strpos(self::$html, ">", $start);
-        // end of body 
+        if ($start === false) {
+            Log::warning("Route, html malformed, found <$tag (without a >) in " . self::$resource);
+            return;
+        }
+        // end of tag
         $end = strpos(self::$html, "</$tag>", $start);
-        if ($end < 0) {
+        if ($end === false) {
             echo substr(self::$html, $tart +1);
         }
         else {
