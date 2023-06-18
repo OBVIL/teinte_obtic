@@ -7,6 +7,8 @@ use \Oeuvres\Kit\{Http, Route};
 /** 
  * Minimum styling for an actoin in iframe
  */
+// supposed required to output logging line by line
+header( 'Content-type: text/html; charset=utf-8' );
 ?>
 <!DOCTYPE html>
 <html>

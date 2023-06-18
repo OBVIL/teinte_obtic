@@ -11,6 +11,9 @@ use Oeuvres\Kit\{Filesys, Http, I18n, Log, LoggerWeb};
 use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
 use Oeuvres\Teinte\Tei2\{Tei2article};
 
+// supposed required to output logging line by line
+header( 'Content-type: text/html; charset=utf-8' );
+
 function cookie($cookie)
 {
     $cookie_options = [
@@ -47,8 +50,8 @@ if (!isset($cookie_teinte['id'])) {
 }
 
 
-$tmp_dir = $config['workdir'] . $cookie['id'] . "/";
-Filesys::mkdir($tmp_dir);
+$temp_dir = $config[TEMP_DIR] . $cookie['id'] . "/";
+Filesys::mkdir($temp_dir);
 // TODO log if something went wrong in tmp dir creation
 
 if (!isset($upload['name']) || !$upload['name']) {
@@ -57,7 +60,7 @@ if (!isset($upload['name']) || !$upload['name']) {
     die();
 }
 
-$src_file = $tmp_dir .$upload['name'];
+$src_file = $temp_dir .$upload['name'];
 if (!move_uploaded_file($upload["tmp_name"], $src_file)) {
     // upload went wrong
     echo I18n::_('upload.nomove', $upload["tmp_name"],  $src_file);
@@ -67,67 +70,44 @@ $cookie['src_basename'] = $upload['name'];
 $src_name =  pathinfo($upload['name'], PATHINFO_FILENAME);
 $cookie['name'] =  $src_name;
 
-
 // tei_file TODO
-$tei_file = $tmp_dir . $src_name . ".xml"; 
+$tei_file = $temp_dir . $src_name . ".xml"; 
+$cookie['tei_basename'] = basename($tei_file);
 $format = File::path2format($upload['name']);
+$tei = new Tei();
 
 
-// stict elsif, do no forget to write cookie at the end
 if ($format === "docx") {
-    // check if docx ?
     $docx = new Docx();
     $docx->load($src_file);
-    $docx->tei();
-    file_put_contents($tei_file, $docx->xml());
-    $cookie['tei_basename'] = basename($tei_file);
-    $cookie['docx_basename'] = basename($src_file);
-    cookie($cookie);
-    flush();
-    echo  $upload['name'] . "<br/>";
-    echo Tei2article::toXml($docx->dom());
+    $tei->loadDoc($docx->teiDoc());
 }
 else if ($format === "tei") {
-    // check if xml ?
-    $tei = new Tei();
     $tei->load($src_file);
-    $cookie['tei_basename'] = basename($src_file);
-    cookie($cookie);
-    flush();
-    echo  $upload['name'] . "<br/>";
-    flush();
-    echo $tei->toXml('article');
 }
 else if ($format === "markdown") {
-    $cookie['markdown_basename'] = basename($src_file);
-    $cookie['tei_basename'] = basename($tei_file);
-    cookie($cookie);
-    flush();
-    echo  $upload['name'] . "<br/>";
-    $source = new Markdown();
-    $source->load($src_file);
-    $html = $source->html();
-    echo $source->html();
-    flush();
-    // transform to TEI
-    file_put_contents($tei_file, $source->tei());
+    $md = new Markdown();
+    $md->load($src_file);
+    $tei->loadDoc($md->teiDoc());
 }
 else if ($format === "epub") {
-    $cookie['epub_basename'] = basename($src_file);
-    $cookie['tei_basename'] = basename($tei_file);
-    cookie($cookie);
-    flush();
-    $source = new Epub();
-    $source->load($src_file);
-    // directly article
-    echo  $upload['name'] . "<br/>";
-    $tei_dom = $source->teiToDoc();
-    echo Tei2article::toXml($tei_dom);
-    file_put_contents($tei_file, $tei_dom->saveXML());
+    $epub = new Epub();
+    $epub->load($src_file);
+    $tei->loadDoc($epub->teiDoc());
 }
 else {
+    // no tei loaded
     echo I18n::_('upload.format404', $upload["name"],  $format);
     die();
 }
 
+// information to send to download
+cookie($cookie);
+ob_flush();
+flush();
+// put file in temp dir
+file_put_contents($tei_file, $tei->tei());
+// display html 
+echo  $upload['name'] . "<br/>";
+echo $tei->toXml('article');
 

@@ -16,7 +16,7 @@ Working::init();
 class Working
 {
     const WORK_DIR = 'work_dir';
-    const _SRC = '_src';
+    const _SRC = '0_sources';
     /** Avoid multiple initialisation */
     static private bool $init = false;
     /** Configuration */
@@ -140,18 +140,18 @@ class Working
             if ($format === "docx") {
                 // check if docx ?
                 $docx->load($src_file);
-                $tei->loadDom($docx->teiDom());
+                $tei->loadDoc($docx->teiDoc());
             }
             else if ($format === "tei") {
                 $tei->load($src_file);
             }
             else if ($format === "markdown") {
                 $md->load($src_file);
-                $tei->loadDom($md->teiDom());
+                $tei->loadDoc($md->teiDoc());
             }
             else if ($format === "epub") {
                 $epub->load($src_file);
-                $tei->loadDom($epub->teiDom());
+                $tei->loadDoc($epub->teiDoc());
             }
             file_put_contents($tei_file, $tei->tei());
             // transform tei in requested formats and dir
@@ -160,6 +160,7 @@ class Working
                     . $src_name . '.' . File::format2ext($format);
                 $tei->toUri($format, $dst_file);
             }
+            ob_flush();
             flush();
         }
         // zip dirs
@@ -170,6 +171,7 @@ class Working
             );
         }
         Log::info('Fini');
+        ob_flush();
         flush();
     }
 }

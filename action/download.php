@@ -75,12 +75,12 @@ if (!isset($cookie['name'])) {
     exit();
 }
 
-$dst_basename = $cookie['name'] . File::ext($format);
+$dst_basename = $cookie['name'] . File::format2ext($format);
 attach($dst_basename);
 
 
-$tmp_dir = $config['workdir'] . $cookie['id'] . "/";
-$tei_file = $tmp_dir . $cookie['tei_basename'];
+$temp_dir = $config[TEMP_DIR] . $cookie['id'] . "/";
+$tei_file = $temp_dir . $cookie['tei_basename'];
 // Tei Export
 if ($format == "tei") {
     $length = filesize($tei_file);
