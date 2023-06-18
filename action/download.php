@@ -75,7 +75,7 @@ if (!isset($cookie['name'])) {
     exit();
 }
 
-$dst_basename = $cookie['name'] . File::format2ext($format);
+$dst_basename = $cookie['name'] . '.' . File::format2ext($format);
 attach($dst_basename);
 
 
