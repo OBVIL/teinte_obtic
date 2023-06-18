@@ -11,8 +11,9 @@ use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
 
 
 Log::setLogger(new LoggerWeb(LogLevel::DEBUG));
-
 Working::init();
+
+
 class Working
 {
     const WORK_DIR = 'work_dir';
@@ -34,7 +35,7 @@ class Working
      * Inialize static variables
      */
     static function init(): void
-    {
+    {              
         if (self::$init) return;
         self::$config[self::WORK_DIR] = dirname(__DIR__) . "/work/";
         // try external config file
@@ -137,30 +138,41 @@ class Working
             Log::info(' -- Chargement de "' . basename($src_file) . '" [' . $format . ']');
             $ext = strtolower(pathinfo($src_file, PATHINFO_EXTENSION));
             $tei_file = $tei_dir . $src_name . '.xml';
-            if ($format === "docx") {
-                // check if docx ?
-                $docx->load($src_file);
-                $tei->loadDoc($docx->teiDoc());
+            try {
+                if ($format === "docx") {
+                    // check if docx ?
+                    $docx->load($src_file);
+                    $tei->loadDoc($docx->teiDoc());
+                }
+                else if ($format === "tei") {
+                    $tei->load($src_file);
+                }
+                else if ($format === "markdown") {
+                    $md->load($src_file);
+                    $tei->loadDoc($md->teiDoc());
+                }
+                else if ($format === "epub") {
+                    $epub->load($src_file);
+                    $tei->loadDoc($epub->teiDoc());
+                }    
             }
-            else if ($format === "tei") {
-                $tei->load($src_file);
-            }
-            else if ($format === "markdown") {
-                $md->load($src_file);
-                $tei->loadDoc($md->teiDoc());
-            }
-            else if ($format === "epub") {
-                $epub->load($src_file);
-                $tei->loadDoc($epub->teiDoc());
+            catch (Exception $e) {
+                Log::error($e->getMessage());
+                continue;
             }
             file_put_contents($tei_file, $tei->tei());
             // transform tei in requested formats and dir
             foreach (['docx', 'html', 'markdown'] as $format) {
                 $dst_file = self::$config[self::WORK_DIR] . $format . '/' 
                     . $src_name . '.' . File::format2ext($format);
-                $tei->toUri($format, $dst_file);
+                try {
+                    $tei->toUri($format, $dst_file);
+                }
+                catch (Exception $e) {
+                    Log::error($e->getMessage());
+                    continue;
+                }
             }
-            ob_flush();
             flush();
         }
         // zip dirs
@@ -171,14 +183,14 @@ class Working
             );
         }
         Log::info('Fini');
-        ob_flush();
         flush();
     }
 }
 
 $main = function() {
     // test if force
-    $force = (isset($_POST['force']) && $_POST['force']);
+    $force = (isset($_REQUEST['force']) && $_REQUEST['force']);
     Working::crawl($force);
 };
+
 ?>

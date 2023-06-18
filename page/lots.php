@@ -20,21 +20,8 @@ use \Oeuvres\Kit\{Http, Route};
     <iframe 
     id="working"
     name="working"
-    data-waiting="<?= Route::home_href()?>theme/waiting.svg"
-    data-working="<?= Route::home_href()?>working"
-    src="theme/waiting.svg">
+    src="working">
     </iframe>
     <script>
-const working = document.getElementById("working");
-function waiting()
-{
-    working.src = "about:blank";
-    working.document.open();
-    working.write() = '<img src="theme/waiting.svg"/>';
-    working.document.close();
-}
-let form = document.getElementById("form");
-if (form) form.addEventListener("submit", waiting);
-
     </script>
 </article>

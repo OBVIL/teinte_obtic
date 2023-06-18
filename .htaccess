@@ -7,7 +7,10 @@ php_value max_execution_time 300
     # content negogiations do strange things with /myfile > /myfile.php
     Options -MultiViews
 </IfModule>
+# Do not gzip for report line by line
+SetEnvIfNoCase Request_URI working no-gzip dont-vary
 <IfModule mod_rewrite.c>
+
     RewriteEngine On
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
     RewriteRule ^index\.php$ - [QSA,L,B]
