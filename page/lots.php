@@ -12,6 +12,10 @@ use \Oeuvres\Kit\{Http, Route};
 <article>
     <h1>Traitements par lots</h1>
     <p>L’administrateur de cette installation a posé des fichiers dans un dossier de travail avec son accès FTP. Cette page permet de les transformer dans tous les formats disponibles.</p>
-    <iframe src="working">
+    <form target="working" method="post" action="working">
+        <button>Rafraîchir</button>
+    </form>
+    <iframe name="working"
+    src="working<?= (isset($_GET['force']))?'?force=' . $_GET['force']:'' ?>">
     </iframe>
 </article>

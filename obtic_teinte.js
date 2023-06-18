@@ -49,7 +49,7 @@ const conversions = {
 
 function dropInit() {
     const dropZone = document.querySelector("#dropzone");
-    if (!dropZone) return;
+    if (!dropZone) return; // seems another page
     const dropOutput = dropZone.querySelector("output");
     const dropBut = dropZone.querySelector("button");
     const dropInput = dropZone.querySelector("input");

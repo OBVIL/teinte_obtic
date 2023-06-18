@@ -11,11 +11,12 @@ use \Oeuvres\Kit\{Http, Route};
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8" />
         <link rel="preconnect" href="https://fonts.gstatic.com"/>
         <link href="https://fonts.googleapis.com/css2?family=Lato&amp;display=swap" rel="stylesheet"/>
         <link rel="stylesheet" href="<?= Route::home_href() ?>theme/obtic_teinte.css" />
     </head>
-    <body>
+    <body class="action">
         <?= Route::main() ?>
     </body>
 </html>

@@ -379,15 +379,20 @@ a#github::after {
     background-position: center right;
     background-size: 40px;
     background-repeat: no-repeat;
-    background-image: url('github-mark.svg');
-
+    background-image: url('github-mark-white.svg');
+    opacity: .4;
 }
 
 a:hover#github::after {
-    background-image: url('github-mark-white.svg');
+    opacity: 1;
+    background-image: url('github-mark-orange.svg');
 }
 
 #tabs a.selected,
 #tabs > a:hover {
     color: var(--col2);
+}
+
+body.action {
+    padding: 1rem;
 }

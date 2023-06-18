@@ -8,7 +8,6 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
     <div id="upload">
     <header>
         <div id="icons">
-        <div class="format tei" title="TEI : texte XML (Text Encoding Initiative)"></div>
 
         <div class="format docx" title="DOCX : texte bureautique (LibreOffice, Microsoft.Word…)"></div>
 
@@ -18,6 +17,7 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
         -->
 
         <div class="format markdown" title="MarkDown : texte brut légèrement formaté"></div>
+        <div class="format tei" title="TEI : texte XML (Text Encoding Initiative)"></div>
 
         </div>
     </header>
@@ -38,7 +38,6 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
     <div id="download">
     <header>
         <div id="icons">
-        <div class="format tei" title="TEI : texte XML (Text Encoding Initiative)"></div>
 
         <div class="format docx" title="DOCX : texte bureautique (LibreOffice, Microsoft.Word…)"></div>
         
@@ -49,6 +48,7 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
         <div class="format html" title="HTML : page internet"></div>
 
         <div class="format markdown" title="MarkDown : texte brut légèrement formaté"></div>
+        <div class="format tei" title="TEI : texte XML (Text Encoding Initiative)"></div>
 
         </div>
     </header>
