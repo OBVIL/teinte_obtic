@@ -17,51 +17,56 @@ use Oeuvres\Xsl\{Xpack};
 /**
  * A File format accepting xml manipulation
  */
-trait Teiable
+trait Htmlable
 {
-    /** Store XML as a string, maybe reused */
-    protected ?string $tei = null;
+    /** Store an html string */
+    protected ?string $html = null;
     /** DOM Document to process */
-    protected ?DOMDocument $teiDoc = null;
+    protected ?DOMDocument $htmlDoc = null;
     
     /**
      * Return xml state (maybe transformed and diverges from original)
      */
-    function tei(): string
+    function html(): string
     {
-        if ($this->tei === null) {
-            $this->teiDoc();
-            $this->tei = $this->teiDoc->saveXML();
+        // a dom have been calculated and kept during process
+        if ($this->html === null) {
+            $this->htmlMake();
         }
-        return $this->tei;
+        if ($this->html !== null) {
+            return $this->html;
+        }
+        $this->htmlDoc();
+        $this->html = $this->htmlDoc->saveXML();
+        return $this->html;
     }
 
     /**
      * Return dom state
      */
-    function teiDoc(): DOMDocument
+    function htmlDoc(): DOMDocument
     {
-        if ($this->teiDoc === null || !$this->teiDoc->documentElement) {
-            $this->teiMake();
+        if ($this->htmlDoc === null || !$this->htmlDoc->documentElement) {
+            $this->htmlMake();
         }
-        if ($this->teiDoc !== null && $this->teiDoc->documentElement) {
-            return $this->teiDoc;
+        if ($this->htmlDoc !== null && $this->htmlDoc->documentElement) {
+            return $this->htmlDoc;
         }
-        // we may have a tei string here ?
-        if ($this->tei === null) {
-            throw new ErrorException("No tei or teiDoc produced by teiMake()");
+        // problem
+        if ($this->html === null) {
+            throw new ErrorException("No html or htmlDoc produced by htmlMake()");
         }
-        $this->teiDoc = Xt::loadXml($this->tei);
-        return $this->teiDoc;
+        $this->htmlDoc = Xt::loadXml($this->html);
+        return $this->htmlDoc;
     }
 
     /**
      * Reset values before loading
      */
-    function teiReset(): void
+    function htmlReset(): void
     {
-        $this->tei = null;
-        $this->teiDoc = null;
+        $this->html = null;
+        $this->htmlDoc = null;
         // if file
         if (property_exists($this, 'file')) $this->file = null;
         if (property_exists($this, 'filename')) $this->filename = null;
@@ -70,9 +75,8 @@ trait Teiable
         if (property_exists($this, 'contents')) $this->contents = null;
     }
 
-
     /**
      * Make tei, usually on dom
      */
-    abstract public function teiMake(?array $pars = null): void;
+    abstract public function htmlMake(?array $pars = null): void;
 }

@@ -23,7 +23,7 @@ Check::extension('tidy');
  */
 class Epub extends Zip
 {
-    use Xhtmlable;
+    use Htmlable;
     use Teiable;
     /** Opf content as a string */
     private ?string $opf_xml;
@@ -85,7 +85,7 @@ class Epub extends Zip
     public function load(string $file): bool
     {
         $this->teiReset();
-        $this->xhtmlReset();
+        $this->htmlReset();
         if (!parent::load($file)) {
             return false;
         }
@@ -147,7 +147,7 @@ class Epub extends Zip
     /**
      * Build a dom from epub sections
      */
-    public function xhtmlMake(?array $pars = null): void
+    public function htmlMake(?array $pars = null): void
     {
         if (!isset($this->opf_dom)) {
             Log::error(I18n::_('Epub.load'));
@@ -167,7 +167,7 @@ class Epub extends Zip
 ";
         // print $xhtml;
         $dom = Xt::loadXml($xhtml);
-        $this->xhtmlDom = Xt::transformToDoc(
+        $this->htmlDoc = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/epub_teinte_html.xsl', 
             $dom
         );
@@ -233,7 +233,7 @@ class Epub extends Zip
     public function teiMake(?array $pars = null): void
     {
         // ensure xhtml generation
-        $this->xhtmlDom();
+        $this->htmlDoc();
 
         // to produce a <teiHeader>, make a new doc to transform with opf
         $metadata = $this->opf_dom->getElementsByTagName('metadata')->item(0);
@@ -246,14 +246,14 @@ class Epub extends Zip
             $metaDoc
         );
         // toDom for indent-
-        $this->teiDom = Xt::transformToDoc(
+        $this->teiDoc = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/html_tei.xsl', 
-            $this->xhtmlDom
+            $this->htmlDoc
         );
-        $teiHeader = $this->teiDom->importNode($teiHeader->documentElement, true);
-        $text = Xt::firstElementChild($this->teiDom->documentElement);
-        $this->teiDom->documentElement->insertBefore($teiHeader, $text);
-        $this->teiDom->formatOutput = true;
+        $teiHeader = $this->teiDoc->importNode($teiHeader->documentElement, true);
+        $text = Xt::firstElementChild($this->teiDoc->documentElement);
+        $this->teiDoc->documentElement->insertBefore($teiHeader, $text);
+        $this->teiDoc->formatOutput = true;
     }
 
     /**

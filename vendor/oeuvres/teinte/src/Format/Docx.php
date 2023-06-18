@@ -213,7 +213,7 @@ class Docx extends Zip
         // delete old xml
         $this->tei = null;
         // set new dom
-        $this->teiDom = $dom;
+        $this->teiDoc = $dom;
     }
 
     /**

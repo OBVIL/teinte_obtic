@@ -22,7 +22,7 @@ use Oeuvres\Xsl\{Xpack};
 class Markdown extends File
 {
     use Teiable;
-    use Xhtmlable;
+    use Htmlable;
     static $init = false;
     static private ParsedownExtra $parser;
     
@@ -42,7 +42,7 @@ class Markdown extends File
     /**
      * Output html from content
      */
-    public function xhtmlMake(?array $pars = null):void
+    public function htmlMake(?array $pars = null):void
     {
         $contents = $this->contents();
         if (!$contents) {
@@ -102,7 +102,7 @@ class Markdown extends File
             $xhtml .= "  </section>\n";
         }
         $xhtml.= "</article>\n";
-        $this->xhtml = $xhtml;
+        $this->html = $xhtml;
     }
     /**
      * Make tei, kept internally as dom
@@ -110,10 +110,10 @@ class Markdown extends File
     public function teiMake(?array $pars = null):void
     {
         // ensure html making
-        $xhtmlDom = $this->xhtmlDom();
-        $this->teiDom = Xt::transformToDoc(
+        $htmlDoc = $this->htmlDoc();
+        $this->teiDoc = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/html_tei.xsl', 
-            $xhtmlDom
+            $htmlDoc
         );
     }
 
