@@ -7,9 +7,10 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
 use DirectoryIterator, Exception;
 use Psr\Log\{LogLevel};
 use Oeuvres\Kit\{FileSys, I18n, Http, Log, LoggerWeb, Route};
+use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
 
 
-Log::setLogger(new LoggerWeb(LogLevel::INFO));
+Log::setLogger(new LoggerWeb(LogLevel::DEBUG));
 
 Working::init();
 class Working
@@ -61,10 +62,11 @@ class Working
     static function crawl($force = false)
     {
         $src_dir = self::$config[self::WORK_DIR] . self::_SRC;
-        Log::info("{datetime}");
+        Log::info("{datetime} force=" . var_export($force, true) );
         $dirit = new DirectoryIterator($src_dir);
         // populate with found src files to clean generated
-        $found = [];
+        $todo = [];
+        $src_list = [];
         foreach ($dirit as $fileinfo) {
             if($fileinfo->isDot()) {
                 continue;
@@ -77,32 +79,32 @@ class Working
             if (!isset(self::$src_ext[$ext])) continue;
             $name = $fileinfo->getBasename(".$ext");
             $src_file = $fileinfo->getRealPath();
-            $found[$name] = $src_file;
+            // for all files, needed for cleaning
+            $src_list[$name] = $src_file;
+
             $tei_file = self::$config[self::WORK_DIR] . 'tei/' . $name . '.xml';
             if ($force && file_exists($tei_file)) {
-                Log::info('Refaire "' . $name . '"');
+                Log::info('Forcer, "' . $fileinfo->getBasename() . '"');
+                $todo[$name] = $src_file;
             }
             if (!file_exists($tei_file)) {
                 // dst_file do not exists, generate
-                Log::info('Créer "' . $name . '"');
+                Log::info('Nouveau, "' . $fileinfo->getBasename() . '"');
             }
-            else if (filemtime($src_file) <= filemtime($dst_file)) {
+            else if (filemtime($src_file) <= filemtime($tei_file)) {
                 continue;
             }
             else {
-                Log::info('Raffraîchir "' . $name . '"');
+                Log::info('Raffraîchir, "' . $fileinfo->getBasename() . '"');
             }
-
-            
+            // only for files to work on
+            $todo[$name] = $src_file;
         }
-        if (!count($found)) {
-            Log::info('Tout est à jour');
-        }
-        // delete files old files
+        // delete old files in dirs
         $dir_list = [
             'docx' => 'docx', 
             'html' => 'html', 
-            'md' => 'md', 
+            'markdown' => 'md', 
             'tei' => 'xml'
         ];
         foreach ($dir_list as $dir_name => $dst_ext) {
@@ -115,19 +117,66 @@ class Working
                 }
                 $ext = $fileinfo->getExtension();
                 $name = $fileinfo->getBasename('.' . $fileinfo->getExtension());
-
-                if (isset($found[$name]) && $ext == $dst_ext) continue;
+                if (isset($src_list[$name]) && $ext == $dst_ext) continue;
                 Log::info('Supprimer "' . $dir_name . '/' .  $fileinfo->getFilename() . '"');
                 Filesys::rmdir($fileinfo->getRealPath());
             }
         }
+        if (!count($todo)) {
+            Log::info('Tout est à jour');
+            return;
+        }
+        // loop on the todo list to produce tei
+        $tei_dir = self::$config[self::WORK_DIR] . 'tei/';
+        $tei = new Tei();
+        $docx = new Docx();
+        $md = new Markdown();
+        $epub = new Epub();
+        foreach ($todo as $src_name => $src_file) {
+            $format = File::path2format($src_file);
+            Log::info(' -- Chargement de "' . basename($src_file) . '" [' . $format . ']');
+            $ext = strtolower(pathinfo($src_file, PATHINFO_EXTENSION));
+            $tei_file = $tei_dir . $src_name . '.xml';
+            if ($format === "docx") {
+                // check if docx ?
+                $docx->load($src_file);
+                $tei->loadDom($docx->teiDom());
+            }
+            else if ($format === "tei") {
+                $tei->load($src_file);
+            }
+            else if ($format === "markdown") {
+                $md->load($src_file);
+                $tei->loadDom($md->teiDom());
+            }
+            else if ($format === "epub") {
+                $epub->load($src_file);
+                $tei->loadDom($epub->teiDom());
+            }
+            file_put_contents($tei_file, $tei->tei());
+            // transform tei in requested formats and dir
+            foreach (['docx', 'html', 'markdown'] as $format) {
+                $dst_file = self::$config[self::WORK_DIR] . $format . '/' 
+                    . $src_name . '.' . File::format2ext($format);
+                $tei->toUri($format, $dst_file);
+            }
+            flush();
+        }
         // zip dirs
+        foreach (['docx', 'html', 'markdown', 'tei'] as $format) {
+            Filesys::zip(
+                self::$config[self::WORK_DIR] . "teinte_" . $format . ".zip",
+                self::$config[self::WORK_DIR] . $format
+            );
+        }
+        Log::info('Fini');
+        flush();
     }
 }
 
 $main = function() {
     // test if force
-    $force = (isset($_GET['force']) && $_GET['force'] = 'majeure');
+    $force = (isset($_POST['force']) && $_POST['force']);
     Working::crawl($force);
 };
 ?>

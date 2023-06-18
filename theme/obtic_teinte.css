@@ -396,3 +396,9 @@ a:hover#github::after {
 body.action {
     padding: 1rem;
 }
+
+.xdebug-error th {
+    font-size:x-large;
+    background-color: #fff;
+    color: #000;
+}
