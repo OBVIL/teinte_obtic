@@ -10,8 +10,9 @@ Clean html extracted from epub of some oddities
   xmlns:epub="http://www.idpf.org/2007/ops"
   exclude-result-prefixes="html"
   >
-  <!-- do not omit xml declaration for dom loading, do not indent for non mixed content -->
-  <xsl:output indent="no" encoding="UTF-8" method="xml"/>
+  <!-- do not omit xml declaration for dom loading -->
+  <!-- indent, yes or no ? mmmh… -->
+  <xsl:output indent="yes" encoding="UTF-8" method="xml"/>
   <!-- space separated css class name to strip -->
   <xsl:param name="class_exclude"> chp italic niv1p txt </xsl:param>
   <xsl:variable name="class_ex" select="concat(' ', $class_exclude, ' ')"/>
@@ -304,10 +305,6 @@ Clean html extracted from epub of some oddities
       <xsl:when test="$mixed != ''">
         <xsl:call-template name="p"/>
       </xsl:when>
-      <!-- no content brothers, seems presentation, go through -->
-      <xsl:when test="$bros = 0">
-        <xsl:apply-templates/>
-      </xsl:when>
       <!-- content grouping ? like stanza or quote ? keep it -->
       <xsl:when test="$children &gt; 1">
         <blockquote>
@@ -317,6 +314,14 @@ Clean html extracted from epub of some oddities
           </xsl:call-template>
           <xsl:apply-templates/>
         </blockquote>
+      </xsl:when>
+      <!-- para separator ? -->
+      <xsl:when test="$mixed = '' and not(*)">
+        <br class="space"/>
+      </xsl:when>
+      <!-- no content brothers, seems presentation, go through -->
+      <xsl:when test="$bros = 0 and $mixed != ''">
+        <xsl:apply-templates/>
       </xsl:when>
       <!-- structural div -->
       <xsl:when test="html:div">
@@ -329,12 +334,10 @@ Clean html extracted from epub of some oddities
     </xsl:choose>
   </xsl:template>
   
-  
-
-  <xsl:template match="html:template[@id='css']"/>
-
   <!-- No output -->
   <xsl:template match="html:p/@align | html:div/@align"/>
+  <!-- used for mapping class name style to font prop -->
+  <xsl:template match="html:template[@id='css']"/>
 
   <xsl:template match="@class">
     <xsl:variable name="class">

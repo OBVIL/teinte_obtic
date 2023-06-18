@@ -80,6 +80,17 @@ class Epub extends Zip
     }
 
     /**
+     * DomDoc with right options here (no indent ?)
+     */
+    public static function dom() {
+        $dom = new DOMDocument();
+        $dom->substituteEntities = true;
+        $dom->preserveWhiteSpace = true;
+        $dom->formatOutput = false;
+        return $dom;
+    }
+
+    /**
      * Load and check
      */
     public function load(string $file): bool
@@ -162,11 +173,16 @@ class Epub extends Zip
   <template id=\"css\">
 " . $this->style->asXml() . "
   </template>
+  <style title=\"epub\">
+" . $this->style->contents() . "
+  </style>
 " . $sections . "
 </article>
 ";
-        // print $xhtml;
-        $dom = Xt::loadXml($xhtml);
+        // a no indent dom, work is done upper
+        $dom = self::dom();
+        Xt::loadXml($xhtml, $dom);
+        // indent yes or indent no (la la la)
         $this->htmlDoc = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/epub_teinte_html.xsl', 
             $dom

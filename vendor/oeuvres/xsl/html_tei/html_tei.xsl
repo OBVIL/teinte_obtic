@@ -40,44 +40,60 @@
     <xsl:copy/>
   </xsl:template>
   <xsl:template match="html:link | html:script | html:style"/>
+
+
+
   <xsl:template match="html:meta[@http-equiv]"/>
 <!--
 STRUCTURE
 -->
-  <xsl:template match="html:html">
-    <xsl:call-template name="procs"/>
-    <TEI>
-      <xsl:apply-templates select="node() | @*"/>
-    </TEI>
-  </xsl:template>
+
   
   <xsl:template name="procs">
     <xsl:processing-instruction name="xml-model"> href="http://oeuvres.github.io/teinte/teinte.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:processing-instruction>
     <xsl:processing-instruction name="xml-stylesheet"> type="text/xsl" href="https://oeuvres.github.io/teinte_xsl/tei_html.xsl"</xsl:processing-instruction>
   </xsl:template>
   
-  <xsl:template match="/html:article | /html:section | html:div">
+  <xsl:template match="/*">
     <xsl:call-template name="procs"/>
     <TEI>
+      <xsl:choose>
+        <xsl:when test="not(html:head)">
+          <teiHeader>
+            <xsl:comment>This is not TEI conformant, but source HTML doc has no <head/></xsl:comment>
+          </teiHeader>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="html:head"/>
+        </xsl:otherwise>
+      </xsl:choose>
       <text>
         <body>
-          <xsl:apply-templates select="node() | @*"/>
+          <xsl:apply-templates select="node()[not(self::html:head)]"/>
         </body>
       </text>
     </TEI>
+    <xsl:if test=".//html:style[@title='epub']">
+      <xsl:comment>
+/**
+ * Extracted from an epub, this declarations may help a TEI editor
+ * to infer semantic classes from apparences
+ */
+        <xsl:for-each select=".//html:style[@title='epub']">
+          <xsl:value-of select="."/>
+        </xsl:for-each>
+      </xsl:comment>
+    </xsl:if>
   </xsl:template>
+  <!-- Not perfect metadata extraction -->
   <xsl:template match="html:head">
     <teiHeader>
       <xsl:apply-templates/>
     </teiHeader>
   </xsl:template>
+  <!-- Root already generated -->
   <xsl:template match="html:body">
-    <text>
-      <xsl:apply-templates select="@*"/>
-      <body>
-        <xsl:apply-templates/>
-      </body>
-    </text>
+    <xsl:apply-templates/>
   </xsl:template>
   
   <xsl:template name="mixed">
@@ -270,7 +286,7 @@ BLOCKS
   <xsl:template match="html:ul | html:ol">
     <list>
       <xsl:apply-templates select="@*"/>
-      <xsl:attribute name="type">
+      <xsl:attribute name="rend">
         <xsl:value-of select="local-name()"/>
       </xsl:attribute>
       <xsl:apply-templates/>
@@ -387,6 +403,23 @@ PHRASES
       <xsl:apply-templates select="@*"/>
       <xsl:apply-templates/>
     </title>
+  </xsl:template>
+  <!-- generated upper (from epub). Do not reproduce auto spacer between para -->
+  <xsl:template match="html:br[@class='space']">
+    <xsl:variable name="prev" select="preceding-sibling::*[1]"/>
+    <xsl:variable name="next" select="following-sibling::*[1]"/>
+    <xsl:choose>
+      <!-- last of a section -->
+      <xsl:when test="not($next)"/>
+      <!-- not last spacer (there is one next) -->
+      <xsl:when test="$next[@class='space']"/>
+      <!-- first spacer (previous is not a spacer) -->
+      <xsl:when test="$prev[not(@class='space')]"/>
+      <!-- Should be last ans not first -->
+      <xsl:otherwise>
+        <space quantity="1" unit="line"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <xsl:template match="html:br">
     <xsl:value-of select="$lf"/>

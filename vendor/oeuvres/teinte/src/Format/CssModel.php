@@ -27,6 +27,8 @@ namespace Oeuvres\Teinte\Format;
  */
 class CssModel
 {
+    /** keep contents */
+    private string $contents = '';
     /** A filter of rules */
     private array $filter = [
         "font-style" => ["italic"],
@@ -69,11 +71,20 @@ class CssModel
     }
 
     /**
-     * Load and parce a file
+     * Load and parse a file
      */
     public function load($css_file)
     {
-        $this->parse(file_get_contents($css_file));
+        $css = file_get_contents($css_file);
+        $this->parse($css);
+    }
+
+    /**
+     * Return all contents loaded
+     */
+    public function contents(): string
+    {
+        return $this->contents;
     }
 
     /**
@@ -82,6 +93,7 @@ class CssModel
     public function parse($css_string)
     {
         if (!$css_string) return;
+        $this->contents .= $css_string . "\n\n";
         // a complete css parser should here detailed compact declarations like font: …
         preg_match_all( '/(?ims)([a-z0-9\s\.\:#_\-@,]+)\{([^\}]*)\}/', $css_string, $rules);
         foreach ($rules[0] as $i => $x){

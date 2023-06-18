@@ -12,35 +12,66 @@ class Teinte
 {
     /** where generated files are projected */
     static $tei_dir;
-    /** the docx transformer */
+    /** the docx transformer, may have templates configured */
     static $docx;
+
+    public static function help()
+    {
+        $help = '
+Tranform docx files in tei
+    php docx_tei.php (-d dst_dir)? "work/*.doc"+
+';
+        return $help;
+    }
 
     public static function cli()
     {
         global $argv;
         Log::setLogger(new LoggerCli(LogLevel::DEBUG));
-        if (!isset($argv[1])) {
-            die("usage: php docx_tei.php work/*.docx\n");
+        $shortopts = '';
+        $shortopts .= "d:"; // output directory
+        $shortopts .= "t:"; // todo, set a template
+        $shortopts .= "h"; // help
+        $optindex = 1;
+        $options = getopt($shortopts, [], $optindex);
+        $count = count($argv);
+        // no args, probably not correct
+        if ($optindex >= $count) exit(self::help());
+        if (isset($options['h']) && $options['h']) {
+            exit(self::help());
         }
-        // drop $argv[0], $argv[1…] should be file
-        array_shift($argv);
+        $dst_dir = null;
+        if (isset($options['d'])) {
+            $dst_dir = $options['d'];
+            $dst_dir = Filesys::normdir($dst_dir);
+            Filesys::mkdir($dst_dir);
+        }
+        // todo template
         self::$docx = new Docx();
-        // local xml template
-        // self::$docx->user_template(__DIR__ . '/tmpl.xml');
 
-        // loop on arguments to get files of globs
-        foreach ($argv as $glob) {
-            foreach (glob($glob) as $docx_file) {
-                $src_name = pathinfo($docx_file, PATHINFO_FILENAME);
-                $tei_file = dirname($docx_file) . '/' . $src_name . '.xml';
-                if (file_exists($tei_file)) {
-                    Log::warning("File already exists: " . $tei_file);
-                }
-                self::transform($docx_file, $tei_file);
-            }
+        // loop on globs
+        for ( ; $optindex < $count; $optindex++) {
+            self::crawl(
+                $argv[$optindex],
+                $dst_dir,
+            );
         }
-                
     }
+
+    public static function crawl($glob, $dst_dir = null)
+    {
+        foreach (glob($glob) as $src_file) {
+            $dst_name = pathinfo($src_file, PATHINFO_FILENAME);
+            if ($dst_dir === null) {
+                $dst_file = Filesys::normdir(dirname($rc_file)) . $dst_name . ".xml";
+            }
+            else {
+                $dst_file = Filesys::normdir($dst_dir) . $dst_name . ".xml";
+            }
+            self::transform($src_file, $dst_file);
+        }
+    }
+
 
 
     static function transform($docx_file, $tei_file)
@@ -50,11 +81,11 @@ class Teinte
         self::$docx->pkg(); // open the docx
         self::$docx->teilike(); // apply a first tei layer
         // for debug
-        file_put_contents($tei_file .'_teilike.xml', self::$docx->xml());
+        file_put_contents($tei_file .'_teilike.xml', self::$docx->tei());
 
         self::$docx->pcre(); // apply regex, custom re may break XML
         // for debug write this step
-        file_put_contents($tei_file .'_pcre.xml', self::$docx->xml());
+        file_put_contents($tei_file .'_pcre.xml', self::$docx->tei());
         self::$docx->tmpl();
 
         // project images
@@ -62,7 +93,7 @@ class Teinte
         list($name) = explode('_', $name);
         $href_prefix = $name . '/' . $name . '_ill';
         self::$docx->images($tei_file, $href_prefix);
-        file_put_contents($tei_file, self::$docx->xml());
+        file_put_contents($tei_file, self::$docx->tei());
     }
 
 }

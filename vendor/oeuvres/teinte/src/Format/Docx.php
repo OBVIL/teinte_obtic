@@ -246,7 +246,7 @@ class Docx extends Zip
 
     /**
      * TODO, extract image from docx
-     * Extract iamges from  <graphic> elements from a DOM doc, copy linked images in a flat dstdir
+     * Extract images from  <graphic> elements from a DOM doc, copy linked images in a flat dstdir
      * copy linked images in an images folder $dstdir, and modify relative link
      *
      * $hrefdir : a href prefix to redirest generated links
@@ -255,7 +255,7 @@ class Docx extends Zip
      */
     public function images($dst_tei, $href_prefix)
     {
-        $dom = $this->dom;
+        $dom = $this->teiDoc;
         $count = 1;
         $nl = $dom->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'graphic');
         // $pad = strlen('' . $nl->count());
