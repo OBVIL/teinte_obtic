@@ -71,8 +71,8 @@
   </xsl:template>
   <!-- block -->
   <xsl:template match="w:p">
-    <xsl:variable name="val" select="normalize-space(translate(w:pPr/w:pStyle/@w:val, $UC, $lc))"/>
-    <xsl:variable name="teinte_p" select="key('teinte_p', $val)"/>
+    <xsl:variable name="pStyle" select="normalize-space(translate(w:pPr/w:pStyle/@w:val, $UC, $lc))"/>
+    <xsl:variable name="teinte_p" select="key('teinte_p', $pStyle)"/>
     <xsl:variable name="w:style" select="key('w:style', w:pPr/w:pStyle/@w:val)"/>
     <xsl:variable name="lvl" select="$w:style/w:pPr/w:outlineLvl/@w:val"/>
     <xsl:choose>
@@ -111,7 +111,7 @@
           <xsl:apply-templates select="w:hyperlink | w:r"/>
         </item>
       </xsl:when>
-      <xsl:when test="$val = '' or key('teinte_0', $val)">
+      <xsl:when test="$pStyle = '' or key('teinte_0', $pStyle)">
         <p>
           <xsl:if test="$rend != ''">
             <xsl:attribute name="rend">
@@ -151,8 +151,12 @@
         </xsl:element>
       </xsl:when>
       <!-- Output unknown style -->
-      <xsl:when test="$val != ''">
-        <xsl:element name="{$val}">
+      <xsl:when test="$pStyle != ''">
+        <xsl:variable name="el">
+          <xsl:if test="translate(substring($pStyle, 1, 1), 'abcdefghijklmnopqrstuvwxyz', '') != ''">_</xsl:if>
+          <xsl:value-of select="$pStyle"/>
+        </xsl:variable>
+        <xsl:element name="{$el}">
           <xsl:if test="$rend != ''">
             <xsl:attribute name="rend">
               <xsl:value-of select="$rend"/>
@@ -459,8 +463,8 @@ Seen
 
     <xsl:variable name="el">
       <xsl:choose>
-        <!-- Calibre 0 Text -->
-        <xsl:when test="contains('0123456789', substring($class, 1, 1))">_</xsl:when>
+        <!-- elements not starting by a letter -->
+        <xsl:when test="translate(substring($class, 1, 1), 'abcdefghijklmnopqrstuvwxyz', '') != ''">_</xsl:when>
       </xsl:choose>
       <xsl:value-of select="$class"/>
     </xsl:variable>

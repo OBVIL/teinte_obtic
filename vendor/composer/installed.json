@@ -228,15 +228,15 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_xsl.git",
-                "reference": "f673718b5698f2f93eb64f5ec5e3b28b20102083"
+                "reference": "ca426bcd3dfefe4c800cdf97eeced84c9eadb41d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/f673718b5698f2f93eb64f5ec5e3b28b20102083",
-                "reference": "f673718b5698f2f93eb64f5ec5e3b28b20102083",
+                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/ca426bcd3dfefe4c800cdf97eeced84c9eadb41d",
+                "reference": "ca426bcd3dfefe4c800cdf97eeced84c9eadb41d",
                 "shasum": ""
             },
-            "time": "2023-06-18T18:38:33+00:00",
+            "time": "2023-06-18T20:53:40+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",
