@@ -34,7 +34,7 @@ class Tei2split extends AbstractTei2
             $dst_dir = "file:///" . str_replace('\\', '/', $dst_dir);
         }
         $pars = array_merge($pars, array("dst_dir" => $dst_dir));
-        // Log::info("Tei2\033[92m" . static::NAME . "->toUri()\033[0m " . $dst_dir);
+        // Log::info("Tei2" . static::NAME . "->toUri() " . $dst_dir);
         return Xt::transformToXml(
             Xpack::dir().static::XSL,
             $dom,

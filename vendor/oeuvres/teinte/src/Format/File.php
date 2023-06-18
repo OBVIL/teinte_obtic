@@ -27,9 +27,9 @@ class File
     /** filename without extension */
     protected ?string $filename;
     /** file freshness */
-    protected int $filemtime;
+    protected ?int $filemtime;
     /** file size */
-    protected int $filesize;
+    protected ?int $filesize;
     /** file content if has been loaded */
     protected ?string $contents = null;
 
@@ -64,10 +64,11 @@ class File
     /**
      * Get a normalized known format from extension
      */
-    static public function path2format(?string $file): ?string
+    static public function path2format(?string $path): ?string
     {
-        if (!$file) return null;
-        $ext = pathinfo('.' . $file, PATHINFO_EXTENSION);
+        if (!$path) return null;
+        // take note of '.'
+        $ext = pathinfo('.' . basename($path), PATHINFO_EXTENSION);
         $ext = strtolower($ext);
         if (!isset(self::$ext2format[$ext])) return null;
         return self::$ext2format[$ext];
@@ -76,7 +77,7 @@ class File
     /**
      * Mime for a known format
      */
-    static public function mime(?string $format): ?string
+    static public function format2mime(?string $format): ?string
     {
         if (!$format) return null;
         if (!isset(self::$formats[$format])) return null;
@@ -86,7 +87,7 @@ class File
     /**
      * Extension for a known format
      */
-    static public function ext(?string $format): ?string
+    static public function format2ext(?string $format): ?string
     {
         if (!$format) return null;
         if (!isset(self::$formats[$format])) return null;

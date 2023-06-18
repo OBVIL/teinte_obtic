@@ -70,19 +70,16 @@ class Tei2docx extends AbstractTei2
      */
     static function toUri($dom, $dst_file, ?array $pars=null)
     {
-        Log::info("Tei2\033[92m" . static::NAME ." \033[0m $dst_file");
-        if (!Filesys::writable($dst_file)) {
-            throw new Exception("“{$dst_file}” not writable as a destination file");
-        }
+        Log::info("Tei2" . static::NAME ." $dst_file");
         $template = self::template($pars);
         if (!Filesys::readable($template)) {
             throw new Exception("“{$template}” not readble as a template file");
         }
-
-        if (!copy($template, $dst_file)) {
-            throw new Exception("“{$dst_file}” not writable. May be this destination is open in Ms.Word");
+        if (!Filesys::copy($template, $dst_file)) {
+            throw new Exception("“{$dst_file}” not writable. May be this destination is open in Ms.Word\n" . Log::last());
         }
-        $name = pathinfo($dom->documentURI, PATHINFO_FILENAME);
+        // documentURI works for xml loader from file
+        // $name = pathinfo($dom->documentURI, PATHINFO_FILENAME);
         $zip = new ZipArchive();
         $zip->open($dst_file);
 

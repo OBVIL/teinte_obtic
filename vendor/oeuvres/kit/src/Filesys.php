@@ -180,13 +180,13 @@ class Filesys
      */
     static function mkdir(string $dir):bool
     {
-        $pref = __CLASS__ . "::" . __FUNCTION__ . "  ";
-
         // nothing done, ok.
         if (is_dir($dir)) {
             return true;
         }
-        if (!self::writable($dir)) return false;
+        if (!self::writable($dir)) {
+            return false;
+        }
         if (!mkdir($dir, 0775, true)) {
             Log::warning(I18n::_('Filesys.mkdir.error', $dir));
             return false;
@@ -201,17 +201,19 @@ class Filesys
      *
      * @return mixed true if done, "message" on error
      */
-    static public function cleandir(string $dir)
+    static public function cleandir(string $dir):bool
     {
-        $ret = self::writable($dir);
-        if ($ret !== true) return $ret;
+        if (!self::writable($dir)) {
+            return false;
+        }
         // attempt to create the folder we want empty
         if (!file_exists($dir)) {
             return self::mkdir($dir);
         }
-        $ret = self::rmdir($dir, true);
-        if ($ret !== true) return $ret;
-
+        // rmdir with keep parent
+        if (!self::rmdir($dir, true)) {
+            return false;
+        }
         touch($dir); // change timestamp
         return true;
     }
@@ -222,7 +224,7 @@ class Filesys
      * Return true if OK (deleted or already deleted).
      * Report is logged in one multi-line message
      */
-    static public function rmdir(string $path, bool $keep = false)
+    static public function rmdir(string $path, bool $keep = false):bool
     {
         // nothing to delete, go away
         if (!file_exists($path)) {
@@ -239,6 +241,9 @@ class Filesys
         return true;
     }
 
+    /**
+     * Private remove recursion
+     */
     static private function rm_recurs($path, &$log, $keep = false)
     {
         if (is_link($path) || is_file($path)) {
@@ -273,6 +278,25 @@ class Filesys
         }
     }
 
+    /**
+     * Copy file, crating needed directories, with logged information
+     * if something went wrong 
+     */
+    public static function copy(
+        string $src_file,
+        string $dst_file
+    ): bool {
+        if (!Filesys::mkdir(dirname($dst_file))) {
+            return false;
+        }
+        if (!Filesys::writable($dst_file)) {
+            return false;
+        }
+        if (!copy($src_file, $dst_file)) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Recursive copy of folder

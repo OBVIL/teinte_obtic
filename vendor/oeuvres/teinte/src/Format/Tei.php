@@ -84,7 +84,7 @@ class Tei extends File
     {
         $transfo = AbstractTei2::transfo($format);
         $pars = $this->pars($format, $pars);
-        $transfo::toUri($this->dom, $uri, $pars);
+        $transfo::toUri($this->teiDom, $uri, $pars);
     }
 
     /**
@@ -95,7 +95,7 @@ class Tei extends File
     {
         $transfo = AbstractTei2::transfo($format);
         $pars = $this->pars($format, $pars);
-        return $transfo::toXml($this->dom, $pars);
+        return $transfo::toXml($this->teiDom, $pars);
     }
 
     /**
@@ -106,7 +106,7 @@ class Tei extends File
     {
         $transfo = AbstractTei2::transfo($format);
         $pars = $this->pars($format, $pars);
-        return $transfo::toDoc($this->dom, $pars);
+        return $transfo::toDoc($this->teiDom, $pars);
     }
 
     /**
@@ -175,7 +175,7 @@ class Tei extends File
      */
     public function meta()
     {
-        $meta = self::metaDom($this->dom, $this->xpath());
+        $meta = self::metaDom($this->teiDom, $this->xpath());
         $meta['code'] = pathinfo($this->file, PATHINFO_FILENAME);
         $meta['filename'] = $this->filename();
         $meta['filemtime'] = $this->filemtime();
@@ -285,8 +285,8 @@ class Tei extends File
     public function images($hrefdir = null, $dstdir = null)
     {
         if ($dstdir) $dstdir = rtrim($dstdir, '/\\') . '/';
-        // $dom = $this->dom->cloneNode(true); // do not clone, keep the change of links
-        $dom = $this->dom;
+        // $dom = $this->teiDom->cloneNode(true); // do not clone, keep the change of links
+        $dom = $this->teiDom;
         $count = 1;
         $nl = $dom->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'graphic');
         $pad = strlen('' . $nl->count());

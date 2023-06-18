@@ -62,6 +62,11 @@ trait Teiable
     {
         $this->tei = null;
         $this->teiDom = null;
+        if (property_exists($this, 'file')) $this->file = null;
+        if (property_exists($this, 'filename')) $this->filename = null;
+        if (property_exists($this, 'filemtime')) $this->filemtime = null;
+        if (property_exists($this, 'filesize')) $this->filesize = null;
+        if (property_exists($this, 'contents')) $this->contents = null;
     }
 
 
