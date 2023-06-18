@@ -23,6 +23,8 @@ Check::extension('tidy');
  */
 class Epub extends Zip
 {
+    use Xhtmlable;
+    use Teiable;
     /** Opf content as a string */
     private ?string $opf_xml;
     /** path of the opf file */
@@ -40,7 +42,7 @@ class Epub extends Zip
     /** A css model with semantic properties */
     private CssModel $style;
     /** A private dom of the html */
-    private ?DOMDocument $dom;
+    // private ?DOMDocument $dom;
     /** Regexp program to clean some html oddidie */
     private array $preg;
 
@@ -82,12 +84,13 @@ class Epub extends Zip
      */
     public function load(string $file): bool
     {
-        $this->style = new CssModel();
-        unset($this->dom);
-        $this->chops = 0;
+        $this->teiReset();
+        $this->xhtmlReset();
         if (!parent::load($file)) {
             return false;
         }
+        $this->style = new CssModel();
+        $this->chops = 0;
         if (null === ($cont = $this->get('META-INF/container.xml'))) {
             Log::warning(I18n::_('Epub.container404', $file));
             return false;
@@ -142,28 +145,17 @@ class Epub extends Zip
     }
 
     /**
-     * 
-     */
-    public function html(): string
-    {
-        $this->dom();
-        $this->dom->formatOutput = true;
-        return $this->dom->saveXML();
-    }
-
-    /**
      * Build a dom from epub sections
      */
-    private function dom(): void
+    public function xhtmlMake(?array $pars = null): void
     {
-        if (isset($this->dom) && $this->dom != null) return;
         if (!isset($this->opf_dom)) {
             Log::error(I18n::_('Epub.load'));
             throw new Exception(I18n::_('Epub.load'));
         }
         $sections = $this->sections();
         $sections = preg_replace($this->preg[0], $this->preg[1], $sections);
-        $html = "<article 
+        $xhtml = "<article 
   xmlns=\"http://www.w3.org/1999/xhtml\"
   xmlns:epub=\"http://www.idpf.org/2007/ops\"
 >
@@ -173,9 +165,9 @@ class Epub extends Zip
 " . $sections . "
 </article>
 ";
-        // print $html;
-        $dom = Xt::loadXml($html);
-        $this->dom = Xt::transformToDoc(
+        // print $xhtml;
+        $dom = Xt::loadXml($xhtml);
+        $this->xhtmlDom = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/epub_teinte_html.xsl', 
             $dom
         );
@@ -238,49 +230,31 @@ class Epub extends Zip
     /**
      * transform to TEI
      */
-    public function teiToDoc(): ?DOMDocument
+    public function teiMake(?array $pars = null): void
     {
-        // ensure html generation
-        $this->dom();
-        // produce a <teiHeader>
-        $metadata = $this->opf_dom->getElementsByTagName('metadata')->item(0);
+        // ensure xhtml generation
+        $this->xhtmlDom();
 
-        $dom = Xt::dom();
-        $metadata = $dom->importNode($metadata, true);
-        $dom->appendChild($metadata);
+        // to produce a <teiHeader>, make a new doc to transform with opf
+        $metadata = $this->opf_dom->getElementsByTagName('metadata')->item(0);
+        $metaDoc = Xt::dom();
+        $metadata = $metaDoc->importNode($metadata, true);
+        $metaDoc->appendChild($metadata);
 
         $teiHeader = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/epub_dc_tei.xsl', 
-            $dom
+            $metaDoc
         );
         // toDom for indent-
-        $dom = Xt::transformToDoc(
+        $this->teiDom = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/html_tei.xsl', 
-            $this->dom
+            $this->xhtmlDom
         );
-        $teiHeader = $dom->importNode($teiHeader->documentElement, true);
-        $first = self::elder($dom->documentElement);
-        $dom->documentElement->insertBefore($teiHeader, $first);
-        $dom->formatOutput = true;
-        return $dom;
+        $teiHeader = $this->teiDom->importNode($teiHeader->documentElement, true);
+        $text = Xt::firstElementChild($this->teiDom->documentElement);
+        $this->teiDom->documentElement->insertBefore($teiHeader, $text);
+        $this->teiDom->formatOutput = true;
     }
-
-    public function tei(): ?string
-    {
-        $dom = $this->teiToDoc();
-        return $dom->saveXML();
-    }
-
-    public static function elder(DOMNode $node): ?DOMElement
-    {
-        if(XML_ELEMENT_NODE != $node->nodeType ) return null;
-        if (!$node->hasChildNodes()) return null;
-        for ($i = 0, $count = $node->childNodes->count(); $i < $count; $i++) {
-            $el = $node->childNodes->item($i);
-            if(XML_ELEMENT_NODE == $el->nodeType) return $el; 
-        }
-    }
-
 
     /**
      * Populate the spine table, requires load() and manifest()

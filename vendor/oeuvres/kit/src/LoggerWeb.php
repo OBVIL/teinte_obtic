@@ -24,7 +24,7 @@ class LoggerWeb extends Logger
     protected function write($level, $message)
     {
         $message = preg_replace('/\n/', "\n<br/>", $message);
-        echo "<pre class=\"log $level\">[$level] $message</pre>\n";
+        echo "<div class=\"log $level\">[$level] $message</div>\n";
     }
 
     public function __construct(

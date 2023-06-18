@@ -176,7 +176,7 @@ class Filesys
     /**
      * A safe mkdir dealing with rights
      * 
-     * @return true if done, false on error
+     * @return true if done, false on error (message logged)
      */
     static function mkdir(string $dir):bool
     {
@@ -219,46 +219,58 @@ class Filesys
     /**
      * Recursive deletion of a directory
      * If $keep = true, base directory is kept with its acl
-     * Return true if OK,
-     * or an informative message if not.
+     * Return true if OK (deleted or already deleted).
+     * Report is logged in one multi-line message
      */
-    static public function rmdir(string $dir, bool $keep = false)
+    static public function rmdir(string $path, bool $keep = false)
     {
-        $pref = __CLASS__ . "::" . __FUNCTION__ . "  ";
         // nothing to delete, go away
-        if (!file_exists($dir)) {
-            return $pref . "Path not found, remove impossible:\n\"$dir\"";
-        }
-        if (is_file($dir)) {
-            return $pref . "Path is a file, not a directory to remove:\n\"$dir\"";
-        }
-
-        if (!($handle = opendir($dir))) {
-            return $pref . "Dir impossible to open for remove:\n\"$dir\"";
+        if (!file_exists($path)) {
+            Log::debug("Path not found, remove impossible:\n\"$dir\"");
+            return true;
         }
         $log = [];
+        self::rm_recurs($path, $log, $keep);
+        if (count($log) > 0) {
+            Log::warning(implode("\n", $log));
+            return false;
+        }
+        // everything has been OK
+        return true;
+    }
+
+    static private function rm_recurs($path, &$log, $keep = false)
+    {
+        if (is_link($path) || is_file($path)) {
+            // retain warnings for first attempt
+            if (!@unlink($path)) {
+                // it is reported that php processes can hanfreeze files
+                gc_collect_cycles();
+                if (!@unlink($path)) {
+                    $log[] = "File impossible to delete (handled by a process ?):\n\"$path\"";
+                }
+            }
+            return true;
+        }
+        if (!($handle = opendir($path))) {
+            $log[] = "Dir impossible to open for remove:\n\"$path\"";
+            return false;
+        }
+        $count= count($log);
         while (false !== ($entry = readdir($handle))) {
             if ($entry == "." || $entry == "..") {
                 continue;
             }
-            $path = $dir . DIRECTORY_SEPARATOR . $entry;
-            if (is_link($path) || is_file($path)) {
-                if (!unlink($path)) {
-                    $log[] = $pref . "Dir impossible to delete:\n\"$dir\"";
-                }
-            } else if (is_dir($path)) {
-                if (true !== ($ret = self::rmdir($path))) $log[] = $ret;
-            } else {
-                $log[] = $pref . "Path not file nor dir:\n\"$dir\"";
-            }
+            $path_entry = $path . DIRECTORY_SEPARATOR . $entry;
+            self::rm_recurs($path_entry, $log);
         }
         closedir($handle);
-        if (!$keep) {
-            if (true !== rmdir($dir)) $log[] = $pref . "Dir empty but impossible to remove:\n\"$dir\"";
+        // if dir not kept, and no more logged error, container could be deleted 
+        if (!$keep && count($log) == $count) {
+            if (true !== rmdir($path)) {
+                $log[] = "Dir empty but impossible to remove:\n\"$dir\"";
+            }
         }
-        if (count($log) > 0) return implode("\n", $log);
-        // everything has been OK
-        return true;
     }
 
 

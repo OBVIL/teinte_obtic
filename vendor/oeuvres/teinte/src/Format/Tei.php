@@ -19,10 +19,49 @@ use Oeuvres\Teinte\Tei2\{AbstractTei2};
 /**
  * A tei file with export strategies
  */
-class Tei extends Xml
+class Tei extends File
 {
+    use Teiable;
     /** Array of templates, registred by format when relevant */
     protected array $templates = [];
+
+    /**
+     * Load XML/TEI as a string, normalize and load it as DOM
+     */
+    public function loadXml(string $xml):DOMDocument
+    {
+        $this->teiReset();
+        $tei = static::lint($xml);
+        $this->tei = $tei;
+        // spaces are normalized upper, keep them
+        // set dom properties before loading
+        $dom = new DOMDocument();
+        $dom->substituteEntities = true;
+        $dom->preserveWhiteSpace = true;
+        $dom->formatOutput = false;
+        $this->teiDom = Xt::loadXml($tei, $dom);
+        if (!$this->teiDom) {
+            throw new Exception("XML malformation");
+        }
+        return $this->teiDom;
+    }
+
+    /**
+     * Load a dom directy, 
+     */
+    public function loadDom(DOMDocument $dom)
+    {
+        $this->teiReset();
+        $this->teiDom = $dom;   
+    }
+
+    /**
+     * Nothing to do, already TEI
+     */
+    public function teiMake(?array $pars = null): void
+    {
+
+    }
 
     private function pars(string $format, ?array $pars = null)
     {

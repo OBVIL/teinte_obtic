@@ -118,7 +118,10 @@ class Xt
         return $dom;
     }
 
-    public static function elder(DOMNode $node): ?DOMElement
+    /**
+     * Get first child element of a node (when element)
+     */
+    public static function firstElementChild(DOMNode $node): ?DOMElement
     {
         if(XML_ELEMENT_NODE != $node->nodeType ) return null;
         if (!$node->hasChildNodes()) return null;

@@ -21,10 +21,10 @@ use Oeuvres\Xsl\{Xpack};
  */
 class Markdown extends File
 {
+    use Teiable;
+    use Xhtmlable;
     static $init = false;
     static private ParsedownExtra $parser;
-    /** keep last html */
-    private string $html;
     
     /**
      * Get an md parser
@@ -42,23 +42,23 @@ class Markdown extends File
     /**
      * Output html from content
      */
-    public function html():string
+    public function xhtmlMake(?array $pars = null):void
     {
         $contents = $this->contents();
         if (!$contents) {
             throw new Exception(I18n::_('File.noload', $this->file));
         }
-        $html = self::$parser->text($contents);
+        $xhtml = self::$parser->text($contents);
         /*
-        $html = "<article xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+        $xhtml = "<article xmlns=\"http://www.w3.org/1999/xhtml\">\n"
             ."  <section>\n"
-            . $html
+            . $xhtml
             . "  </section>\n"
             ."</article>\n";
         */
         // restore hirearchy of title
         $last = -1;
-        $html =  preg_replace_callback(
+        $xhtml =  preg_replace_callback(
             "/<h(\d)|(<[a-z]+ [^>]*(class|id)=\"footnotes\"[^>]*>)/",
             function ($matches) use (&$last) {
                 // if first header is not <h1>, force to 1
@@ -92,35 +92,29 @@ class Markdown extends File
                 else $last = $level;
                 return $hier;
             },
-            $html
+            $xhtml
         );
-        $html = "<article xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+        $xhtml = "<article xmlns=\"http://www.w3.org/1999/xhtml\">\n"
         . "  <section>\n"
-        . $html
+        . $xhtml
         . "  </section>\n";
         for ($i = 1; $i < $last; $i++) {
-            $html .= "  </section>\n";
+            $xhtml .= "  </section>\n";
         }
-        $html.= "</article>\n";
-
-        $this->html = $html;
-        return $this->html;
+        $xhtml.= "</article>\n";
+        $this->xhtml = $xhtml;
     }
     /**
-     * Output tei from html from contents
+     * Make tei, kept internally as dom
      */
-    public function tei():string
+    public function teiMake(?array $pars = null):void
     {
-        if (!isset($this->html) || !$this->html) {
-            $this->html();
-        }
-        // is it xml conformant ? let’s see
-        $dom = Xt::loadXml($this->html);
-        $tei = Xt::transformToXml(
+        // ensure html making
+        $xhtmlDom = $this->xhtmlDom();
+        $this->teiDom = Xt::transformToDoc(
             Xpack::dir() . 'html_tei/html_tei.xsl', 
-            $dom
+            $xhtmlDom
         );
-        return $tei;
     }
 
 }
