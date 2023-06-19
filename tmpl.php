@@ -39,7 +39,7 @@ use \Oeuvres\Kit\{Http, Route};
       </div>
     </footer>
   </div>
-  <script type="module" type="text/javascript" src="<?= Route::home_href() ?>obtic_teinte.js"> </script>
+  <script type="module" type="text/javascript" src="<?= Route::home_href() ?>teinte_obtic.js"> </script>
 </body>
 
 </html>
