@@ -96,7 +96,7 @@ class Working
                 continue;
             }
             else {
-                Log::info('Raffraîchir, "' . $fileinfo->getBasename() . '"');
+                Log::info('Rafraîchir, "' . $fileinfo->getBasename() . '"');
             }
             // only for files to work on
             $todo[$name] = $src_file;
@@ -160,6 +160,7 @@ class Working
                 Log::error($e->getMessage());
                 continue;
             }
+            Filesys::mkdir(dirname($tei_file));
             file_put_contents($tei_file, $tei->tei());
             // transform tei in requested formats and dir
             foreach (['docx', 'html', 'markdown'] as $format) {
