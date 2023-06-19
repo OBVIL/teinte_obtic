@@ -1323,19 +1323,11 @@ Tables
           <br/>
         </span>
       </xsl:when>
-      <xsl:when test="@n and ancestor::tei:p">
-        <xsl:text> </xsl:text>
-        <small class="l">[l. <xsl:value-of select="@n"/>]</small>
-        <xsl:text> </xsl:text>
-      </xsl:when>
       <xsl:when test="@n">
-        <small class="lb">
-          <xsl:text>
-  </xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <small class="l">
           <br/>
-          <xsl:value-of select="@n"/>
-          <xsl:text> </xsl:text>
-        </small>
+          [l. <xsl:value-of select="@n"/>]  </small>
       </xsl:when>
       <xsl:otherwise>
         <br>
