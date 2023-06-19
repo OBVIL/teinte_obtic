@@ -10,7 +10,7 @@ use Oeuvres\Kit\{FileSys, I18n, Http, Log, LoggerWeb, Route};
 use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
 
 
-Log::setLogger(new LoggerWeb(LogLevel::DEBUG));
+Log::setLogger(new LoggerWeb(LogLevel::INFO));
 Working::init();
 
 
