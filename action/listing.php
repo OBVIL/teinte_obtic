@@ -79,6 +79,22 @@ class Listing
   </thead>
   <tbody>
 ';
+        // zip générés
+        echo '
+    <tr>
+      <td>Exports zippés, par format</td>
+        ';
+        foreach (self::$exports as $format ) {
+            $href = self::$config[self::WORK_HREF];
+            echo "<td><a href=\"$href/teinte_$format.zip\"><img width=\"48\" src=\"theme/icon_$format.svg\"/></a></td>\n";
+        }
+        echo '
+    </tr>
+    <tr>
+        <td> </td>
+    </tr>
+';
+
         $src_dir = self::$config[self::WORK_DIR] . self::_SRC;
 
         $dirit = new DirectoryIterator($src_dir);

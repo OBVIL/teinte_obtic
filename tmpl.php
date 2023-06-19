@@ -27,6 +27,7 @@ use \Oeuvres\Kit\{Http, Route};
         </a>
       <nav id="tabs">
         <?= Route::tab('', 'Accueil') ?>
+        <?= Route::tab('lots', 'Lots') ?>
         <?= Route::tab('contact', 'Contact') ?>
         <a target="_blank" id="github" href="https://github.com/OBVIL/teinte_obtic">Open Source</a>
       </nav>
