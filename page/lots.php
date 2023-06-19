@@ -5,11 +5,7 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
 use \Oeuvres\Kit\{Http, Route};
 
 ?>
-<style>
-#upload, #download {display:none;}
-#preview {margin-left: auto; margin-right: auto;}
-</style>
-<article>
+<article id="lots">
     <h1>Traitements par lots</h1>
     <p>L’administrateur de cette installation a posé des fichiers dans un dossier de travail avec son accès FTP. Cette page permet de les transformer dans tous les formats disponibles.</p>
     <form id="form" target="working" method="post"
@@ -22,6 +18,25 @@ use \Oeuvres\Kit\{Http, Route};
     name="working"
     src="working">
     </iframe>
+    <div id="table">
+
+    </div>
     <script>
+const table = document.getElementById('table');
+const working = document.getElementById('working');
+working.addEventListener('load', function () {
+    const url = 'listing';
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+        table.innerHTML = this.responseText;
+    };
+    xhr.open('GET', url);
+    xhr.send(); 
+});
+const form = document.getElementById('form');
+form.addEventListener('submit', function () {
+    table.innerHTML = '';
+});
+
     </script>
 </article>

@@ -14,6 +14,8 @@ use Oeuvres\Kit\{Route, I18n, Http, Log, LoggerWeb};
 Route::post('/upload', __DIR__ . '/action/upload.php', [], null);
 // download transformed uploaded file
 Route::get('/download', __DIR__ . '/action/download.php', [], null);
+// list files working
+Route::get('/listing', __DIR__ . '/action/listing.php', [], null);
 // Run the daemon on the work directory
 Route::route(
     '/working', // path to request

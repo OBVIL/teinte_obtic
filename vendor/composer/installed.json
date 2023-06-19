@@ -118,12 +118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "acbf130ef2c48a961a3ce38cb34d0d2ef7f90cad"
+                "reference": "3da4c853b5ed8513f5130bd5650c8e2c132b3c23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/acbf130ef2c48a961a3ce38cb34d0d2ef7f90cad",
-                "reference": "acbf130ef2c48a961a3ce38cb34d0d2ef7f90cad",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/3da4c853b5ed8513f5130bd5650c8e2c132b3c23",
+                "reference": "3da4c853b5ed8513f5130bd5650c8e2c132b3c23",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,7 @@
                 "php": ">=7.2",
                 "psr/log": "1.1.4"
             },
-            "time": "2023-06-18T11:31:44+00:00",
+            "time": "2023-06-19T02:56:05+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",

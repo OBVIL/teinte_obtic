@@ -22,7 +22,7 @@ class Working
     static private bool $init = false;
     /** Configuration */
     static private $config=[];
-    /** Export formats */
+    /** Supported sources */
     static private $src_ext = [
         'docx' => true,
         'epub' => true,

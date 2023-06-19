@@ -402,3 +402,30 @@ body.action {
     background-color: #fff;
     color: #000;
 }
+
+#lots {
+    min-height: 100%;
+}
+#table {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+#table th.format {
+    width: 48px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#table td {
+    vertical-align: middle;
+}
+
+
+#table td a {
+    display: block;
+}
+
+#table td a:hover {
+    background-color: #eee;
+}
