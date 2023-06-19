@@ -166,6 +166,8 @@ class Epub extends Zip
         }
         $sections = $this->sections();
         $sections = preg_replace($this->preg[0], $this->preg[1], $sections);
+        $css = "";
+        $css = htmlspecialchars($this->style->contents(), ENT_NOQUOTES|ENT_IGNORE);
         $xhtml = "<article 
   xmlns=\"http://www.w3.org/1999/xhtml\"
   xmlns:epub=\"http://www.idpf.org/2007/ops\"
@@ -174,7 +176,7 @@ class Epub extends Zip
 " . $this->style->asXml() . "
   </template>
   <style title=\"epub\">
-" . $this->style->contents() . "
+" . $css . "
   </style>
 " . $sections . "
 </article>
