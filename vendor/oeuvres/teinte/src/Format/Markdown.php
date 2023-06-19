@@ -26,6 +26,7 @@ class Markdown extends File
     static $init = false;
     static private ParsedownExtra $parser;
     
+
     /**
      * Get an md parser
      */

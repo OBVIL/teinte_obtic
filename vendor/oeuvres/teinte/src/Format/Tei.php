@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Oeuvres\Teinte\Format;
 
 use Exception, DOMDocument, DOMXpath;
-use Oeuvres\Kit\{Filesys,Log};
+use Oeuvres\Kit\{Filesys,Log, Xt};
 use Oeuvres\Teinte\Tei2\{AbstractTei2};
 
 /**
@@ -24,6 +24,20 @@ class Tei extends File
     use Teiable;
     /** Array of templates, registred by format when relevant */
     protected array $templates = [];
+
+
+    /**
+     * Load XML/TEI as a file (preferred way to hav some metas).
+     */
+    public function load(string $src_file): bool
+    {
+        $this->teiReset();
+        if (!parent::{__FUNCTION__}(...func_get_args())) {
+            return false;
+        }
+        $this->loadXml($this->contents());
+        return true;
+    }
 
     /**
      * Load XML/TEI as a string, normalize and load it as DOM
@@ -146,12 +160,12 @@ class Tei extends File
     {
         if (!is_file($tmpl_file)) {
             throw new \InvalidArgumentException(
-                "Template: \"\033[91m$tmpl_file\033[0m\" is not a valid file"
+                "Template: \"$tmpl_file\" is not a valid file"
             );
         }
         if (!AbstractTei2::has($format)) {
             throw new \InvalidArgumentException(
-                "Template: \"\033[91m$format\033[0m\" format not yet available as a TEI export"
+                "Template: \"$format\" format not yet available as a TEI export"
             );
         }
         // validate extension ?

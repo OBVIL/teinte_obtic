@@ -177,12 +177,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_php.git",
-                "reference": "3fdef20c9788b0538fb43148bc16e6e19aa94540"
+                "reference": "7dc6e27b376069835f8fe6b7b32fc0bbd596b7ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/3fdef20c9788b0538fb43148bc16e6e19aa94540",
-                "reference": "3fdef20c9788b0538fb43148bc16e6e19aa94540",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/7dc6e27b376069835f8fe6b7b32fc0bbd596b7ed",
+                "reference": "7dc6e27b376069835f8fe6b7b32fc0bbd596b7ed",
                 "shasum": ""
             },
             "require": {
@@ -192,7 +192,7 @@
                 "oeuvres/xsl": "dev-main",
                 "php": ">=7.2"
             },
-            "time": "2023-06-18T20:45:39+00:00",
+            "time": "2023-06-18T23:46:09+00:00",
             "default-branch": true,
             "bin": [
                 "bin/teinte"
