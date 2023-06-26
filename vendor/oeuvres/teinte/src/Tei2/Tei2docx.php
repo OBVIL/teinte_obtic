@@ -70,7 +70,7 @@ class Tei2docx extends AbstractTei2
      */
     static function toUri($dom, $dst_file, ?array $pars=null)
     {
-        Log::info("Tei2" . static::NAME ." $dst_file");
+        Log::debug("Tei2" . static::NAME ." $dst_file");
         $template = self::template($pars);
         if (!Filesys::readable($template)) {
             throw new Exception("“{$template}” not readble as a template file");

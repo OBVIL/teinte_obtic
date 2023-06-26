@@ -25,7 +25,7 @@ abstract class Tei2simple extends AbstractTei2
     // static abstract public function toUri(DOMDocument $dom, string $dstFile, ?array $pars = null): void;
     static public function toUri(DOMDocument $dom, string $dstFile, ?array $pars = null): void
     {
-        Log::info("Tei2" . static::NAME . "->toUri() " . $dstFile);
+        Log::debug("Tei2" . static::NAME . "->toUri() " . $dstFile);
         if ($pars === null) $pars = self::$pars;
         Xt::transformToUri(
             Xpack::dir() . static::XSL,

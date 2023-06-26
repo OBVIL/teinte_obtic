@@ -4,6 +4,7 @@ namespace Oeuvres\Teinte;
 
 include_once(dirname(__DIR__) . '/vendor/autoload.php');
 
+
 use DirectoryIterator, Exception;
 use Psr\Log\{LogLevel};
 use Oeuvres\Kit\{FileSys, I18n, Http, Log, LoggerWeb, Route};
@@ -52,7 +53,7 @@ class Listing
             $config_file = dirname(__DIR__).'/config.php';
             if (!is_readable($config_file)) break;
             $config = require($config_file);
-            if (!isset($config[Work::DIR])) break;
+            if (!isset($config[self::WORK_DIR])) break;
             self::$config = array_merge(self::$config, $config);
         } while(false);
         self::$config[self::WORK_DIR] = rtrim(self::$config[self::WORK_DIR], '/\\.') . '/';

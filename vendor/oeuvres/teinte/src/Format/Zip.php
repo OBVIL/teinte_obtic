@@ -53,6 +53,14 @@ class Zip extends File
     }
 
     /**
+     * Return zip object
+     */
+    public function zip():?ZipArchive
+    {
+        return $this->zip;
+    }
+
+    /**
      * Try to get entry, log nicely if error,
      * 
      */
@@ -66,6 +74,38 @@ class Zip extends File
         // check if entry is empty ?
         return $this->zip->getFromName($name);
 
+    }
+
+    /**
+     * filtered list of entries, by formats
+     */
+    public function flist($formats = [])
+    {
+        $formats = array_flip($formats);
+        // list entries
+        $ls = [];
+        for($i = 0, $num = $this->zip->numFiles; $i < $num; $i++) 
+        {
+            $stat = $this->zip->statIndex($i);
+            $format = File::path2format($stat['name']);
+            if (!isset($formats[$format])) continue;
+
+
+            $rec = [];
+            $rec['path'] = $stat['name'];
+            $pathinfo = pathinfo($rec['path']);
+            $name = $pathinfo['filename'];
+            // group files by key
+            if (!isset($ls[$name])) $ls[$name] = [];
+            $rec['name'] = $name;
+            $rec['format'] = $format;
+            $rec['ext'] = ltrim($pathinfo['filename'], '.');
+            $rec['bytes'] = $stat['size'];
+            $rec['size'] = Filesys::bytes_human($rec['bytes']);
+            $ls[$name][] = $rec;
+        }
+        ksort($ls);
+        return $ls;
     }
 
     /**

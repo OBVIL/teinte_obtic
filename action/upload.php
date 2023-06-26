@@ -7,9 +7,10 @@ error_reporting(E_ALL);
 include_once(__DIR__ . '/inc.php');
 
 use Psr\Log\LogLevel;
-use Oeuvres\Kit\{Filesys, Http, I18n, Log, LoggerWeb};
-use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
+use Oeuvres\Kit\{Config, Filesys, Http, I18n, Log, LoggerWeb};
+use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei, Zip};
 use Oeuvres\Teinte\Tei2\{Tei2article};
+
 
 // supposed required to output logging line by line
 header( 'Content-type: text/html; charset=utf-8' );
@@ -45,14 +46,18 @@ $cookie = [];
 if (isset($_COOKIE[TEINTE])) {
     $cookie = json_decode($_COOKIE[TEINTE], true);
 }
-if (!isset($cookie_teinte['id'])) {
-    $cookie['id'] = uniqid();
+if (!isset($cookie['id'])) {
+    // $cookie['id'] = uniqid();
+    $cookie['id'] = "DEBUG";
 }
 
 
-$temp_dir = $config[TEMP_DIR] . $cookie['id'] . "/";
-Filesys::mkdir($temp_dir);
-// TODO log if something went wrong in tmp dir creation
+$temp_dir = Config::get(TEMP_DIR) . $cookie['id'] . "/";
+if (!Filesys::mkdir($temp_dir)) {
+    // if debug message will be oututed
+    Log::error("Impossible de créer le dossier temporaire :" . $temp_dir);
+    die();
+}
 
 if (!isset($upload['name']) || !$upload['name']) {
     // no original name ? 
@@ -66,14 +71,65 @@ if (!move_uploaded_file($upload["tmp_name"], $src_file)) {
     echo I18n::_('upload.nomove', $upload["tmp_name"],  $src_file);
     die();
 }
-$cookie['src_basename'] = $upload['name'];
+$cookie['src_filename'] = $upload['name'];
+$format = File::path2format($upload['name']);
+
+// if zip, loop on entries, shows them
+// supported input formats
+$formats_in = ['docx', 'epub', 'markdown', 'tei'];
+if ($format === "zip") {
+    cookie($cookie);
+    ob_flush();
+    flush();
+    $zip = new Zip();
+    if (!$zip->load($src_file))  {
+        echo Log::last();
+        die();
+    }
+    $entries = $zip->flist($formats_in);
+    $n = 0;
+    echo "
+<table class=\"sortable\">
+  <caption>Textes convertibles dans {$upload['name']}</caption>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>clé</th>
+      <th>format</th>
+      <th>taille</th>
+      <th>chemin</th>
+    </tr>
+  </thead>
+  <tbody>\n";
+    foreach ($entries as $name => $rows) {
+        $class = "";
+        if (count($rows) > 1) {
+            $class .= 'duplicate';
+        }
+        foreach ($rows as $f) {
+            $n++;
+            echo "<tr class=\"$class\">
+    <th class=\"n\">$n</th>
+    <td class=\"key\">{$name}</td>
+    <td class=\"format\">{$f['format']}</td>
+    <td class=\"size\">{$f['size']}</td>
+    <td class=\"path\">{$f['path']}</td>
+  </tr>\n";
+        }
+    }
+    echo "</tbody>
+    </table>\n";
+    require(__DIR__ . '/zipform.php');
+    die();
+}
+
 $src_name =  pathinfo($upload['name'], PATHINFO_FILENAME);
 $cookie['name'] =  $src_name;
 
-// tei_file TODO
+// format compatible TEI
+
 $tei_file = $temp_dir . $src_name . ".xml"; 
 $cookie['tei_basename'] = basename($tei_file);
-$format = File::path2format($upload['name']);
 $tei = new Tei();
 
 

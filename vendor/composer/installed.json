@@ -118,12 +118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "3da4c853b5ed8513f5130bd5650c8e2c132b3c23"
+                "reference": "cf8cae5e1bbcb3ba033ab70809571ef9cc32ee0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/3da4c853b5ed8513f5130bd5650c8e2c132b3c23",
-                "reference": "3da4c853b5ed8513f5130bd5650c8e2c132b3c23",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/cf8cae5e1bbcb3ba033ab70809571ef9cc32ee0a",
+                "reference": "cf8cae5e1bbcb3ba033ab70809571ef9cc32ee0a",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,7 @@
                 "php": ">=7.2",
                 "psr/log": "1.1.4"
             },
-            "time": "2023-06-19T02:56:05+00:00",
+            "time": "2023-06-25T08:52:40+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",
@@ -177,12 +177,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_php.git",
-                "reference": "16e2656c919c9c793081a657a622892c7a6efa45"
+                "reference": "26d51cfe26653152c56aa1a44235a0a01f7560ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/16e2656c919c9c793081a657a622892c7a6efa45",
-                "reference": "16e2656c919c9c793081a657a622892c7a6efa45",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/26d51cfe26653152c56aa1a44235a0a01f7560ac",
+                "reference": "26d51cfe26653152c56aa1a44235a0a01f7560ac",
                 "shasum": ""
             },
             "require": {
@@ -192,7 +192,7 @@
                 "oeuvres/xsl": "dev-main",
                 "php": ">=7.2"
             },
-            "time": "2023-06-19T01:11:49+00:00",
+            "time": "2023-06-25T08:53:41+00:00",
             "default-branch": true,
             "bin": [
                 "bin/teinte"

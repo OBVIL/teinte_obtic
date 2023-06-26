@@ -31,7 +31,7 @@ class Working
         'txt' => true,
         'xml' => true,
     ];
-        /**
+    /**
      * Inialize static variables
      */
     static function init(): void
@@ -43,10 +43,10 @@ class Working
             $config_file = dirname(__DIR__).'/config.php';
             if (!is_readable($config_file)) break;
             $config = require($config_file);
-            if (!isset($config[Work::DIR])) break;
+            if (!isset($config[self::WORK_DIR])) break;
             // try to create dir and alert dev if it doesn’t work
-            if (! Filesys::writable($config[Work::DIR])) {
-                exit("[work.php] Configuration problem. Folder not writable: " . $config[Work::DIR]);
+            if (! Filesys::writable($config[self::WORK_DIR])) {
+                exit("[work.php] Configuration problem. Folder not writable: " . $config[self::WORK_DIR]);
             }
             self::$config = array_merge(self::$config, $config);
         } while(false);

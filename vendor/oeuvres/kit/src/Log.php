@@ -157,7 +157,9 @@ class Log
     {
         // log error of logging ?
         if (!isset(self::$loggers[$channel])) $channel = self::MAIN;
-        // always store last messsage
+        // always store last messsage, even if log is not outputed
+        // it allows to communicate error messages from libs
+        // mimics php error_get_last()
         self::$last[$channel] = $message;
         self::$loggers[$channel]->log($level, $message, $context);
     }

@@ -110,6 +110,15 @@ class Filesys
     }
 
     /**
+     * Human readable bytes
+     */
+    public static function bytes_human($bytes)
+    {
+        $i = floor(log($bytes, 1024));
+        return round($bytes / pow(1024, $i), [0,0,2,2,3][$i]).['B','kB','MB','GB','TB'][$i];
+    }
+
+    /**
      * Get relative path between 2 absolute file path
      */
     public static function relpath(string $from, string $to): string

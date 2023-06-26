@@ -8,5 +8,6 @@
     "tei": "tei",
     "txt": "markdown",
     "xhtml": "html",
-    "xml": "tei"
-} 
+    "xml": "tei",
+    "zip": "zip"
+}

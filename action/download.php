@@ -4,7 +4,7 @@ include_once(__DIR__ . '/inc.php');
 
 
 use Psr\Log\LogLevel;
-use Oeuvres\Kit\{Http, I18n, Log, LoggerTxt, Parse};
+use Oeuvres\Kit\{Config, Http, I18n, Log, LoggerTxt, Parse};
 use Oeuvres\Teinte\Format\{File, Tei};
 use Oeuvres\Teinte\Tei2\{Tei2toc,Tei2article};
 
@@ -35,7 +35,7 @@ ob_clean();
 
 
 // nothing has been uploaded
-if (!isset($_COOKIE['teinte'])) {
+if (!isset($_COOKIE[TEINTE])) {
     attach("Teinte, " . I18n::_("ERROR_NO_UPLOAD") . '.txt');
     Log::error(I18n::_('download.nofile'));
     print_r($_COOKIE);
@@ -79,7 +79,7 @@ $dst_basename = $cookie['name'] . '.' . File::format2ext($format);
 attach($dst_basename);
 
 
-$temp_dir = $config[TEMP_DIR] . $cookie['id'] . "/";
+$temp_dir = Config::get(TEMP_DIR) . $cookie['id'] . "/";
 $tei_file = $temp_dir . $cookie['tei_basename'];
 // Tei Export
 if ($format == "tei") {

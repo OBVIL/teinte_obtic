@@ -38,11 +38,11 @@ const formats = {
     }
 };
 const conversions = {
-    "docx": ["tei", "html", "markdown"],
+    "docx": ["html", "markdown", "tei"],
+    "epub": ["docx", "html", "markdown", "tei"],
+    "markdown": ["docx", "html", "tei"],
     "tei": ["docx", "html", "markdown"],
-    "docx": ["tei", "html", "markdown"],
-    "epub": ["tei", "docx", "html", "markdown"],
-    "markdown": ["tei", "docx", "html"],
+    "zip": ["docx", "html", "markdown", "tei"],
 }
 
 
@@ -120,13 +120,14 @@ function dropInit() {
         format = ext2format[ext];
         if (!format) format = ext;
         if (!(format in conversions)) {
-            dropOutput.innerHTML = '<b>“' + format + '” format<br/>is not  supported</b><br/>' + file.name;
+            dropOutput.innerHTML = '<b>“' + format + '” : ce format de fichier<br/>n’est pas supporté</b><br/>' + file.name;
             return;
         }
         dropOutput.innerHTML = '<div class="filename">' + file.name + '</div>' 
         + '<div class="format ' + format + '"></div>';
         upload();
     }
+
     async function upload() {
         dropPreview.classList.remove("inactive");
         dropPreview.innerHTML = '<p class="center">Fichier en cours de traitement… (jusqu’à plusieurs secondes selon le format et la taille du fichier)</p>'
@@ -140,6 +141,10 @@ function dropInit() {
             body: formData
         }).then((response) => {
             if (response.ok) {
+                if (format == 'zip') {
+                    dropExports.innerHTML = '';
+                    return response.text(); 
+                }
                 let downs = conversions[format];
                 dropDownzone.classList.remove("inactive");
                 dropDownzone.classList.add("active");

@@ -115,6 +115,11 @@ class Tei extends File
         if (!Filesys::writable($uri)) {
             throw new Exception("“{$uri}” not writable as a destination file");
         }
+        if ($format == 'tei') {
+            // TODO : copy linked images 
+            file_put_contents($uri, $this->tei());
+            return;
+        } 
         $transfo = AbstractTei2::transfo($format);
         $pars = $this->pars($format, $pars);
         $transfo::toUri($this->teiDoc, $uri, $pars);
