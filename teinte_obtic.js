@@ -142,6 +142,7 @@ function dropInit() {
         }).then((response) => {
             if (response.ok) {
                 if (format == 'zip') {
+                    dropPreview.classList.add("active");
                     dropExports.innerHTML = '';
                     return response.text(); 
                 }

@@ -47,8 +47,7 @@ if (isset($_COOKIE[TEINTE])) {
     $cookie = json_decode($_COOKIE[TEINTE], true);
 }
 if (!isset($cookie['id'])) {
-    // $cookie['id'] = uniqid();
-    $cookie['id'] = "DEBUG";
+    $cookie['id'] = uniqid();
 }
 
 
