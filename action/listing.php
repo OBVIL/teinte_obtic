@@ -7,7 +7,8 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
 
 use DirectoryIterator, Exception;
 use Psr\Log\{LogLevel};
-use Oeuvres\Kit\{FileSys, I18n, Http, Log, LoggerWeb, Route};
+use Oeuvres\Kit\{Log};
+use Oeuvres\Kit\Logger\{LoggerWeb};
 use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
 
 

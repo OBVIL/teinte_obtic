@@ -26,19 +26,21 @@ class Epub extends Zip
     use Htmlable;
     use Teiable;
     /** Opf content as a string */
-    private ?string $opf_xml;
+    private ?string $opfXML;
     /** path of the opf file */
-    private ?string $opf_path;
+    private ?string $opfPath;
     /** opf directory to solve relative path */
-    private ?string $opf_dir = '';
-    /** toc directory to solve relative path */
-    private ?string $ncx_dir = '';
+    private ?string $opfDir = '';
     /** dom version of the opf */
-    private ?DOMDocument $opf_dom;
+    private ?DOMDocument $opfDOM;
     /** xpath version of the opf */
-    private ?DOMXpath $opf_xpath;
+    private ?DOMXpath $opfXpath;
+    /** toc directory to solve relative path */
+    private ?string $ncxDir = '';
     /** manifest of resources, map id => path */
     private $manifest = [];
+    /** spine, map name => path */
+    private $spine = [];
     /** A css model with semantic properties */
     private CssModel $style;
     /** A private dom of the html */
@@ -82,77 +84,85 @@ class Epub extends Zip
     /**
      * DomDoc with right options here (no indent ?)
      */
-    public static function dom() {
-        $dom = new DOMDocument();
-        $dom->substituteEntities = true;
-        $dom->preserveWhiteSpace = true;
-        $dom->formatOutput = false;
-        return $dom;
+    private static function DOM() {
+        $DOM = new DOMDocument();
+        $DOM->substituteEntities = true;
+        $DOM->preserveWhiteSpace = true;
+        $DOM->formatOutput = false;
+        return $DOM;
     }
 
     /**
      * Load and check
      */
-    public function load(string $file): bool
+    public function open(string $file, ?int $flags = 0): bool
     {
-        $this->teiReset();
-        $this->htmlReset();
-        if (!parent::load($file)) {
+        $this->reset();
+        if (!parent::open($file)) {
             return false;
         }
         $this->style = new CssModel();
-        $this->chops = 0;
-        if (null === ($cont = $this->get('META-INF/container.xml'))) {
-            Log::warning(I18n::_('Epub.container404', $file));
+        // $this->chops = 0; // what was it ?
+        
+        return true;
+    }
+
+    /**
+     * Reset props
+     */
+    public function reset():void
+    {
+        parent::reset();
+        unset($this->opfDOM);
+        $this->teiReset();
+        $this->htmlReset();
+
+    }
+
+    /**
+     * Get opf dom
+     */
+    public function opfDOM()
+    {
+        if (isset($this->opfDOM)) return $this->opfDOM; 
+        if (null === ($XML = $this->get('META-INF/container.xml'))) {
+            Log::warning(I18n::_('Epub.container404', $this->file));
             return false;
         }
         // seen, container.xml in UTF-16
-        $dom = Xt::loadXml($cont);
-        $opf_path = null;
-        foreach ($dom->getElementsByTagNameNS(
+        $DOM = Xt::loadXML($XML);
+        $opfPath = null;
+        foreach ($DOM->getElementsByTagNameNS(
             'urn:oasis:names:tc:opendocument:xmlns:container', 
             'rootfile') 
             as $el
         ) {
-            $opf_path = $el->getAttribute('full-path');
+            $opfPath = $el->getAttribute('full-path');
         }
-        if (!$opf_path) {
-            Log::warning(I18n::_('Epub.opf400', $file));
+        if (!$opfPath) {
+            Log::warning(I18n::_('Epub.opf400', $this->file));
             return false;
         }
 
-        $this->opf_path = urldecode($opf_path);
-        if (null === ($this->opf_xml = $this->get($this->opf_path))) {
-            Log::warning(I18n::_('Epub.opf0', $file));
+        $this->opfPath = urldecode($opfPath);
+        if (null === ($this->opfXML = $this->get($this->opfPath))) {
+            Log::warning(I18n::_('Epub.opf0', $this->file));
             return false;
         }
         // set dir for path resolution in opf
-        $this->opf_dir = dirname($this->opf_path);
-        if ($this->opf_dir == ".") $this->opf_dir = "";
-        else $this->opf_dir .= "/"; // ensure ending slash
-        $this->opf_dom = Xt::loadXml($this->opf_xml);
-        // validate minimum required elements
-        $ok = true;
-        foreach (['metadata', 'manifest', 'spine'] as $el) {
-            $nl = $this->opf_dom->getElementsByTagName('manifest');
-            if (!$nl) {
-                Log::warning(I18n::_('Epub.opfel404', $this->file, $this->opf_pat, $el));
-                $ok = false;
-            }
-        }
-        // decode all uris in opf
-        if (!$ok) return false;
-        $this->opf_xpath = new DOMXpath($this->opf_dom);
-        $this->opf_xpath->registerNamespace("opf", "http://www.idpf.org/2007/opf");
-        $nl = $this->opf_xpath->query("//@href");
+        $this->opfDir = dirname($this->opfPath);
+        if ($this->opfDir == ".") $this->opfDir = "";
+        else $this->opfDir .= "/"; // ensure ending slash
+        $this->opfDOM = Xt::loadXML($this->opfXML);
+        $this->opfDOM->documentURI = $this->opfPath;
+        // decode all %## in uris of opf
+        $this->opfXpath = new DOMXpath($this->opfDOM);
+        $this->opfXpath->registerNamespace("opf", "http://www.idpf.org/2007/opf");
+        $nl = $this->opfXpath->query("//@href");
         foreach ($nl as $node) {
             $node->value = urldecode($node->value);
         }
-        // read resources
-        $this->manifest();
-        $this->spine();
-        
-        return true;
+        return $this->opfDOM;
     }
 
     /**
@@ -160,10 +170,19 @@ class Epub extends Zip
      */
     public function htmlMake(?array $pars = null): void
     {
-        if (!isset($this->opf_dom)) {
-            Log::error(I18n::_('Epub.load'));
-            throw new Exception(I18n::_('Epub.load'));
+        // validate minimum required elements
+        $ok = true;
+        $this->opfDOM();
+        foreach (['metadata', 'manifest', 'spine'] as $el) {
+            $nl = $this->opfDOM->getElementsByTagName($el);
+            if (!$nl) {
+                Log::warning(I18n::_('Epub.opfel404', $this->file, $this->opfPath, $el));
+                $ok = false;
+            }
         }
+        // are those files needed ?
+        $this->manifest();
+        $this->spine();
         $sections = $this->sections();
         $sections = preg_replace($this->preg[0], $this->preg[1], $sections);
         $css = "";
@@ -182,12 +201,12 @@ class Epub extends Zip
 </article>
 ";
         // a no indent dom, work is done upper
-        $dom = self::dom();
-        Xt::loadXml($xhtml, $dom);
+        $DOM = self::DOM();
+        Xt::loadXML($xhtml, $DOM);
         // indent yes or indent no (la la la)
-        $this->htmlDoc = Xt::transformToDoc(
+        $this->htmlDOM = Xt::transformToDOM(
             Xpack::dir() . 'html_tei/epub_teinte_html.xsl', 
-            $dom
+            $DOM
         );
     }
     
@@ -196,9 +215,9 @@ class Epub extends Zip
      */
     private function sections(): ?string
     {
-        // concat toc + spine
+        // TODO, concat toc + spine
         $xml = "<pack>\n";
-        $toc = $this->ncx_xml();
+        $toc = $this->ncxXML();
         if (!$toc) $toc = '';
         $toc = preg_replace_callback(
             '/ src="([^"]*)"/',
@@ -209,14 +228,14 @@ class Epub extends Zip
         );
         // strip prolog
         $xml .= preg_replace("/^.*?(<\p{L}+)/su", '$1', $toc);
-        $xml .= preg_replace("/^.*?(<\p{L}+)/su", '$1', $this->opf_xml);
+        $xml .= preg_replace("/^.*?(<\p{L}+)/su", '$1', $this->opfXML);
         $xml .= "</pack>\n";
-        $dom = Xt::loadXml($xml);
+        $dom = Xt::loadXML($xml);
         // get an html from the toc with includes
         $sections = Xt::transformToXml(
             Xpack::dir().'html_tei/ncx_html.xsl', 
             $dom,
-            ['ncx_dir' => $this->ncx_dir, 'opf_dir' => $this->opf_dir,]
+            ['ncx_dir' => $this->ncxDir, 'opf_dir' => $this->opfDir,]
         );
 
         $sections = preg_replace(
@@ -251,27 +270,27 @@ class Epub extends Zip
     public function teiMake(?array $pars = null): void
     {
         // ensure xhtml generation
-        $this->htmlDoc();
+        $this->htmlDOM();
 
         // to produce a <teiHeader>, make a new doc to transform with opf
-        $metadata = $this->opf_dom->getElementsByTagName('metadata')->item(0);
+        $metadata = $this->opfDOM->getElementsByTagName('metadata')->item(0);
         $metaDoc = Xt::dom();
         $metadata = $metaDoc->importNode($metadata, true);
         $metaDoc->appendChild($metadata);
 
-        $teiHeader = Xt::transformToDoc(
+        $teiHeader = Xt::transformToDOM(
             Xpack::dir() . 'html_tei/epub_dc_tei.xsl', 
             $metaDoc
         );
         // toDom for indent-
-        $this->teiDoc = Xt::transformToDoc(
+        $this->teiDOM = Xt::transformToDOM(
             Xpack::dir() . 'html_tei/html_tei.xsl', 
-            $this->htmlDoc
+            $this->htmlDOM
         );
-        $teiHeader = $this->teiDoc->importNode($teiHeader->documentElement, true);
-        $text = Xt::firstElementChild($this->teiDoc->documentElement);
-        $this->teiDoc->documentElement->insertBefore($teiHeader, $text);
-        $this->teiDoc->formatOutput = true;
+        $teiHeader = $this->teiDOM->importNode($teiHeader->documentElement, true);
+        $text = Xt::firstElementChild($this->teiDOM->documentElement);
+        $this->teiDOM->documentElement->insertBefore($teiHeader, $text);
+        $this->teiDOM->formatOutput = true;
     }
 
     /**
@@ -281,7 +300,7 @@ class Epub extends Zip
     private function spine()
     {
         // keep the flow of <spine>
-        $nl = $this->opf_dom->getElementsByTagName('spine');
+        $nl = $this->opfDOM->getElementsByTagName('spine');
         foreach ($nl->item(0)->childNodes as $node) {
             if ($node->nodeType != XML_ELEMENT_NODE) continue;
             $idref = $node->getAttribute("idref");
@@ -301,17 +320,17 @@ class Epub extends Zip
     private function manifest()
     {
         $this->style = new CssModel();
-        $nl = $this->opf_dom->getElementsByTagName('manifest');
+        $nl = $this->opfDOM->getElementsByTagName('manifest');
         foreach ($nl->item(0)->childNodes as $node) {
             if ($node->nodeType != XML_ELEMENT_NODE) continue;
             $id = $node->getAttribute("id");
             $href = $node->getAttribute("href");
             $type = $node->getAttribute("media-type");
             if ($type == "text/css") {
-                $css = $this->get($this->opf_dir . $href);
+                $css = $this->get($this->opfDir . $href);
                 if ($css === null) continue;
                 $this->style->parse($css);
-                Log::debug("load css " . $this->opf_dir . $href);
+                Log::debug("load css " . $this->opfDir . $href);
             }
             $this->manifest[$id] = $href;
         }
@@ -325,31 +344,31 @@ class Epub extends Zip
      * requires load() for content.opf
      * set some properties
      */
-    private function ncx_xml(): ?string
+    private function ncxXML(): ?string
     {
         // <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
-        $nl = $this->opf_xpath->query("//opf:item[@media-type='application/x-dtbncx+xml']");
+        $nl = $this->opfXpath->query("//opf:item[@media-type='application/x-dtbncx+xml']");
         if (!$nl->length) {
-            Log::warning(I18n::_('Epub.ncx400', $this->file, $this->opf_path));
+            Log::warning(I18n::_('Epub.ncx400', $this->file, $this->opfPath));
             return null;
         }
-        $ncx_el = self::cast_el($nl->item(0));
-        if (!$ncx_el || !$ncx_el->hasAttribute("href")) {
-            Log::warning(I18n::_('Epub.ncx400', $this->file, $this->opf_path));
+        $ncxEl = self::castNode($nl->item(0));
+        if (!$ncxEl || !$ncxEl->hasAttribute("href")) {
+            Log::warning(I18n::_('Epub.ncx400', $this->file, $this->opfPath));
             return null;
         }
-        $ncx_path = urldecode($ncx_el->getAttribute("href"));
-        if ($ncx_path[0] != "/") $ncx_path = $this->opf_dir . $ncx_path;
-        $this->ncx_dir = dirname($ncx_path);
-        if ($this->ncx_dir == ".") $this->ncx_dir = "";
-        else $this->ncx_dir .= "/";
-        return $this->get($ncx_path);
+        $ncxPath = urldecode($ncxEl->getAttribute("href"));
+        if ($ncxPath[0] != "/") $ncxPath = $this->opfDir . $ncxPath;
+        $this->ncxDir = dirname($ncxPath);
+        if ($this->ncxDir == ".") $this->ncxDir = "";
+        else $this->ncxDir .= "/";
+        return $this->get($ncxPath);
     }
 
     /**
      * A workaround for a casting error with DOMNodeList
      */
-    static public function cast_el(DOMNode $node): DOMElement
+    static public function castNode(DOMNode $node): DOMElement
     {
         if (!$node) return null;
         if ($node->nodeType !== XML_ELEMENT_NODE) return null;

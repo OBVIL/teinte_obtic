@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace Oeuvres\Kit;
+namespace Oeuvres\Kit\Logger;
 
 use \DateTime;
 use Psr\Log\{AbstractLogger, InvalidArgumentException, LogLevel, LoggerInterface, NullLogger};
@@ -175,7 +175,7 @@ abstract class Logger extends AbstractLogger
     public function reset()
     {
         $this->counts = self::COUNTS_INIT;
-        $this->start_time = microtime(true);
+        $this->time_start = microtime(true);
     }
 
     /**

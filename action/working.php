@@ -6,7 +6,8 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
 
 use DirectoryIterator, Exception;
 use Psr\Log\{LogLevel};
-use Oeuvres\Kit\{FileSys, I18n, Http, Log, LoggerWeb, Route};
+use Oeuvres\Kit\{FileSys, I18n, Http, Log, Route};
+use Oeuvres\Kit\Logger\{LoggerWeb};
 use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei};
 
 
@@ -141,19 +142,19 @@ class Working
             try {
                 if ($format === "docx") {
                     // check if docx ?
-                    $docx->load($src_file);
-                    $tei->loadDoc($docx->teiDoc());
+                    $docx->open($src_file);
+                    $tei->loadDOM($docx->teiDOM());
                 }
                 else if ($format === "tei") {
-                    $tei->load($src_file);
+                    $tei->open($src_file);
                 }
                 else if ($format === "markdown") {
-                    $md->load($src_file);
-                    $tei->loadDoc($md->teiDoc());
+                    $md->open($src_file);
+                    $tei->loadDOM($md->teiDOM());
                 }
                 else if ($format === "epub") {
-                    $epub->load($src_file);
-                    $tei->loadDoc($epub->teiDoc());
+                    $epub->open($src_file);
+                    $tei->loadDOM($epub->teiDOM());
                 }    
             }
             catch (Exception $e) {
@@ -161,7 +162,7 @@ class Working
                 continue;
             }
             Filesys::mkdir(dirname($tei_file));
-            file_put_contents($tei_file, $tei->tei());
+            file_put_contents($tei_file, $tei->teiXML());
             // transform tei in requested formats and dir
             foreach (['docx', 'html', 'markdown'] as $format) {
                 $dst_file = self::$config[self::WORK_DIR] . $format . '/' 

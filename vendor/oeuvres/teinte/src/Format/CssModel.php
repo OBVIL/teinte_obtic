@@ -73,7 +73,7 @@ class CssModel
     /**
      * Load and parse a file
      */
-    public function load($css_file)
+    public function open($css_file)
     {
         $css = file_get_contents($css_file);
         $this->parse($css);

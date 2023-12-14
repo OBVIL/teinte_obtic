@@ -98,19 +98,18 @@ A light version for XSLT1, with local improvements.
     <xsl:choose>
       <!--  restart columns -->
       <xsl:when test="$documentclass = 'book' and $level &lt;= 0">
-        <xsl:text>&#10;\chapteropen&#10;</xsl:text>
+        <xsl:text>&#10;\begin{chapterhead}&#10;</xsl:text>
         <xsl:choose>
           <xsl:when test="$first">
             <xsl:apply-templates select="$first/preceding-sibling::*"/>
-            <xsl:text>&#10;\chaptercont&#10;</xsl:text>
+            <xsl:text>&#10;\end{chapterhead}&#10;</xsl:text>
             <xsl:apply-templates select="$first | $first/following-sibling::*"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>&#10;\chaptercont&#10;</xsl:text>
+            <xsl:text>&#10;\end{chapterhead}&#10;</xsl:text>
             <xsl:apply-templates/>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:text>\chapterclose&#10;&#10;</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
@@ -141,9 +140,12 @@ A light version for XSLT1, with local improvements.
     <xsl:apply-templates/>
   </xsl:template>
 
+  <xsl:template match="tei:body/tei:head">
+    <!-- What should be done with that ? -->
+  </xsl:template>
+
   <xsl:template match="
       tei:back/tei:head
-    | tei:body/tei:head
     | tei:div/tei:head
     | tei:div1/tei:head
     | tei:div2/tei:head
@@ -176,6 +178,39 @@ A light version for XSLT1, with local improvements.
       </xsl:when>
       <!-- Open sectionning for LaTeX -->
       <xsl:otherwise>
+
+        <xsl:variable name="kicker">
+          <xsl:variable name="raw">
+            <xsl:apply-templates select="preceding-sibling::tei:head[@type='kicker']" mode="title"/>
+          </xsl:variable>
+          <xsl:value-of select="normalize-space($raw)"/>
+        </xsl:variable>
+        <xsl:variable name="title">
+          <xsl:apply-templates select="." mode="title"/>
+        </xsl:variable>
+
+        <xsl:variable name="kicker-sep">
+          <xsl:if test="$kicker != ''">
+            <xsl:call-template name="head-pun">
+              <xsl:with-param name="prev" select="$kicker"/>
+              <xsl:with-param name="next" select="$title"/>
+            </xsl:call-template>
+            <xsl:text> </xsl:text>
+          </xsl:if>
+        </xsl:variable>
+        
+        <!-- Update letf mark manual. We want some typo but no notes -->
+        <!--
+        <xsl:if test="../parent::tei:front | ../parent::tei:body | ../parent::tei:back">
+          <xsl:text>&#10;\renewcommand{\leftmark}{</xsl:text>
+          <xsl:value-of select="$kicker"/>
+          <xsl:value-of select="$kicker-sep"/>
+          <xsl:apply-templates>
+            <xsl:with-param name="message">nonote</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:text>}</xsl:text>
+        </xsl:if>
+        -->
         <xsl:text>&#10;\</xsl:text>
         <xsl:choose>
           <xsl:when test="$documentclass = 'book'">
@@ -215,65 +250,40 @@ or parent::tei:div[contains(@rend, 'nonumber')]
 \chapter[{toc-title text only}]{title with maybe notes}
 
 [{a title may contain [brackets]}]
-        -->
-        <xsl:variable name="kicker">
-          <xsl:variable name="raw">
-            <xsl:apply-templates select="preceding-sibling::tei:head[@type='kicker']" mode="title"/>
-          </xsl:variable>
-          <xsl:value-of select="normalize-space($raw)"/>
-        </xsl:variable>
-        <xsl:variable name="title">
-          <xsl:apply-templates select="." mode="title"/>
-        </xsl:variable>
-        <xsl:variable name="kicker-sep">
-          <xsl:if test="$kicker != ''">
-            <xsl:call-template name="head-pun">
-              <xsl:with-param name="prev" select="$kicker"/>
-              <xsl:with-param name="next" select="$title"/>
-            </xsl:call-template>
-            <xsl:text> </xsl:text>
-          </xsl:if>
-        </xsl:variable>
-        <xsl:text>[{</xsl:text>
+-->
+        <xsl:text>[</xsl:text>
         <xsl:variable name="raw">
           <xsl:value-of select="$kicker"/>
           <xsl:value-of select="$kicker-sep"/>
           <xsl:value-of select="$title"/>
         </xsl:variable>
         <xsl:value-of select="normalize-space($raw)"/>
-        <xsl:text>}]</xsl:text>
+        <xsl:text>]</xsl:text>
         <xsl:text>{</xsl:text>
         <xsl:apply-templates select="preceding-sibling::tei:head[@type='kicker']/node()"/>
         <xsl:value-of select="$kicker-sep"/>
         <xsl:apply-templates/>
         <xsl:text>}</xsl:text>
-        <!-- Update letf mark manual. We want some typo but no notes -->
-        <xsl:if test="../parent::tei:front | ../parent::tei:body | ../parent::tei:back">
-          <xsl:text>&#10;\renewcommand{\leftmark}{</xsl:text>
-          <xsl:value-of select="$kicker"/>
-          <xsl:value-of select="$kicker-sep"/>
-          <xsl:apply-templates>
-            <xsl:with-param name="message">nonote</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:text>}</xsl:text>
-        </xsl:if>
+        
         <xsl:if test="../@xml:id">
           <!-- Keep it there fo bookmarks (tested) -->
           <xsl:call-template name="tei:makeHyperTarget">
             <xsl:with-param name="id" select="../@xml:id"/>
           </xsl:call-template>
         </xsl:if>
-        <xsl:text>&#10;&#10;</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+        <!-- ensure notes output, for ex in 2 col, no deps to spewnotes -->
         <xsl:for-each select=".//tei:note">
           <xsl:if test="true()">\footnotetext{<xsl:apply-templates/>}&#10;</xsl:if>
         </xsl:for-each>
       </xsl:otherwise>
     </xsl:choose>
-    
-    
   </xsl:template>
 
-
+  <!-- Note problems in <head> -->
+  <xsl:template match="tei:head//tei:note">
+    <xsl:text>{\protect\footnotemark}</xsl:text>
+  </xsl:template>
 
 
 
@@ -298,7 +308,12 @@ or parent::tei:div[contains(@rend, 'nonumber')]
       <xsl:when test="parent::tei:group">
         <xsl:apply-templates/>
       </xsl:when>
-      <xsl:otherwise>\hrule \begin{quote} \begin{small} <xsl:apply-templates mode="innertext"/> \end{small} \end{quote} \hrule \par&#10;</xsl:otherwise>
+      <xsl:when test="true()">
+        <xsl:apply-templates/>
+      </xsl:when>
+      <!-- What that for? -->
+      <xsl:otherwise>
+        \hrule \begin{quote} \begin{small} <xsl:apply-templates mode="innertext"/> \end{small} \end{quote} \hrule \par&#10;</xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
@@ -336,6 +351,63 @@ or parent::tei:div[contains(@rend, 'nonumber')]
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="tei:pb | tei:note" mode="title"/>
+  
+  <xsl:template match="tei:hi" mode="title">
+    <xsl:param name="cont">
+      <xsl:apply-templates/>
+    </xsl:param>
+    <xsl:param name="rend">
+      <xsl:value-of select="@rend"/>
+    </xsl:param>
+    <xsl:variable name="zerend" select="concat(' ', normalize-space($rend), ' ')"/>
+    <xsl:variable name="cmd">
+      <xsl:choose>
+        <xsl:when test="contains($zerend, ' i ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' it ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' ital ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' italics ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' italique ')">\textit{</xsl:when>
+        <xsl:when test="self::tei:hi and not(@rend)">\textit{</xsl:when>
+      </xsl:choose>
 
+      <xsl:if test="contains($zerend, ' sub ')">\textsubscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' subscript ')">\textsubscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' sup ')">\textsuperscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' superscript ')">\textsuperscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' sc ')">\textsc{</xsl:if>
+      <xsl:if test="contains($zerend, ' small-caps ')">\textsc{</xsl:if>
+      <!-- 
+        <xsl:when test=". = 'strike'">\sout{</xsl:when>
+        <xsl:when test=". = 'overbar'">\textoverbar{</xsl:when>
+        <xsl:when test=". = 'doubleunderline'">\uuline{</xsl:when>
+        <xsl:when test=". = 'wavyunderline'">\uwave{</xsl:when>
+        <xsl:when test=". = 'quoted'">\textquoted{</xsl:when>
+        <xsl:when test=". = 'calligraphic'">\textcal{</xsl:when>
+
+        -->
+    </xsl:variable>
+    <xsl:value-of select="$cmd"/>
+    <xsl:apply-templates mode="title"/>
+    <xsl:if test="$cmd != ''">
+      <xsl:value-of select="substring('}}}}}}}}}}}}}}}}}}}}}}}}}', 1, string-length($cmd) - string-length(translate($cmd, '{', '')))"/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="tei:num/text()" mode="title">
+    <xsl:param name="message"/>
+    <xsl:text>\textsc{</xsl:text>
+    <xsl:value-of select="."/>
+    <xsl:text>}</xsl:text>
+  </xsl:template>
+  
+  <xsl:template match="tei:emph | tei:foreign | tei:gloss | tei:surname | tei:term">
+    <xsl:param name="message"/>
+    <xsl:text>\</xsl:text>
+    <xsl:value-of select="name()"/>
+    <xsl:text>{</xsl:text>
+    <xsl:apply-templates mode="title"/>
+    <xsl:text>}</xsl:text>
+  </xsl:template>
 
 </xsl:transform>

@@ -9,7 +9,7 @@ exclude-result-prefixes="tei">
   <xsl:template match="/">
     <w:footnotes>
       <w:footnote w:type="separator" w:id="-1">
-        <w:p w14:paraId="703081DA" w14:textId="77777777" w:rsidR="002F4BC4" w:rsidRDefault="002F4BC4">
+        <w:p>
           <w:pPr>
             <w:rPr>
               <w:sz w:val="12"/>
@@ -21,7 +21,7 @@ exclude-result-prefixes="tei">
         </w:p>
       </w:footnote>
       <w:footnote w:type="continuationSeparator" w:id="0">
-        <w:p w14:paraId="62DB2BAB" w14:textId="77777777" w:rsidR="002F4BC4" w:rsidRDefault="002F4BC4">
+        <w:p>
           <w:pPr>
             <w:rPr>
               <w:sz w:val="12"/>
@@ -62,6 +62,30 @@ exclude-result-prefixes="tei">
       <xsl:with-param name="aster" select="true()"/>
     </xsl:call-template>
   </xsl:template>
+  
+  <xsl:template name="resp">
+    <xsl:variable name="resp">
+      <xsl:variable name="val" select="ancestor-or-self::tei:note[1]/@resp"/>
+      <xsl:choose>
+        <xsl:when test="$val = 'editor'">[NdE]</xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:if test="$resp != ''">
+      <w:r>
+        <w:rPr>
+          <w:rStyle w:val="resp"/>
+        </w:rPr>
+        <w:t>
+          <xsl:value-of select="$resp"/>
+        </w:t>
+        <w:t>
+          <xsl:attribute name="xml:space">preserve</xsl:attribute>
+          <xsl:text> </xsl:text>
+        </w:t>
+      </w:r>
+    </xsl:if>
+  </xsl:template>
+  
   <xsl:template name="notein">
     <xsl:param name="aster"/>
     <xsl:variable name="mixed" select="text()[normalize-space(.) != '']"/>
@@ -86,6 +110,7 @@ exclude-result-prefixes="tei">
                         <xsl:call-template name="noteret">
                           <xsl:with-param name="aster" select="$aster"/>
                         </xsl:call-template>
+                        <xsl:call-template name="resp"/>
                       </xsl:if>
                       <xsl:call-template name="char"/>
                     </w:p>
@@ -100,6 +125,7 @@ exclude-result-prefixes="tei">
                       <xsl:call-template name="noteret">
                         <xsl:with-param name="aster" select="$aster"/>
                       </xsl:call-template>
+                      <xsl:call-template name="resp"/>
                     </xsl:if>
                     <xsl:call-template name="char"/>
                   </w:p>
@@ -119,6 +145,7 @@ exclude-result-prefixes="tei">
                   <xsl:call-template name="noteret">
                     <xsl:with-param name="aster" select="$aster"/>
                   </xsl:call-template>
+                  <xsl:call-template name="resp"/>
                 </xsl:if>
                 <xsl:call-template name="char"/>
               </w:p>
@@ -134,6 +161,7 @@ exclude-result-prefixes="tei">
           <xsl:call-template name="noteret">
             <xsl:with-param name="aster" select="$aster"/>
           </xsl:call-template>
+          <xsl:call-template name="resp"/>
           <xsl:call-template name="char"/>
         </w:p>
       </xsl:otherwise>

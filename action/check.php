@@ -17,7 +17,8 @@ error_reporting(E_ALL);
 include_once(__DIR__ . '/vendor/autoload.php');
 
 use Psr\Log\LogLevel;
-use Oeuvres\Kit\{Check, Filesys, Log, LoggerWeb};
+use Oeuvres\Kit\{Check, Filesys, Log};
+use Oeuvres\Kit\Logger\{LoggerWeb};
 
 Log::setLogger(new LoggerWeb(LogLevel::DEBUG));
 

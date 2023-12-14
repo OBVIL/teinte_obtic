@@ -90,7 +90,7 @@ if ($format == "tei") {
     die();
 }
 $tei = new Tei();
-$tei->load($tei_file);
+$tei->open($tei_file);
 
 // html Export
 if ($format == "html") {

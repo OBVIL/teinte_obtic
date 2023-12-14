@@ -13,12 +13,13 @@ Should work as an import (or include) to generate flow latex,
 for example: abstract.
 2021, frederic.glorieux@fictif.org
   -->
-  <xsl:import href="../xsl/common.xsl"/>
+  <xsl:import href="../tei_common.xsl"/>
   <xsl:import href="tei_common.xsl"/>
-  <xsl:import href="latex_common.xsl"/>
+  <xsl:import href="tei_common_latex.xsl"/>
+  <xsl:param name="latex_parnoindent">{\parnoindent}</xsl:param>
   <xsl:param name="quoteEnv">quoteblock</xsl:param>
-  <!-- TODO hadle LaTeX side -->
-  <xsl:param name="pbStyle"/>
+  <xsl:param name="pbStyle">visible</xsl:param>
+  <xsl:param name="latex_pb">\pb</xsl:param>
   <!-- TODO, move params -->
   <xsl:variable name="preQuote">« </xsl:variable>
   <xsl:variable name="postQuote"> »</xsl:variable>
@@ -302,98 +303,95 @@ for example: abstract.
   
   
   <xsl:template match="tei:hi">
-    <xsl:param name="message"/>
     <xsl:call-template name="rendering">
-      <xsl:with-param name="message" select="$message"/>
+      <xsl:with-param name="cont">
+        <xsl:apply-templates/>
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
   
   <xsl:template name="rendering">
-    <xsl:param name="message"/>
+    <xsl:param name="cont">
+      <xsl:apply-templates/>
+    </xsl:param>
     <xsl:param name="rend">
       <xsl:value-of select="@rend"/>
     </xsl:param>
-    <xsl:param name="cont">
-      <xsl:apply-templates>
-        <xsl:with-param name="message" select="$message"/>
-      </xsl:apply-templates>
-    </xsl:param>
     <xsl:variable name="zerend" select="concat(' ', normalize-space($rend), ' ')"/>
+    <xsl:variable name="decls">
+      <!-- command \itshap will strip initial space in italic, ex (1)<hi> ital<hi> (1){\itshape  ital} -->
+      <xsl:if test="contains($zerend, ' center ')">\centering</xsl:if>
+      <xsl:if test="contains($zerend, ' tt ')">\ttfamily</xsl:if>
+      <xsl:if test="contains($zerend, ' sc ')">\scshape</xsl:if>
+      <xsl:if test="contains($zerend, ' large ')">\large</xsl:if>
+      <xsl:if test="contains($zerend, ' larger ')">\larger</xsl:if>
+      <xsl:if test="contains($zerend, ' right ')">\raggedleft</xsl:if>
+      <xsl:if test="contains($zerend, ' small ')">\small</xsl:if>
+      <xsl:if test="contains($zerend, ' smaller ')">\smaller</xsl:if>
+      <xsl:if test="contains($zerend, ' color')">
+        <xsl:variable name="color" select="substring-before(substring-after($zerend, ' color'), ' ')"/>
+        <xsl:text>\color{</xsl:text>
+        <xsl:value-of select="translate($color, '(}', '')"/>
+        <xsl:text>}</xsl:text>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:variable name="cmd">
+      <xsl:choose>
+        <xsl:when test="contains($zerend, ' i ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' it ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' ital ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' italics ')">\textit{</xsl:when>
+        <xsl:when test="contains($zerend, ' italique ')">\textit{</xsl:when>
+        <xsl:when test="self::tei:hi and not(@rend)">\textit{</xsl:when>
+      </xsl:choose>
+      <xsl:if test="contains($zerend, ' allcaps ')">\uppercase{</xsl:if>
+      <xsl:if test="contains($zerend, ' b ')">\textbf{</xsl:if>
+      <xsl:if test="contains($zerend, ' bold ')">\textbf{</xsl:if>
+      <xsl:if test="contains($zerend, ' gothic ')">\textgothic{</xsl:if>
+      <xsl:if test="contains($zerend, ' noindex ')">\textrm{</xsl:if>
+      <xsl:if test="contains($zerend, ' plain ')">\textrm{</xsl:if>
+      <xsl:if test="contains($zerend, ' sc ')">\textsc{</xsl:if>
+      <xsl:if test="contains($zerend, ' small-caps ')">\textsc{</xsl:if>
+      <xsl:if test="contains($zerend, ' strong ')">\textbf{</xsl:if>
+      <xsl:if test="contains($zerend, ' sub ')">\textsubscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' subscript ')">\textsubscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' sup ')">\textsuperscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' superscript ')">\textsuperscript{</xsl:if>
+      <xsl:if test="contains($zerend, ' uc ')">\MakeUppercase{</xsl:if>
+      <xsl:if test="contains($zerend, ' underline ')">\uline{</xsl:if>
+      <xsl:if test="contains($zerend, ' uppercase ')">\MakeUppercase{</xsl:if>
+        <!-- 
+        <xsl:when test=". = 'strike'">\sout{</xsl:when>
+        <xsl:when test=". = 'overbar'">\textoverbar{</xsl:when>
+        <xsl:when test=". = 'doubleunderline'">\uuline{</xsl:when>
+        <xsl:when test=". = 'wavyunderline'">\uwave{</xsl:when>
+        <xsl:when test=". = 'quoted'">\textquoted{</xsl:when>
+        <xsl:when test=". = 'calligraphic'">\textcal{</xsl:when>
+
+        -->
+    </xsl:variable>
+    <xsl:value-of select="$cmd"/>
     <xsl:choose>
-      <xsl:when test="normalize-space($zerend) = ''">
+      <xsl:when test="$decls = ''">
         <xsl:copy-of select="$cont"/>
       </xsl:when>
+      <!-- declaration to enclose -->
       <xsl:otherwise>
-        <xsl:variable name="decls">
-          <xsl:if test="contains($zerend, ' center ')">\centering</xsl:if>
-          <xsl:if test="contains($zerend, ' i ')">\itshape</xsl:if>
-          <xsl:if test="contains($zerend, ' it ')">\itshape</xsl:if>
-          <xsl:if test="contains($zerend, ' ital ')">\itshape</xsl:if>
-          <xsl:if test="contains($zerend, ' italics ')">\itshape</xsl:if>
-          <xsl:if test="contains($zerend, ' italique ')">\itshape</xsl:if>
-          <xsl:if test="contains($zerend, ' tt ')">\ttfamily</xsl:if>
-          <xsl:if test="contains($zerend, ' sc ')">\scshape</xsl:if>
-          <xsl:if test="contains($zerend, ' large ')">\large</xsl:if>
-          <xsl:if test="contains($zerend, ' larger ')">\larger</xsl:if>
-          <xsl:if test="contains($zerend, ' right ')">\raggedleft</xsl:if>
-          <xsl:if test="contains($zerend, ' small ')">\small</xsl:if>
-          <xsl:if test="contains($zerend, ' smaller ')">\smaller</xsl:if>
-          <xsl:if test="contains($zerend, ' color')">
-            <xsl:variable name="color" select="substring-before(substring-after($zerend, ' color'), ' ')"/>
-            <xsl:text>\color{</xsl:text>
-            <xsl:value-of select="translate($color, '(}', '')"/>
-            <xsl:text>}</xsl:text>
-          </xsl:if>
-        </xsl:variable>
-        <xsl:variable name="cmd">
-          <xsl:if test="contains($zerend, ' allcaps ')">\uppercase{</xsl:if>
-          <xsl:if test="contains($zerend, ' b ')">\textbf{</xsl:if>
-          <xsl:if test="contains($zerend, ' bold ')">\textbf{</xsl:if>
-          <xsl:if test="contains($zerend, ' gothic ')">\textgothic{</xsl:if>
-          <xsl:if test="contains($zerend, ' noindex ')">\textrm{</xsl:if>
-          <xsl:if test="contains($zerend, ' plain ')">\textrm{</xsl:if>
-          <xsl:if test="contains($zerend, ' strong ')">\textbf{</xsl:if>
-          <xsl:if test="contains($zerend, ' sub ')">\textsubscript{</xsl:if>
-          <xsl:if test="contains($zerend, ' subscript ')">\textsubscript{</xsl:if>
-          <xsl:if test="contains($zerend, ' sup ')">\textsuperscript{</xsl:if>
-          <xsl:if test="contains($zerend, ' superscript ')">\textsuperscript{</xsl:if>
-          <xsl:if test="contains($zerend, ' uc ')">\MakeUppercase{</xsl:if>
-          <xsl:if test="contains($zerend, ' underline ')">\uline{</xsl:if>
-          <xsl:if test="contains($zerend, ' uppercase ')">\MakeUppercase{</xsl:if>
-            <!-- 
-            <xsl:when test=". = 'strike'">\sout{</xsl:when>
-            <xsl:when test=". = 'overbar'">\textoverbar{</xsl:when>
-            <xsl:when test=". = 'doubleunderline'">\uuline{</xsl:when>
-            <xsl:when test=". = 'wavyunderline'">\uwave{</xsl:when>
-            <xsl:when test=". = 'quoted'">\textquoted{</xsl:when>
-            <xsl:when test=". = 'calligraphic'">\textcal{</xsl:when>
-
-            -->
-        </xsl:variable>
-        <xsl:value-of select="$cmd"/>
-        <xsl:choose>
-          <xsl:when test="$decls = ''">
-            <xsl:copy-of select="$cont"/>
-          </xsl:when>
-          <!-- declaration to enclose -->
-          <xsl:otherwise>
-            <xsl:if test="$cmd = ''">
-              <xsl:text>{</xsl:text>
-            </xsl:if>
-            <xsl:value-of select="$decls"/>
-            <!-- matches($decls, '[a-z]$') ? -->
-            <xsl:text> </xsl:text>
-            <xsl:copy-of select="$cont"/>
-            <xsl:if test="$cmd = ''">
-              <xsl:text>}</xsl:text>
-            </xsl:if>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:if test="$cmd != ''">
-          <xsl:value-of select="substring('}}}}}}}}}}}}}}}}}}}}}}}}}', 1, string-length($cmd) - string-length(translate($cmd, '{', '')))"/>
+        <xsl:if test="$cmd = ''">
+          <xsl:text>{</xsl:text>
+        </xsl:if>
+        <xsl:value-of select="$decls"/>
+        <!-- matches($decls, '[a-z]$') ? -->
+        <xsl:text> </xsl:text>
+        <xsl:copy-of select="$cont"/>
+        <xsl:if test="$cmd = ''">
+          <xsl:text>}</xsl:text>
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:if test="$cmd != ''">
+      <xsl:value-of select="substring('}}}}}}}}}}}}}}}}}}}}}}}}}', 1, string-length($cmd) - string-length(translate($cmd, '{', '')))"/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="tei:hi[starts-with(@rend, 'initial')]">
@@ -980,16 +978,6 @@ for example: abstract.
     </xsl:choose>
   </xsl:template>
   
-  <!-- Note problems in <head> -->
-  <xsl:template match="tei:head//tei:note">
-    <xsl:param name="message"/>
-    <xsl:choose>
-      <xsl:when test="contains($message, 'nonote')"/>
-      <xsl:otherwise>
-        <xsl:text>\protect\footnotemark </xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
   
   <xsl:template name="marginalNote">
     <xsl:param name="message"/>
@@ -1055,7 +1043,10 @@ for example: abstract.
     <xsl:param name="message"/>
     <xsl:call-template name="tei:makeHyperTarget"/>
     <xsl:variable name="command">
+      <xsl:if test="ancestor-or-self::tei:head">\protect</xsl:if>
       <xsl:choose>
+        <xsl:when test="ancestor::tei:table">\parnote{</xsl:when>
+        <xsl:when test="ancestor::tei:table and @resp='editor'">\parnoteA{</xsl:when>
         <xsl:when test="@resp='editor'">\footnoteA{</xsl:when>
         <xsl:otherwise>\footnote{</xsl:otherwise>
       </xsl:choose>
@@ -1098,15 +1089,13 @@ for example: abstract.
     <xsl:param name="message"/>
     <xsl:variable name="rend" select="concat(' ', normalize-space(@rend), ' ')"/>
     <xsl:call-template name="tei:makeHyperTarget"/>
+    <!-- Why ? -->
     <xsl:variable name="pb1">
       <xsl:if test="name(*[1]) = 'pb' and normalize-space(*[1]/preceding-sibling::text()) = ''">pb1</xsl:if>
     </xsl:variable>
     <xsl:variable name="noindent">
       <xsl:call-template name="noindent"/>
     </xsl:variable>
-    <xsl:if test="$pb1 != ''">
-      <xsl:apply-templates select="tei:pb[1]"/>
-    </xsl:if>
     <xsl:variable name="cont">
       <xsl:choose>
         <xsl:when test="@n != ''">
@@ -1117,7 +1106,7 @@ for example: abstract.
           <xsl:text>} </xsl:text>
         </xsl:when>
         <xsl:when test="$noindent != ''">
-          <xsl:text>\noindent </xsl:text>
+          <xsl:value-of select="$latex_parnoindent"/>
         </xsl:when>
       </xsl:choose>
       <!-- Ideas of Sebastian , pending
@@ -1128,22 +1117,14 @@ for example: abstract.
         <xsl:text>&#10;\pend&#10;</xsl:text>
       </xsl:if>
       -->
+      <xsl:apply-templates>
+        <xsl:with-param name="message" select="$message"/>
+      </xsl:apply-templates>
       <xsl:choose>
-        <xsl:when test="$pb1 != ''">
-          <xsl:apply-templates select="node()[not(self::tei:pb[1])]">
-            <xsl:with-param name="message" select="$message"/>
-          </xsl:apply-templates>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates>
-            <xsl:with-param name="message" select="$message"/>
-          </xsl:apply-templates>
-        </xsl:otherwise>
+        <!-- Especially at the end of a footnote or a quote (?), \par produce a bad empty line -->
+        <xsl:when test="parent::note and not(following-sibling::*)"/>
+        <xsl:otherwise>\par</xsl:otherwise>
       </xsl:choose>
-      <!-- Especially at the end of a footnote or a quote, \par produce a bad empty line -->
-      <xsl:if test="following-sibling::* or contains($rend, ' center ') or contains($rend, ' right ')">
-        <xsl:text>\par</xsl:text>
-      </xsl:if>
     </xsl:variable>
     <xsl:choose>
       <!-- empty para used as a spacer -->
@@ -1181,38 +1162,26 @@ for example: abstract.
         <xsl:text> </xsl:text>
       </xsl:if>
     </xsl:variable>
-    <!-- string " Page " is now managed through the i18n file -->
     <xsl:choose>
+      <!-- facsimile -->
       <xsl:when test="$pbStyle = 'active'">
         <xsl:text>\clearpage </xsl:text>
       </xsl:when>
-      <xsl:when test="$pbStyle = 'visible'">
-        <xsl:text>✁[</xsl:text>
-        <xsl:value-of select="@unit"/>
-        <xsl:text> </xsl:text>
-        <xsl:call-template name="tei:i18n">
-          <xsl:with-param name="code">p.</xsl:with-param>
-        </xsl:call-template>
-        <xsl:text> </xsl:text>
+      <!-- default control by a command -->
+      <xsl:when test="$pbStyle = 'visible' and $latex_pb!= ''">
+        <xsl:value-of select="$latex_pb"/>
+        <xsl:text>{</xsl:text>
+        <!--
+        <xsl:choose>
+          <xsl:when test="@unit">
+            <xsl:value-of select="@unit"/>
+            <xsl:text> </xsl:text>
+          </xsl:when>
+          <xsl:when test="substring(@n, 1, 1) != 'p'">p. </xsl:when>
+        </xsl:choose>
+        -->
         <xsl:value-of select="@n"/>
-        <xsl:text>]✁</xsl:text>
-      </xsl:when>
-      <xsl:when test="$pbStyle = 'bracketsonly'">
-        <!-- To avoid trouble with the scisssors character "✁" -->
-        <xsl:text>[</xsl:text>
-        <xsl:value-of select="@unit"/>
-        <xsl:text> </xsl:text>
-        <xsl:call-template name="tei:i18n">
-          <xsl:with-param name="code">p.</xsl:with-param>
-        </xsl:call-template>
-        <xsl:text> </xsl:text>
-        <xsl:value-of select="@n"/>
-        <xsl:text>]</xsl:text>
-      </xsl:when>
-      <xsl:when test="$pbStyle = 'plain'">
-        <xsl:text>\vspace{1ex}&#10;\par&#10;</xsl:text>
-        <xsl:value-of select="@n"/>
-        <xsl:text>\vspace{1ex}&#10;</xsl:text>
+        <xsl:text>}</xsl:text>
       </xsl:when>
       <xsl:when test="$pbStyle = 'sidebyside'">
         <xsl:text>\cleartoleftpage&#10;\begin{figure}[ht!]\makebox[\textwidth][c]{</xsl:text>
@@ -1308,7 +1277,6 @@ for example: abstract.
       <!-- Block or multi block -->
       <xsl:otherwise>
         <xsl:call-template name="tei:makeHyperTarget"/>
-        <xsl:if test="$prevblock and local-name($prevblock) != 'quote'">\quoteskip</xsl:if>
         <xsl:text>\begin{quoteblock}&#10;</xsl:text>
         <xsl:if test="not(tei:p|tei:list)">\noindent </xsl:if>
         <xsl:apply-templates>
@@ -1316,7 +1284,6 @@ for example: abstract.
         </xsl:apply-templates>
         <xsl:if test="not(tei:p|tei:l|tei:list)">&#10;</xsl:if>
         <xsl:text>\end{quoteblock}</xsl:text>
-        <xsl:if test="$nextblock">\quoteskip</xsl:if>
         <xsl:text>&#10;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
@@ -1521,5 +1488,19 @@ for example: abstract.
     <xsl:text>\par&#10;</xsl:text>
   </xsl:template>
   
+  <xsl:template match="tei:formula">
+    <xsl:choose>
+      <xsl:when test="parent::tei:figure">
+        <xsl:text>\[</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>\]</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>$</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>$</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
 </xsl:transform>

@@ -89,6 +89,9 @@ class Filesys
      */
     public static function isabs(string $path): bool
     {
+        if (!$path) {
+            return false;
+        }
         // true if file exists
         if (realpath($path) == $path) {
             return true;
@@ -237,7 +240,7 @@ class Filesys
     {
         // nothing to delete, go away
         if (!file_exists($path)) {
-            Log::debug("Path not found, remove impossible:\n\"$dir\"");
+            Log::debug("Path not found, remove impossible:\n\"$path\"");
             return true;
         }
         $log = [];
@@ -282,7 +285,7 @@ class Filesys
         // if dir not kept, and no more logged error, container could be deleted 
         if (!$keep && count($log) == $count) {
             if (true !== rmdir($path)) {
-                $log[] = "Dir empty but impossible to remove:\n\"$dir\"";
+                $log[] = "Dir empty but impossible to remove:\n\"$path\"";
             }
         }
     }
@@ -344,6 +347,77 @@ class Filesys
     }
 
     /**
+     * Get contents of an url from different schemes, especially base64 
+     * return an array
+     * [
+     *    "bytes" => [binary data],
+     *    "ext" => extension,
+     *    "name" => filename without extension (when relevant)
+     * ]
+     */
+    static function loadURL($url, $baseDir = null)
+    {
+        if (!$url) return null;
+        if ($baseDir) $baseDir = ltrim($baseDir, '/\\') . '/';
+        $data = [
+            "bytes" => null,
+            "ext" => null,
+            "name" => null,
+        ];
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        if ($scheme == 'data') {
+            // data:image/png;base64,AAAFBfj42Pj4
+            // 0123456789 123456789 123456789
+            $col_pos = strpos($url, ';');
+            if (substr($url, $col_pos + 1, 6) != 'base64') {
+                Log::warning(substr($url, 30) . "… seems not encoded in base64");
+                return null;
+            }
+            $slash_pos = strpos($url, '/');
+            $data['ext'] = substr($url, $slash_pos + 1, $col_pos - $slash_pos);
+            $base64 = substr($url, strpos($url, ',') + 1);
+            $base64 = str_replace( ' ', '+', $base64);
+            $data['bytes'] = @base64_decode($base64);
+            if ($data['bytes'] === false) {
+                $error = error_get_last();
+                Log::warning(
+                    substr($url, 30) 
+                    . "… base64 decoding failed: "
+                    . $error['message']
+                );
+                return null;
+            }
+            return $data;
+        }
+        // should work for 
+        else {
+            $path4name = $url;
+            if (in_array($scheme, ['zip'])) {
+                $path4name = parse_url($url, PHP_URL_FRAGMENT);
+            }
+            else if (in_array($scheme, ['http', 'https'])) {
+                $path4name = parse_url($url, PHP_URL_PATH);
+            }
+            else if (self::isabs($url)) {
+                // OK
+            }
+            else { // relative file path ?
+                $url = $baseDir . $url;
+            }
+            $data['bytes'] = @file_get_contents($url);
+            if ($data['bytes'] === false) {
+                $error = error_get_last();
+                Log::warning("$url, load error: " . $error['message']);
+                return null;
+            }
+            $data['ext'] = strtolower(pathinfo($path4name, PATHINFO_EXTENSION));
+            $data['name'] = pathinfo($path4name, PATHINFO_FILENAME);
+            return $data;
+        }
+    }
+
+
+    /**
      * Zip folder to a zip file
      */
     static public function zip(
@@ -386,16 +460,6 @@ class Filesys
             $zip->addEmptyDir($entryPath);
             self::zipDir($zip, $srcPath, $entryPath);
         }
-    }
-
-    /**
-     * Is file path absolute ?
-     */
-    static function isPathAbs($path)
-    {
-        if (!$path) return false;
-        if ($path[0] === DIRECTORY_SEPARATOR || preg_match('~\A[A-Z]:(?![^/\\\\])~i', $path) > 0) return true;
-        return false;
     }
 
     /**

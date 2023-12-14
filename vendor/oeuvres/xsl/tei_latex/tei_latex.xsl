@@ -19,7 +19,7 @@ A light version for XSLT1, with local improvements.
   <!--
   <xsl:import href="tei_common.xsl"/>
   -->
-  <xsl:import href="common_core.xsl"/>
+  <xsl:import href="tei_rahtz_latex.xsl"/>
   <xsl:import href="tei_flow_latex.xsl"/>
   <xsl:import href="tei_misc_latex.xsl"/>
   <xsl:import href="tei_drama_latex.xsl"/>

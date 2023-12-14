@@ -268,25 +268,7 @@ Sections
 <h3>Titres</h3>
 
   -->
-  <!-- Titre en entête -->
-  <xsl:template match="tei:titleStmt/tei:title">
-    <xsl:param name="from"/>
-    <h1>
-      <xsl:choose>
-        <xsl:when test="@type">
-          <xsl:attribute name="class">
-            <xsl:value-of select="@type"/>
-          </xsl:attribute>
-        </xsl:when>
-        <xsl:when test="../tei:title[@type='main']">
-          <xsl:attribute name="class">notmain</xsl:attribute>
-        </xsl:when>
-      </xsl:choose>
-      <xsl:apply-templates>
-        <xsl:with-param name="from" select="$from"/>
-      </xsl:apply-templates>
-    </h1>
-  </xsl:template>
+
   <!-- Page de titre -->
   <xsl:template match="tei:titlePage">
     <xsl:param name="from"/>
@@ -756,8 +738,18 @@ Sections
       </xsl:choose>
     </li>
   </xsl:template>
+  <!-- label in list, let CSS work for numbering -->
+  <xsl:template match="tei:list/tei:label">
+    <xsl:param name="from"/>
+    <li>
+      <xsl:call-template name="atts"/>
+      <xsl:apply-templates>
+        <xsl:with-param name="from" select="$from"/>
+      </xsl:apply-templates>
+    </li>
+  </xsl:template>
   <!-- term list -->
-  <xsl:template match="tei:list[@type='gloss' or tei:label]">
+  <xsl:template match="tei:list[@type='gloss']">
     <xsl:param name="from"/>
     <xsl:choose>
       <!-- liste titrée à mettre dans un conteneur-->
@@ -786,7 +778,7 @@ Sections
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  <xsl:template match="tei:list[@type='gloss' or tei:label]/tei:label">
+  <xsl:template match="tei:list[@type='gloss']/tei:label">
     <xsl:param name="from"/>
     <dt>
       <xsl:call-template name="atts"/>
@@ -795,7 +787,7 @@ Sections
       </xsl:apply-templates>
     </dt>
   </xsl:template>
-  <xsl:template match="tei:list[@type='gloss' or tei:label]/tei:item">
+  <xsl:template match="tei:list[@type='gloss']/tei:item">
     <xsl:param name="from"/>
     <dd>
       <xsl:call-template name="atts"/>
@@ -2140,7 +2132,6 @@ Elements block or inline level
         <xsl:element name="{$el}" namespace="http://www.w3.org/1999/xhtml">
           <xsl:call-template name="atts">
             <xsl:with-param name="class">
-              <xsl:value-of select="local-name()"/>
               <xsl:if test="@corresp"> corresp</xsl:if>
             </xsl:with-param>
           </xsl:call-template>

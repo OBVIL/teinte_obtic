@@ -118,12 +118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "5e1b8b7f91ad487208452de9786f074bc45e6163"
+                "reference": "e543afa4f6b87f2df2aeae2bc371a06edf00ff47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/5e1b8b7f91ad487208452de9786f074bc45e6163",
-                "reference": "5e1b8b7f91ad487208452de9786f074bc45e6163",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/e543afa4f6b87f2df2aeae2bc371a06edf00ff47",
+                "reference": "e543afa4f6b87f2df2aeae2bc371a06edf00ff47",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,10 @@
                 "php": ">=7.2",
                 "psr/log": "1.1.4"
             },
-            "time": "2023-06-26T01:43:22+00:00",
+            "require-dev": {
+                "phpunit/phpunit": "9"
+            },
+            "time": "2023-12-14T11:24:43+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",
@@ -177,12 +180,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_php.git",
-                "reference": "74c1f2789f41f5e4b9b35ab72e6fc1c3634b7d34"
+                "reference": "8c67cb205f7858630593d5c808af867aba129f88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/74c1f2789f41f5e4b9b35ab72e6fc1c3634b7d34",
-                "reference": "74c1f2789f41f5e4b9b35ab72e6fc1c3634b7d34",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/8c67cb205f7858630593d5c808af867aba129f88",
+                "reference": "8c67cb205f7858630593d5c808af867aba129f88",
                 "shasum": ""
             },
             "require": {
@@ -192,7 +195,10 @@
                 "oeuvres/xsl": "dev-main",
                 "php": ">=7.2"
             },
-            "time": "2023-06-26T01:44:15+00:00",
+            "require-dev": {
+                "phpunit/phpunit": "9"
+            },
+            "time": "2023-12-14T20:28:00+00:00",
             "default-branch": true,
             "bin": [
                 "bin/teinte"
@@ -228,15 +234,15 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_xsl.git",
-                "reference": "e29a1a6a49097dd36c36505d2a4c5692183373c2"
+                "reference": "96f4b4a802a07203e79fea4127b1ebf7ca77b61c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/e29a1a6a49097dd36c36505d2a4c5692183373c2",
-                "reference": "e29a1a6a49097dd36c36505d2a4c5692183373c2",
+                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/96f4b4a802a07203e79fea4127b1ebf7ca77b61c",
+                "reference": "96f4b4a802a07203e79fea4127b1ebf7ca77b61c",
                 "shasum": ""
             },
-            "time": "2023-06-19T00:54:26+00:00",
+            "time": "2023-12-04T17:49:53+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",

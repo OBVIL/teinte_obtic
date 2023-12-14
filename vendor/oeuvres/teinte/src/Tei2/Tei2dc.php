@@ -11,7 +11,7 @@
 namespace Oeuvres\Teinte\Tei2;
 
 /**
- * Export a Teidoc as a Dublic Core record (for OAI)
+ * Export a teiDOM as a Dublic Core record (for OAI)
  */
 class Tei2dc extends Tei2simple
 {

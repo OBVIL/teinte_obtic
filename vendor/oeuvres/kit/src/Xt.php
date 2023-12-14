@@ -34,6 +34,7 @@ class Xt
             | LIBXML_NONET
             | LIBXML_NSCLEAN
             | LIBXML_NOCDATA
+            | LIBXML_PARSEHUGE
          // | LIBXML_NOWARNING  // ? hide warn for <?xml-model
     ;
 
@@ -54,14 +55,72 @@ class Xt
             Log::error("XML file not loaded");
             return null;
         }
-        $dom = self::dom();
-        // $dom->recover=true; // no recover, display errors
+        $DOM = self::DOM();
+        // $DOM->recover=true; // no recover, display errors
         // suspend error reporting, libxml messages are better
-        $ret = @$dom->load($src_file, self::LIBXML_OPTIONS);
+        $ret = @$DOM->load($src_file, self::LIBXML_OPTIONS);
         self::logLibxml(libxml_get_errors());
         if (!$ret) return null;
-        $dom->documentURI = realpath($src_file);
-        return $dom;
+        $DOM->documentURI = realpath($src_file);
+        $DOM->xinclude(); // resolve xincludes
+        return $DOM;
+    }
+
+    /**
+     * 
+     */
+    public static function replaceText(
+        DOMNode &$node, 
+        $search, 
+        $replace, 
+        $exclude=[], 
+        $include=[]
+    ) {
+        $exclude = array_flip($exclude);
+        $include = array_flip($include);
+        self::replaceRecurs(
+            $node, 
+            $search, 
+            $replace,
+            $exclude,
+            $include,
+        );
+    }
+
+    private static function replaceRecurs(
+        DOMNode &$node, 
+        &$search, 
+        &$replace,
+        &$exclude=[], 
+        &$include=[]
+    ) {
+        $children = [];
+        foreach ($node->childNodes as $child)
+        {
+            $children[] = $child;
+        }
+        foreach($children as $child) {
+            // recurs on elements
+            if ( $child->nodeType === XML_ELEMENT_NODE ) {
+                $name = $child->tagName;
+                // not an included element
+                if (count($include) and !isset($include[$name])) {
+                    continue;
+                }
+                // excluded element
+                if (count($exclude) and isset($exclude[$name])) {
+                    continue;
+                }
+                self::replaceRecurs($child, $search, $replace, $exclude, $include);
+            }
+            if ( $child->nodeType != XML_TEXT_NODE ) {
+                continue;
+            }
+            $textOld = $child->wholeText;
+            $textNew = preg_replace($search, $replace, $textOld);
+            $textNodeNew = $node->ownerDocument->createTextNode($textNew);
+            $node->replaceChild($textNodeNew, $child);
+        }
     }
 
     /**
@@ -95,27 +154,31 @@ class Xt
     /**
      * Returns a DOM object
      */
-    public static function loadXml(string $xml, ?DOMDocument $dom = null): ?DOMDocument
+    public static function loadXML(string $xml, ?DOMDocument $doc = null): ?DOMDocument
     {
-        if ($dom == null) $dom = self::dom();
+        if ($doc == null) $doc = self::DOM();
         // suspend error reporting, libxml messages are better
-        $ret = $dom->loadXml($xml, self::LIBXML_OPTIONS);
+        $ret = $doc->loadXML($xml, self::LIBXML_OPTIONS);
         self::logLibxml(libxml_get_errors());
         if (!$ret) return null;
-        return $dom;
+        // if default documentURI is working directory, not a file
+        if (is_file($doc->documentURI)) {
+            $doc->xinclude(); // resolve xincludes
+        }
+        return $doc;
     }
 
 
     /**
-     * Returns an empty dom with nice options for indented xsl
+     * Returns an empty DOM with nice options for indented xsl
      */
-    public static function dom(): DOMDocument
+    public static function DOM(): DOMDocument
     {
-        $dom = new DOMDocument();
-        $dom->substituteEntities = true;
-        $dom->preserveWhiteSpace = false;
-        $dom->formatOutput = true;
-        return $dom;
+        $DOM = new DOMDocument();
+        $DOM->substituteEntities = true;
+        $DOM->preserveWhiteSpace = false;
+        $DOM->formatOutput = true;
+        return $DOM;
     }
 
     /**
@@ -132,16 +195,16 @@ class Xt
     }
 
     /**
-     * xsl:tranform, result as a dom document
+     * xsl:tranform, result as a DOM document
      */
-    public static function transformToDoc(
+    public static function transformToDOM(
         string $xslfile,
-        DOMDocument $dom,
+        DOMDocument $DOM,
         ?array $pars = null
     ) {
         return self::transform(
             $xslfile,
-            $dom,
+            $DOM,
             null, // local code to say not a a string
             $pars
         );
@@ -150,14 +213,14 @@ class Xt
     /**
      * xsl:tranform, result as an XML string
      */
-    public static function transformToXml(
+    public static function transformToXML(
         string $xslfile,
-        DOMDocument $dom,
+        DOMDocument $DOM,
         ?array $pars = null
     ) {
         return self::transform(
             $xslfile,
-            $dom,
+            $DOM,
             "", // local code to say fill the string
             $pars
         );
@@ -165,16 +228,16 @@ class Xt
     /**
      * xsl:tranform, result to a file
      */
-    public static function transformToUri(
+    public static function transformToURI(
         string $xslfile,
-        DOMDocument $dom,
-        string $uri,
+        DOMDocument $DOM,
+        string $URI,
         ?array $pars = null
     ) {
         return self::transform(
             $xslfile,
-            $dom,
-            $uri,
+            $DOM,
+            $URI,
             $pars
         );
     }
@@ -184,7 +247,7 @@ class Xt
      */
     private static function transform(
         string $xsl_file,
-        DOMDocument $dom,
+        DOMDocument $DOM,
         ?string $dst = null,
         ?array $pars = null
     ) {
@@ -220,13 +283,13 @@ class Xt
                 ini_set("xsl.security_prefs",  $prefs);
             }
             // for xsl through http://, allow net download of resources 
-            $xsldom = new DOMDocument();
-            if (false === $xsldom->load($xsl_file)) {
+            $xslDOM = new DOMDocument();
+            if (false === $xslDOM->load($xsl_file)) {
                 self::logLibxml(libxml_get_errors());
                 Log::error("$pref load impossible:\n\"$xsl_file\"");
                 return false;
             }
-            if (!$trans->importStyleSheet($xsldom)) {
+            if (!$trans->importStyleSheet($xslDOM)) {
                 self::logLibxml(libxml_get_errors());
                 Log::error("$pref compile impossible:\n\"$xsl_file\"");
                 return false;
@@ -243,16 +306,16 @@ class Xt
         }
         // return a DOM document for efficient piping
         if ($dst === null) {
-            $ret = $trans->transformToDoc($dom);
+            $ret = $trans->transformToDoc($DOM);
         }
         // return XML as a string
         else if ($dst === '') {
-            $ret = $trans->transformToXml($dom);
+            $ret = $trans->transformToXML($DOM);
         }
         // write to uri
         else {
             Filesys::mkdir(dirname($dst));
-            $trans->transformToUri($dom, $dst);
+            $trans->transformToUri($DOM, $dst);
             $ret = $dst;
         }
         // here we should have XSL message only
@@ -290,7 +353,7 @@ class Xt
             ),
             // blanking a string, keeping new lines
             function ($matches) {
-                return preg_replace("/[^\n]/", " ", $matches[0]);
+                return preg_replace("/[^\n]/u", " ", $matches[0]);
             },
             $html
         );
@@ -298,15 +361,48 @@ class Xt
     }
 
     /**
-     * Get an xpath processor from a dom with registred namespaces for root
+     * Get an xpath processor from a DOM with registred namespaces for root
      */
-    static public function xpath(DOMDocument $dom): DOMXPath
+    static public function xpath(DOMDocument $DOM): DOMXPath
     {
-        $xpath = new DOMXPath($dom);
-        foreach ($xpath->query('namespace::*', $dom->documentElement) as $node) {
+        $xpath = new DOMXPath($DOM);
+        foreach ($xpath->query('namespace::*', $DOM->documentElement) as $node) {
             $xpath->registerNamespace($node->prefix, $node->namespaceURI);
         }
         return $xpath;
+    }
+
+    /**
+     * get XML from a DOM sent by xsl
+     */
+    static function nodesetXML($nodeset, $inner = false)
+    {
+        $xml = '';
+        if (!is_array($nodeset)) $nodeset = array($nodeset);
+        foreach ($nodeset as $doc) {
+            if($doc->firstChild === null) {
+                continue;
+            }
+            if (get_class($doc->firstChild) === 'DOMText') {
+                $xml .= $doc->textContent;
+                continue;
+            }
+            // if (!$doc->textContent) // not seen after upper
+            $doc->formatOutput = true;
+            $doc->substituteEntities = true;
+            $doc->encoding = "UTF-8";
+            $doc->normalize();
+            $xml .= $doc->saveXML($doc->documentElement);
+        }
+        if (!$xml) return null;
+        // do not del root ns here
+        // $xml = preg_replace('@ xmlns="http://www.w3.org/1999/xhtml"@', '', $xml);
+        // cut the root element
+        if ($inner) {
+            $xml = substr($xml, strpos($xml, '>') + 1);
+            $xml = substr($xml, 0, strrpos($xml, '<'));
+        }
+        return $xml;
     }
 }
 Xt::init();

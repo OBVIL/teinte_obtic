@@ -1,4 +1,13 @@
+<?php
+$name = '';
+if (isset($_COOKIE["teinte"])) {
+    $cookie = json_decode($_COOKIE["teinte"], true);
+    $name = $cookie['src_filename'];
+}
+
+?>
 <form id="form" method="post" target="zipwork" 
+    onsubmit="this.format = event.submitter.name;"
     style="text-align: center; margin: 1rem; display: block;"
     action="zipwork">
         <button type="submit" name="docx"  class="format docx" title="DOCX : texte bureautique (LibreOffice, Microsoft.Word…)"> </button>
@@ -12,13 +21,29 @@
     <iframe 
     id="zipwork"
     name="zipwork"
-    src="">
+    src="about:blank"
+    onload="
+// innerHTML do not parse <script>
+console.log('src = ' + this.src );
+if (!this.src.endsWith('zipwork')) return;
+const dropExports = document.getElementById('exports');
+console.log('name = <?= $name ?>');
+    ">
     </iframe>
-    <script>
-const table = document.getElementById('table');
-const working = document.getElementById('zipwork');
-working.addEventListener('load', function () {
-    /*
+
+<?php 
+/*
+const iframe = document.getElementById('zipwork');
+iframe.addEventListener('load', function () {
+    
+    console.log('<?= print_r($_COOKIE["teinte"], true) ?>')
+
+// if (!isset($_COOKIE["teinte"])) return;
+$cookie = json_decode($_COOKIE["teinte"], true);
+echo "console.log('{$cookie['src_filename']}')";
+    ?>
+    const dropExports = document.getElementById('exports');
+    $name = pathinfo($src_zip, PATHINFO_FILENAME);
     const url = 'listing';
     const xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -26,7 +51,6 @@ working.addEventListener('load', function () {
     };
     xhr.open('GET', url);
     xhr.send();
-    */ 
 });
-
-    </script>
+*/
+?>

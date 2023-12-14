@@ -317,8 +317,6 @@ Gobal TEI parameters and variables are divided in different categories
   </xsl:variable>
   <xsl:variable name="apos">"</xsl:variable> 
   <!-- Some constants -->
-  <xsl:variable name="epub2">epub2</xsl:variable>
-  <xsl:variable name="epub3">epub3</xsl:variable>
   <xsl:variable name="html5">html5</xsl:variable>
   <xsl:variable name="notblock"> anchor cb figure graphic index lb milestone pb </xsl:variable> 
   <!-- What kind of root element to output ? html, nav… -->

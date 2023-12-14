@@ -524,6 +524,9 @@ it is dangerous for docx where nesting may produce lots of surprises
         <xsl:apply-templates/>
       </xsl:when>
       <xsl:when test="$Unit='vol' or $Unit='volume'">
+        <!-- Why emphasize here ? -->
+        <xsl:apply-templates/>
+        <!--
         <xsl:call-template name="emphasize">
           <xsl:with-param name="class">
             <xsl:text>vol</xsl:text>
@@ -532,6 +535,7 @@ it is dangerous for docx where nesting may produce lots of surprises
             <xsl:apply-templates/>
           </xsl:with-param>
         </xsl:call-template>
+        -->
       </xsl:when>
       <xsl:when test="$Unit='chap' or $Unit='chapter'">
         <!-- TODO Chapter ? -->

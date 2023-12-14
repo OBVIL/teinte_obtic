@@ -4,7 +4,9 @@ include_once(dirname(__DIR__) . '/vendor/autoload.php');
 
 use Oeuvres\Teinte\{Tei2docx, TeiExporter};
 use Psr\Log\LogLevel;
-use Oeuvres\Kit\{Filesys, Log, LoggerCli};
+use Oeuvres\Kit\{Filesys, Log};
+use Oeuvres\Kit\Logger\{LoggerCli};
+
 use Oeuvres\Teinte\Format\{Tei};
 
 Log::setLogger(new LoggerCli(LogLevel::DEBUG));
@@ -52,7 +54,7 @@ class Tei_docx {
         if (count($pos_args) < 1) exit($help);
         $dst_dir = "";
         if (isset($options['d'])) {
-            $dst_dir = $options['d'];
+            $dst_dir = rtrim($options['d'], '\\/') . '/';
             Filesys::mkdir($dst_dir);
         }
         if (isset($options['t'])) {
@@ -62,7 +64,7 @@ class Tei_docx {
         foreach ($pos_args as $arg) {
             $glob = glob($arg);
             if (count($glob) > 1) {
-                Log::info("=== " + $glob + " ===");
+                Log::info("=== " . $arg . " ===");
             }
             foreach ($glob as $src_file) {
                 $src_name = pathinfo($src_file, PATHINFO_FILENAME);
@@ -98,8 +100,8 @@ class Tei_docx {
     static function export($src_file, $dst_file)
     {
         Log::info($src_file . " > " . $dst_file);
-        self::$tei->load($src_file);
-        self::$tei->toUri('docx', $dst_file);
+        self::$tei->open($src_file);
+        self::$tei->toURI('docx', $dst_file);
     }
         
 }

@@ -11,11 +11,17 @@
     "docx": {
         "label": "Microsoft.Word 2007 format"
     },
+    "epub": {
+        "label": "Open electronic book"
+    },
     "html": {
         "label": "<html> full document"
     },
     "iramuteq": {
         "label": "IRaMuteQ (formatted text)"
+    },
+    "latex": {
+        "label": "LaTeX, a folder ready for XeLaTeX"
     },
     "markdown": {
         "label": "Markdown (formatted text)"

@@ -1,6 +1,6 @@
 <?php 
 include_once(__DIR__ . '/inc.php');
-use Oeuvres\Kit\{Config, Http};
+use Oeuvres\Kit\{Config, Http, I18n, Log};
 
 // nothing has been uploaded
 if (!isset($_COOKIE[TEINTE])) {

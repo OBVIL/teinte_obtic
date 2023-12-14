@@ -68,27 +68,16 @@
 % \usepackage{hypcap} % links in caption ?
 % \usepackage{marginnote}
 % TESTED
-
-% fonts
-% \usepackage{ebgaramond-maths} % OK, too light ?
-% \usepackage{CormorantGaramond} % OK
-% \usepackage{DejaVuSans} % correct
-% \usepackage{firamath} % choose firasans instead, firamath unavailable in Ubuntu 21-04
-% \usepackage[default]{gfsbodoni} % bugs
-% \usepackage{helvet} % not for XeLaTeX
-% \usepackage[sfdefault,medium]{inter} % no small caps
-% \usepackage[]{kpfonts} % not otf for XeLaTeX
-% \usepackage{LibreBodoni} % OK, too heavy
-% \usepackage[default,oldstyle,scale=0.95]{opensans} % no small caps
-% \usepackage[]{roboto} % SmallCaps, Regular is a bit bold
-% \usepackage{TheanoDidot} % no italic
-
+% \usepackage{adjustbox} % powerful ? 
 % \usepackage{background} % doesn’t work with xetek
 % \usepackage{bookmark} % prefers the hyperref hack \phantomsection
-% \usepackage[color, leftbars]{changebar} % 2 cols doc, impossible to keep bar left
+% \usepackage[color, leftbars]{changebar} % pb 2 cols doc, not lualatex
 % \usepackage{epigraph} % unsolve bug in twocols
+% \usepackage{framed} % pb with footnotes 
 % \usepackage[utf8x]{inputenc} % inputenc package ignored with utf8 based engines
 % \usepackage{flushend} % bad for last notes, supposed flush end of columns
+% \usepackage{framed} % bad for footnote
+% \usepackage{footnotebackref} % seems lost in 2 cols
 % \usepackage[stable]{footmisc} % BAD for complex notes https://texfaq.org/FAQ-ftnsect
 % \usepackage{multicol} % not compatible with too much packages (longtable, framed, memoir…)
 % \usepackage{sectsty} % \chapterfont OBSOLETE
@@ -97,33 +86,20 @@
 % \usepackage[breakable]{tcolorbox} % text styling gone, footnote hack not kept with breakable
 % \usepackage{verse} % not enough control on indent, poetry is better
 
-
+% tested fonts
+% Sans
+% OpenSans: no small caps
+% IBM Plex Sans: no small caps
+% DejaVu Sans: no small caps
 
 %%%%%%%%%%%%%%%%%
 % Teinte macros %
 %%%%%%%%%%%%%%%%%
-\input{../latex/teinte}
+\input{teinte}
 
 
 
 \begin{document}
-
-\noindent This is the regular text that is not indented.
-\begin{verse}
-Blessed are the poor in spirit, for theirs is the kingdom of heaven.\\
-Blessed are those who mourn, for they shall be comforted.\\
-Blessed are the meek, for they shall inherit the earth.\\
-Blessed are those who hunger and thirst for righteousness, for they shall be satisfied.
-\end{verse}
-% \setlength{\leftmargini}{\saveleftmargini}% restore original value in case you do not want to change this thing globaly.
-
-\begin{verse}
-Blessed are the poor in spirit, for theirs is the kingdom of heaven.\\
-Blessed are those who mourn, for they shall be comforted.\\
-Blessed are the meek, for they shall inherit the earth.\\
-Blessed are those who hunger and thirst for righteousness, for they shall be satisfied.
-\end{verse}
-\noindent This is the regular text that is not indented.
 
 % \pagestyle{fancy}
 % \thispagestyle{empty}

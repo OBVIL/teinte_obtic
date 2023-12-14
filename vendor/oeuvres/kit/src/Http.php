@@ -485,11 +485,11 @@ class Http
         }
         // header("X-Date: ". substr(gmdate('r'), 0, -5).'GMT');
         /*
-    // According to google, https://developers.google.com/speed/docs/best-practices/caching
-    // exclude etag if last-Modified, and last-Modified is better
-    $etag = '"'.md5($modification).'"';
-    header("ETag: $etag");
-    */
+        // According to google, https://developers.google.com/speed/docs/best-practices/caching
+        // exclude etag if last-Modified, and last-Modified is better
+        $etag = '"'.md5($modification).'"';
+        header("ETag: $etag");
+        */
     }
 
     /**

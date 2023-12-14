@@ -14,7 +14,8 @@ namespace Oeuvres\Teinte;
 
 use Exception;
 use Psr\Log\{LogLevel};
-use Oeuvres\Kit\{Filesys, Log, LoggerCli};
+use Oeuvres\Kit\{Filesys, Log};
+use Oeuvres\Kit\Logger\{LoggerCli};
 use Oeuvres\Teinte\Format\{Tei};
 use Oeuvres\Teinte\Tei2\{AbstractTei2};
 
@@ -105,7 +106,7 @@ foreach ($glob as $dir) {
         Log::setLogger(new LoggerCli(LogLevel::INFO));
 
         $source = new Tei();
-        $source->template($tmpl_dir); // set template dir
+        // $source->template($tmpl_dir); // set template dir
         foreach (glob($glob) as $src_file) {
             $nodone = true; // for lazy load
             foreach ($formats as $format) {
@@ -122,7 +123,7 @@ foreach ($glob as $dir) {
                 if ($nodone) { // nothing done yet, load source
                     Log::info($src_file);
                     try {
-                        $source->load($src_file);
+                        $source->open($src_file);
                     } catch (Exception $e) {
                         // nothing could be done with this file
                         break;
@@ -131,7 +132,7 @@ foreach ($glob as $dir) {
                 }
                 // for reports, no output if no force
                 if (!$force && $inplace) {
-                    $source->toDoc($format);
+                    $source->toDOM($format);
                 } else {
                     $source->toUri($format, $dst_file);
                 }

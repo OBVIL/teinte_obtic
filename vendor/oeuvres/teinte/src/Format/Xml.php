@@ -37,21 +37,21 @@ class Xml extends File
     /**
      * Load XML/TEI as a file (preferred way to hav some metas).
      */
-    public function load(string $src_file): bool
+    public function open(string $src_file): bool
     {
-        if (!parent::{__FUNCTION__}(...func_get_args())) {
+        if (!parent::open($src_file)) {
             return false;
         }
         $this->dom = null;
         $this->xml = null;
-        $this->loadXml($this->contents());
+        $this->loadXML($this->contents());
         return true;
     }
 
     /**
      * Load XML/TEI as string, normalize and load it as DOM
      */
-    public function loadXml(string $xml):DOMDocument
+    public function loadXML(string $xml):DOMDocument
     {
         $xml = static::lint($xml);
         $this->xml = $xml;
@@ -61,7 +61,7 @@ class Xml extends File
         $dom->substituteEntities = true;
         $dom->preserveWhiteSpace = true;
         $dom->formatOutput = false;
-        $this->dom = Xt::loadXml($xml, $dom);
+        $this->dom = Xt::loadXML($xml, $dom);
         if (!$this->dom) {
             throw new Exception("XML malformation");
         }

@@ -9,32 +9,27 @@
 
 declare(strict_types=1);
 
-namespace Oeuvres\Kit;
+namespace Oeuvres\Kit\Logger;
 
 use Psr\Log\LogLevel;
 
 /**
  * A PSR-3 compliant logger as light as possible
- * Used to store in a string
+ * Used for CLI 
  *
  * @see https://www.php-fig.org/psr/psr-3/
  */
-class LoggerMem extends Logger
+class LoggerCli extends Logger
 {
-    private $buff = '';
     protected function write($level, $message)
     {
-        $this->buff .= $message . "\n";
-    }
-
-    /**
-     * Returns logged mmessages
-     */
-    public function messages($empty = true): string
-    {
-        $ret =  $this->buff;
-        if ($empty) $this->buff = '';
-        return $ret;
+        $verbosity = parent::verbosity($level);
+        if ($verbosity > 4) {
+            $out = STDOUT;
+        } else {
+            $out = STDERR;
+        }
+        fwrite($out, $message . "\n");
     }
 
     public function __construct(

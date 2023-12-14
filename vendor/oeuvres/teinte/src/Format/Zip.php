@@ -18,7 +18,7 @@ Check::extension('zip');
 
 
 /**
- * A Teidoc exporter.
+ * A teiDOM exporter.
  */
 class Zip extends File
 {
@@ -28,29 +28,41 @@ class Zip extends File
     /**
      * Open zip archive with tests
      */
-    public function load(string $file): bool
+    public function open(string $file, ?int $flags = 0): bool
     {
-        if (!parent::load($file)) {
+        if (!parent::open($file)) {
             return false;
         }
         $this->zip = new ZipArchive();
-        if (($ret = $this->zip->open($file)) !== TRUE) {
-            if ($ret == ZipArchive::ER_EXISTS) $mess = I18n::_('ZipArchive::ER_EXISTS', $file);
-            else if ($ret == ZipArchive::ER_INCONS) $mess = I18n::_('ZipArchive::ER_INCONS', $file);
-            else if ($ret == ZipArchive::ER_INVAL) $mess = I18n::_('ZipArchive::ER_INVAL', $file);
-            else if ($ret == ZipArchive::ER_MEMORY) $mess = I18n::_('ZipArchive::ER_MEMORY', $file);
-            else if ($ret == ZipArchive::ER_NOENT) $mess = I18n::_('ZipArchive::ER_NOENT', $file);
-            else if ($ret == ZipArchive::ER_NOZIP) $mess = I18n::_('ZipArchive::ER_NOZIP', $file);
-            else if ($ret == ZipArchive::ER_OPEN) $mess = I18n::_('ZipArchive::ER_OPEN', $file);
-            else if ($ret == ZipArchive::ER_READ) $mess = I18n::_('ZipArchive::ER_READ', $file);
-            else if ($ret == ZipArchive::ER_SEEK) $mess = I18n::_('ZipArchive::ER_SEAK', $file);
-            else $mess = I18n::_("“%s”, load error", $file);
-            // send an exception or just log ?
-            Log::warning($mess);
+        if (($code = $this->zip->open($file, $flags)) !== TRUE) {
+            Log::warning(self::message($code, $file));
             return false;
         }
         return true;
     }
+
+    static public function message(int $code, string $file): string
+    {
+        if ($code == ZipArchive::ER_EXISTS) return I18n::_('ZipArchive::ER_EXISTS', $file);
+        else if ($code == ZipArchive::ER_INCONS) return I18n::_('ZipArchive::ER_INCONS', $file);
+        else if ($code == ZipArchive::ER_INVAL) return I18n::_('ZipArchive::ER_INVAL', $file);
+        else if ($code == ZipArchive::ER_MEMORY) return I18n::_('ZipArchive::ER_MEMORY', $file);
+        else if ($code == ZipArchive::ER_NOENT) return I18n::_('ZipArchive::ER_NOENT', $file);
+        else if ($code == ZipArchive::ER_NOZIP) return I18n::_('ZipArchive::ER_NOZIP', $file);
+        else if ($code == ZipArchive::ER_OPEN) return I18n::_('ZipArchive::ER_OPEN', $file);
+        else if ($code == ZipArchive::ER_READ) return I18n::_('ZipArchive::ER_READ', $file);
+        else if ($code == ZipArchive::ER_SEEK) return I18n::_('ZipArchive::ER_SEAK', $file);
+        else return I18n::_("“%s”, load error", $file);
+    }
+
+    /**
+     * Close zip archive
+     */
+    public function close()
+    {
+        return $this->zip->close();
+    }
+
 
     /**
      * Return zip object
@@ -62,7 +74,6 @@ class Zip extends File
 
     /**
      * Try to get entry, log nicely if error,
-     * 
      */
     public function get(string $name):?string
     {
@@ -74,6 +85,25 @@ class Zip extends File
         // check if entry is empty ?
         return $this->zip->getFromName($name);
 
+    }
+
+    /**
+     * Put content (normalize path), return previous content if available,
+     * or "" if no content, or null on error
+     */
+    public function put(string $name, string $content)
+    {
+        $name = ltrim(Filesys::pathnorm($name), '/');
+        $ret = "";
+        if (true === $this->zip->statName($name)) {
+            $ret = $this->zip->getFromName($name);
+            $this->zip->deleteName($name); // needed ?
+        }
+        if (!$this->zip->addFromString($name, $content)) {
+            Log::warning(I18n::_('Zip.writefail', $this->file, $name, $this->zip->getStatusString()));
+            return false;
+        }
+        return $ret;
     }
 
     /**

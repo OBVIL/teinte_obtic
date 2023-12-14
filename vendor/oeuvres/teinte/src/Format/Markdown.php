@@ -35,9 +35,20 @@ class Markdown extends File
         if (self::$init) return;
         self::$parser = new ParsedownExtra();
         self::$init = true;
-        // useful for dev
-        // Xpack::dir() = dirname(__DIR__, 3) . '/teinte_xsl/';
+    }
 
+    /**
+     * Clean the bazar
+     */
+    public function open(string $file, ?int $flags = 0): bool
+    {
+        $this->reset();
+        $this->teiReset();
+        $this->htmlReset();
+        if (!parent::open($file)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -49,14 +60,13 @@ class Markdown extends File
         if (!$contents) {
             throw new Exception(I18n::_('File.noload', $this->file));
         }
+
+        // avoid notice from Markdown parser
+        $error_level = error_reporting();
+        error_reporting($error_level ^ E_NOTICE);
         $xhtml = self::$parser->text($contents);
-        /*
-        $xhtml = "<article xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-            ."  <section>\n"
-            . $xhtml
-            . "  </section>\n"
-            ."</article>\n";
-        */
+        error_reporting($error_level);
+        
         // restore hirearchy of title
         $last = -1;
         $xhtml =  preg_replace_callback(
@@ -111,10 +121,10 @@ class Markdown extends File
     public function teiMake(?array $pars = null):void
     {
         // ensure html making
-        $htmlDoc = $this->htmlDoc();
-        $this->teiDoc = Xt::transformToDoc(
+        $htmlDOM = $this->htmlDOM();
+        $this->teiDOM = Xt::transformToDOM(
             Xpack::dir() . 'html_tei/html_tei.xsl', 
-            $htmlDoc
+            $htmlDOM
         );
     }
 

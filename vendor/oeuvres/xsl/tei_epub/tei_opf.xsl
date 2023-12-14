@@ -10,22 +10,23 @@ LGPL http://www.gnu.org/licenses/lgpl.html
 TODO Adobe page-map (map page number to paper edition)
 http://wiki.mobileread.com/wiki/Adobe_Digital_Editions#Page-map
 -->
-<xsl:transform version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:tei="http://www.tei-c.org/ns/1.0" exclude-result-prefixes="tei opf">
+<xsl:transform version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns="http://www.idpf.org/2007/opf"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:dcterms="http://purl.org/dc/terms/"
+  xmlns:opf="http://www.idpf.org/2007/opf"
+  xmlns:tei="http://www.tei-c.org/ns/1.0"
+  exclude-result-prefixes="tei opf"
+  >
   <xsl:import href="../tei_common.xsl"/>
   <!-- ensure override on common -->
   <xsl:include href="epub.xsl"/>
   <xsl:output encoding="UTF-8" method="xml" indent="yes"/>
-  <xsl:param name="format" select="$epub3"/>
-  <!-- process an opf template -->
-  <xsl:param name="opf"/>
-  
-  <!-- The root TEI element -->
-  <xsl:variable name="TEI" select="/*"/>
-  
   
   <!-- process opf template, copy all and sometimes intercept -->
   <xsl:template match="tei:TEI | tei:TEI.2">
-    <xsl:apply-templates select="document($opf)/*" mode="opf:template"/>
+    <xsl:apply-templates select="opf:package" mode="opf:template"/>
   </xsl:template>
   <xsl:template match="node()|@*" mode="opf:template">
     <xsl:copy>
@@ -37,11 +38,6 @@ http://wiki.mobileread.com/wiki/Adobe_Digital_Editions#Page-map
   <xsl:template match="processing-instruction()" mode="opf:template"/>
   <xsl:template match="opf:package" mode="opf:template">
     <package unique-identifier="dcidid" version="3.0" prefix="rendition: http://www.idpf.org/vocab/rendition/#">
-      <xsl:choose>
-        <xsl:when test="$format = $epub2">
-          <xsl:attribute name="version">2.0</xsl:attribute>
-        </xsl:when>
-      </xsl:choose>
       <xsl:apply-templates mode="opf:template"/>
     </package>
   </xsl:template>
@@ -60,9 +56,9 @@ http://wiki.mobileread.com/wiki/Adobe_Digital_Editions#Page-map
       </dc:language>
       <xsl:choose>
         <xsl:when test="dc:publisher"/>
-        <xsl:when test="$TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:publisher">
+        <xsl:when test="/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:publisher">
           <dc:publisher>
-            <xsl:value-of select="normalize-space($TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:publisher)"/>
+            <xsl:value-of select="normalize-space(/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:publisher)"/>
           </dc:publisher>
         </xsl:when>
         <!-- ?? fallback value ? -->
@@ -78,19 +74,17 @@ http://wiki.mobileread.com/wiki/Adobe_Digital_Editions#Page-map
           <xsl:value-of select="$byline"/>
         </dc:creator>
       </xsl:if>
-      <meta property="rendition:layout">reflowable</meta>
-      <meta property="rendition:orientation">auto</meta>
       <meta property="dcterms:modified">
         <xsl:value-of select="$date"/>
         <xsl:text>Z</xsl:text>
       </meta>
     </metadata>
   </xsl:template>
+  <xsl:template match="dcterms:modified"/>
   <xsl:template match="opf:manifest" mode="opf:template">
     <manifest>
       <!-- copy style resources -->
       <xsl:apply-templates mode="opf:template"/>
-      <!-- @id reconnus par la plupart des bibliothèques epub -->
       <xsl:if test="$cover != ''">
         <item href="cover{$_html}" id="coverhtml" media-type="application/xhtml+xml"/>
         <xsl:choose>
@@ -107,8 +101,8 @@ http://wiki.mobileread.com/wiki/Adobe_Digital_Editions#Page-map
       <xsl:if test="$fnpage != ''">
         <item id="{$fnpage}" media-type="application/xhtml+xml" href="{$fnpage}{$_html}"/>
       </xsl:if>
-      <!-- Section files -->
-      <xsl:apply-templates select="$TEI/*" mode="opf">
+      <!-- Process sections as  -->
+      <xsl:apply-templates select="/*/tei:text" mode="opf">
         <xsl:with-param name="type">manifest</xsl:with-param>
       </xsl:apply-templates>
       <!-- images to declare -->
@@ -122,23 +116,27 @@ http://wiki.mobileread.com/wiki/Adobe_Digital_Editions#Page-map
           </xsl:attribute>
           <xsl:attribute name="media-type">
             <xsl:choose>
+              <xsl:when test="contains(@url, '.svg')">image/svg+xml</xsl:when>
               <xsl:when test="contains(@url, '.png')">image/png</xsl:when>
               <xsl:when test="contains(@url, '.jpg')">image/jpeg</xsl:when>
+              <xsl:when test="contains(@url, '.jpeg')">image/jpeg</xsl:when>
               <xsl:otherwise>image/jpeg</xsl:otherwise>
             </xsl:choose>
           </xsl:attribute>
         </item>
       </xsl:for-each>
+      <!--
       <item id="ncx" media-type="application/x-dtbncx+xml" href="toc.ncx"/>
+      -->
     </manifest>
   </xsl:template>
   <xsl:template match="opf:spine" mode="opf:template">
-    <spine toc="ncx">
+    <spine>
       <xsl:if test="$cover != ''">
         <itemref idref="coverhtml"/>
       </xsl:if>
       <itemref idref="titlePage"/>
-      <xsl:apply-templates select="$TEI/*" mode="opf">
+      <xsl:apply-templates select="/*/tei:text" mode="opf">
         <xsl:with-param name="type">spine</xsl:with-param>
       </xsl:apply-templates>
       <xsl:if test="$fnpage != ''">

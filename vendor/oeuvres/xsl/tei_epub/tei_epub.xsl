@@ -11,23 +11,29 @@ Kindle hacks
 https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
 <p> : no @class, but @align
 -->
-<xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.1" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns="http://www.w3.org/1999/xhtml" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:opf="http://www.idpf.org/2007/opf" exclude-result-prefixes="epub html tei opf" extension-element-prefixes="">
+<xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0" 
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:epub="http://www.idpf.org/2007/ops"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:opf="http://www.idpf.org/2007/opf"
+  xmlns:tei="http://www.tei-c.org/ns/1.0"
+  exclude-result-prefixes="epub html tei opf"
+  
+  xmlns:exslt="http://exslt.org/common"
+  xmlns:php="http://php.net/xsl"
+  extension-element-prefixes="exslt php"
+>
   <!-- Use import to allow overriding -->
-  <xsl:include href="../html/flow.xsl"/>
-  <xsl:include href="../html/notes.xsl"/>
-  <xsl:include href="../html/teiHeader.xsl"/>
-  <xsl:include href="../html/toc.xsl"/>
+  <xsl:include href="../tei_html/tei_flow_html.xsl"/>
+  <xsl:include href="../tei_html/tei_notes_html.xsl"/>
+  <xsl:include href="../tei_html/tei_header_html.xsl"/>
+  <xsl:include href="../tei_html/tei_toc_html.xsl"/>
   <!-- ensure override on common -->
   <xsl:include href="epub.xsl"/>
   <xsl:output indent="yes" method="xml" encoding="UTF-8"/>
   <!-- Name of this xsl  -->
   <xsl:param name="this">tei2epub.xsl</xsl:param>
-  <!-- output type modify behavior of tei_html.xsl -->
-  <xsl:param name="format" select="$epub3"/>
-  <!-- directory where to generate file, set by caller -->
-  <xsl:param name="dstdir"/>
-  <!-- link to the opf file to get the css links -->
-  <xsl:param name="opf"/>
+  <xsl:param name="epubId"/>
   <!-- Output some infos for debug -->
   <xsl:param name="debug"/>
   <xsl:template match="/">
@@ -43,7 +49,7 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
     <xsl:if test="$cover">
       <xsl:call-template name="document">
         <!-- epub type -->
-        <xsl:with-param name="type">cover</xsl:with-param>
+        <xsl:with-param name="epub:type">cover</xsl:with-param>
         <xsl:with-param name="css">
 @page{ margin:0;}
         </xsl:with-param>
@@ -55,7 +61,7 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
           <xsl:text>, </xsl:text>
           <xsl:value-of select="$doctitle"/>
         </xsl:with-param>
-        <xsl:with-param name="content">
+        <xsl:with-param name="body">
           <div id="cover" style="text-align: center; page-break-after: always;">
             <img src="{$cover}" alt="{$doctitle}" style="height: 100%; max-width: 100%;"/>
           </div>
@@ -75,7 +81,7 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
         </xsl:call-template>
         <xsl:text>)</xsl:text>
       </xsl:with-param>
-      <xsl:with-param name="content">
+      <xsl:with-param name="body">
         <xsl:variable name="html">
           <xsl:choose>
             <xsl:when test="tei:front/tei:titlePage[normalize-space(.) != '']">
@@ -86,18 +92,9 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
             </xsl:otherwise>
           </xsl:choose>
         </xsl:variable>
-        <xsl:choose>
-          <xsl:when test="$format = $epub2">
-            <div class="titlePage">
-              <xsl:copy-of select="$html"/>
-            </div>
-          </xsl:when>
-          <xsl:otherwise>
-            <section epub:type="titlepage" class="titlePage">
-              <xsl:copy-of select="$html"/>
-            </section>
-          </xsl:otherwise>
-        </xsl:choose>
+        <section epub:type="titlepage" class="titlePage">
+          <xsl:copy-of select="$html"/>
+        </section>
       </xsl:with-param>
     </xsl:call-template>
     <!-- Create a toc -->
@@ -112,75 +109,65 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
         <xsl:text>, </xsl:text>
         <xsl:value-of select="$doctitle"/>
       </xsl:with-param>
-      <xsl:with-param name="content">
-        <xsl:choose>
-          <xsl:when test="$format = $epub2">
-            <h1>
-              <xsl:call-template name="message">
-                <xsl:with-param name="id">toc</xsl:with-param>
-              </xsl:call-template>
-            </h1>
-            <xsl:call-template name="toc"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <nav>
-              <xsl:attribute name="epub:type">toc</xsl:attribute>
-              <xsl:attribute name="id">toc</xsl:attribute>
-              <h1>
+      <xsl:with-param name="body">
+        <nav>
+          <xsl:attribute name="epub:type">toc</xsl:attribute>
+          <xsl:attribute name="id">toc</xsl:attribute>
+          <h1>
+            <xsl:call-template name="message">
+              <xsl:with-param name="id">toc</xsl:with-param>
+            </xsl:call-template>
+          </h1>
+          <ol class="tree">
+            <xsl:if test="$cover">
+              <li>
+                <a href="cover{$_html}">
+                  <xsl:call-template name="message">
+                    <xsl:with-param name="id">cover</xsl:with-param>
+                  </xsl:call-template>
+                </a>
+              </li>
+            </xsl:if>
+            <li>
+              <a href="titlePage{$_html}">
                 <xsl:call-template name="message">
-                  <xsl:with-param name="id">toc</xsl:with-param>
+                  <xsl:with-param name="id">titlePage</xsl:with-param>
                 </xsl:call-template>
-              </h1>
-              <ol class="tree">
-                <xsl:if test="$cover">
-                  <li>
-                    <a href="cover{$_html}">
-                      <xsl:call-template name="message">
-                        <xsl:with-param name="id">cover</xsl:with-param>
-                      </xsl:call-template>
-                    </a>
-                  </li>
-                </xsl:if>
+              </a>
+            </li>
+            <xsl:apply-templates select="/*/tei:text/tei:front" mode="li"/>
+            <xsl:apply-templates select="/*/tei:text/tei:body" mode="li"/>
+            <xsl:apply-templates select="/*/tei:text/tei:group" mode="li"/>
+            <xsl:apply-templates select="/*/tei:text/tei:back" mode="li"/>
+            <xsl:if test="$fnpage != ''">
+              <li>
+                <a href="{$fnpage}{$_html}">Notes</a>
+              </li>
+            </xsl:if>
+            <!-- Loop on <spine> template ? -->
+            <!--
+            <xsl:if test="$opf != ''">
+              <xsl:for-each select="document($opf)/opf:package/opf:spine/opf:itemref">
                 <li>
-                  <a href="titlePage{$_html}">
-                    <xsl:call-template name="message">
-                      <xsl:with-param name="id">titlePage</xsl:with-param>
-                    </xsl:call-template>
+                  <a>
+                    <xsl:attribute name="href">
+                      <xsl:value-of select="key('opfid', @idref)/@href"/>
+                    </xsl:attribute>
+                    <xsl:choose>
+                      <xsl:when test="processing-instruction('title')">
+                        <xsl:value-of select="processing-instruction('title')"/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:value-of select="translate(@idref, '_', ' ')"/>
+                      </xsl:otherwise>
+                    </xsl:choose>
                   </a>
                 </li>
-                <xsl:apply-templates select="/*/tei:text/tei:front" mode="li"/>
-                <xsl:apply-templates select="/*/tei:text/tei:body" mode="li"/>
-                <xsl:apply-templates select="/*/tei:text/tei:group" mode="li"/>
-                <xsl:apply-templates select="/*/tei:text/tei:back" mode="li"/>
-                <xsl:if test="$fnpage != ''">
-                  <li>
-                    <a href="{$fnpage}{$_html}">Notes</a>
-                  </li>
-                </xsl:if>
-                <!-- Loop on <spine> template ? -->
-                <xsl:if test="$opf != ''">
-                  <xsl:for-each select="document($opf)/opf:package/opf:spine/opf:itemref">
-                    <li>
-                      <a>
-                        <xsl:attribute name="href">
-                          <xsl:value-of select="key('opfid', @idref)/@href"/>
-                        </xsl:attribute>
-                        <xsl:choose>
-                          <xsl:when test="processing-instruction('title')">
-                            <xsl:value-of select="processing-instruction('title')"/>
-                          </xsl:when>
-                          <xsl:otherwise>
-                            <xsl:value-of select="translate(@idref, '_', ' ')"/>
-                          </xsl:otherwise>
-                        </xsl:choose>
-                      </a>
-                    </li>
-                  </xsl:for-each>
-                </xsl:if>
-              </ol>
-            </nav>
-          </xsl:otherwise>
-        </xsl:choose>
+              </xsl:for-each>
+            </xsl:if>
+            -->
+          </ol>
+        </nav>
       </xsl:with-param>
     </xsl:call-template>
     <xsl:if test="$fnpage != ''">
@@ -196,7 +183,7 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
           <xsl:text>, </xsl:text>
           <xsl:value-of select="$doctitle"/>
         </xsl:with-param>
-        <xsl:with-param name="content">
+        <xsl:with-param name="body">
           <h1>
             <xsl:copy-of select="$label"/>
           </h1>
@@ -289,7 +276,7 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
   </xsl:template> 
   <!-- Sections, candidates for split -->
   <xsl:template match=" tei:div | tei:div0 | tei:div1 | tei:div2 | tei:div3 | tei:div4 | tei:div5 | tei:div6 | tei:div7 | tei:group" mode="epub">
-    <xsl:param name="type"/>
+    <xsl:param name="epub:type"/>
     <xsl:choose>
       <!-- there are children to split, so we should do something special with what is before (and also after)
           Is it a great idea to open a file/page for such division which could contain no more than a title ?      
@@ -303,7 +290,7 @@ https://kdp.amazon.com/self-publishing/help?topicId=A1JPUWCSD6F59O
           <xsl:when test="(self::tei:front|self::tei:body|self::tei:back) and not(tei:p|tei:l|tei:list|tei:argument|tei:table)"/>
           <xsl:when test="$cont">
             <xsl:call-template name="document">
-              <xsl:with-param name="content">
+              <xsl:with-param name="body">
                 <div>
                   <xsl:call-template name="atts"/>
                   <xsl:apply-templates select="$cont">
@@ -340,7 +327,6 @@ param id allow to override the default mecanism for file name
   <xsl:template name="document">
     <xsl:param name="id"/>
     <xsl:param name="href">
-      <xsl:value-of select="$dstdir"/>
       <xsl:choose>
         <xsl:when test="$id != ''">
           <xsl:value-of select="$id"/>
@@ -354,15 +340,15 @@ param id allow to override the default mecanism for file name
     <xsl:param name="title">
       <xsl:call-template name="titlebranch"/>
     </xsl:param>
-    <xsl:param name="type">
+    <xsl:param name="epub:type">
       <xsl:choose>
         <xsl:when test="ancestor-or-self::tei:front">frontmatter</xsl:when>
         <xsl:when test="ancestor-or-self::tei:back">backmatter</xsl:when>
-        <xsl:otherwise>bodymatter</xsl:otherwise>
+        <xsl:when test="ancestor-or-self::tei:body">bodymatter</xsl:when>
       </xsl:choose>
     </xsl:param>
-    <!-- Un contenu généré par ailleurs -->
-    <xsl:param name="content"/>
+    <!-- Contents generated by caller -->
+    <xsl:param name="body"/>
     <!-- Some css -->
     <xsl:param name="css"/>
     <xsl:variable name="message">
@@ -375,35 +361,19 @@ param id allow to override the default mecanism for file name
         <xsl:value-of select="$message"/>
       </xsl:message>
     </xsl:if>
-    <xsl:document href="{$href}" omit-xml-declaration="no" encoding="UTF-8" indent="yes">
-      <xsl:choose>
-        <xsl:when test="$format = $epub3">
-          <xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html></xsl:text>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"></xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:value-of select="$lf"/>
+    <xsl:variable name="html">
       <html xml:lang="{$lang}" lang="{$lang}" xmlns:epub="http://www.idpf.org/2007/ops">
         <head>
           <meta charset="utf-8"/>
           <title>
             <xsl:value-of select="normalize-space($title)"/>
           </title>
-          <xsl:choose>
-            <xsl:when test="$opf != ''">
-              <xsl:for-each select="document($opf)/opf:package/opf:manifest/opf:item[@media-type='text/css']">
-                <link rel="stylesheet" type="text/css" href="{@href}"/>
-              </xsl:for-each>
-            </xsl:when>
-            <xsl:otherwise>
-              <link rel="stylesheet" type="text/css" href="Styles/epub.css"/>
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:for-each select="/*/opf:package/opf:manifest/opf:item[@media-type='text/css']">
+            <link rel="stylesheet" type="text/css" href="{@href}"/>
+          </xsl:for-each>
           <!-- ne marche plus dans les dernières Kobo
           <link rel="stylesheet" type="application/vnd.adobe-page-template+xml" href="style/ade.xpgt"/>
-          TODO, de la css locale
+          locale css ?
           <xsl:if test="$corpusid != ''">
             <link rel="stylesheet" type="text/css" href="{$corpusid}.css"/>
           </xsl:if>
@@ -421,9 +391,14 @@ param id allow to override the default mecanism for file name
               <xsl:value-of select="$corpusid"/>
             </xsl:attribute>
           </xsl:if>
+          <xsl:if test="$epub:type != ''">
+            <xsl:attribute name="epub:type">
+              <xsl:value-of select="$epub:type"/>
+            </xsl:attribute>
+          </xsl:if>
           <xsl:choose>
-            <xsl:when test="$content">
-              <xsl:copy-of select="$content"/>
+            <xsl:when test="$body">
+              <xsl:copy-of select="$body"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:apply-templates select="."/>
@@ -434,7 +409,14 @@ param id allow to override the default mecanism for file name
           </xsl:choose>
         </body>
       </html>
-    </xsl:document>
+    </xsl:variable>
+    <xsl:value-of select="php:function(
+      'Oeuvres\Teinte\Tei2\Tei2epub::item',
+      string($epubId),
+      string($href),
+      exslt:node-set($html)
+      )"/>
+    
   </xsl:template>
   <!-- No small-caps in ereader, for roman numbers like centuries -->
   <xsl:template match="tei:num/text()">

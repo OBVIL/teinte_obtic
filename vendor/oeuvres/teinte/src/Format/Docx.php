@@ -47,10 +47,10 @@ class Docx extends Zip
     /**
      * Load and check
      */
-    public function load(string $file): bool
+    public function open(string $file, ?int $flags = 0): bool
     {
         $this->teiReset();
-        if (!parent::load($file)) {
+        if (!parent::open($file)) {
             return false;
         }
         return true;
@@ -64,16 +64,16 @@ class Docx extends Zip
 
     
     /**
-     * Give a dom with right options
+     * Give a DOM with right options
      */
-    private function newDom(): DOMDocument
+    private function newDOM(): DOMDocument
     {
-        // keep a special dom options
-        $dom = new DOMDocument();
-        $dom->substituteEntities = true;
-        $dom->preserveWhiteSpace = true;
-        $dom->formatOutput = false;
-        return $dom;
+        // keep a special DOM options
+        $DOM = new DOMDocument();
+        $DOM->substituteEntities = true;
+        $DOM->preserveWhiteSpace = true;
+        $DOM->formatOutput = false;
+        return $DOM;
     }
 
 
@@ -96,10 +96,10 @@ class Docx extends Zip
     {
         // should have been loaded here
         // concat XML files sxtracted, without XML prolog
-        $this->tei = '<?xml version="1.0" encoding="UTF-8"?>
+        $this->teiXML = '<?xml version="1.0" encoding="UTF-8"?>
 <pkg:package xmlns:pkg="http://schemas.microsoft.com/office/2006/xmlPackage">
 ';
-        // list of entries 
+        // list of entries from the docx to concat
         $entries = [
             // styles 
             'word/styles.xml' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml',
@@ -140,42 +140,50 @@ class Docx extends Zip
                 ],
                 $content
             );
-            $this->tei .= "
+            $this->teiXML .= "
   <pkg:part pkg:contentType=\"$type\" pkg:name=\"/$name\">
     <pkg:xmlData>\n" . $content . "\n    </pkg:xmlData>
   </pkg:part>
 ";
         }
-        // add custom style table here for tag mapping
-        $content = file_get_contents(Xpack::dir() . 'docx/styles.xml');
-        $content = preg_replace('/^.*<sheet/ms', '<sheet', $content);
-        $this->tei .= "
-        <pkg:part pkg:contentType=\"$type\" pkg:name=\"/teinte/styles.xml\">
-          <pkg:xmlData>\n" . $content . "\n    </pkg:xmlData>
-        </pkg:part>
-      ";
-        $this->tei .= "\n</pkg:package>\n";
+        // add file contents
+        foreach ([
+            'docx/styles.xml' => 'application/teinte.styles',
+            'docx/symbol.xml' => 'application/teinte.charmap',
+
+        ] as $name => $type) {
+            // clean prolog
+            $dom = new DOMDocument();
+            $dom->load(Xpack::dir() . $name);
+            $this->teiXML .= "
+            <pkg:part pkg:contentType=\"$type\" pkg:name=\"$name\">
+              <pkg:xmlData>\n" . $dom->saveXML($dom->documentElement) . "\n    </pkg:xmlData>
+            </pkg:part>
+          ";
+        }
+        $this->teiXML .= "\n</pkg:package>\n";
     }
 
     /**
      * Build a lite TEI with some custom tags like <i> or <sc>, easier to clean
      * with regex
      */
-    function teilike(?array $pars = null):void
+    function teilike(?array $pars = []):void
     {
-        // a local dom with right properties
-        $dom = $this->newDom();
+        $pars['file'] = $this->file;
+        // a local DOM with right properties
+        $DOM = $this->newDOM();
         // DO NOT indent here
-        Xt::loadXml($this->tei, $dom);
-        $dom = Xt::transformToDoc(
+        Xt::loadXML($this->teiXML, $DOM);
+        $DOM = Xt::transformToDOM(
             Xpack::dir() . 'docx/docx_teilike.xsl', 
-            $dom,
+            $DOM,
             $pars
         );
         // out that as xml for pcre
-        $this->tei = Xt::transformToXml(
+        $this->teiXML = Xt::transformToXML(
             Xpack::dir() . 'docx/divs.xsl', 
-            $dom,
+            $DOM,
         );
     }
 
@@ -185,10 +193,10 @@ class Docx extends Zip
     function pcre(): void
     {
         // clean xml oddities
-        $this->tei = preg_replace(self::$preg[0], self::$preg[1], $this->tei);
+        $this->teiXML = preg_replace(self::$preg[0], self::$preg[1], $this->teiXML);
         // custom patterns
         if (isset($this->user_preg)) {
-            $this->tei = preg_replace($this->user_preg[0], $this->user_preg[1], $this->tei);
+            $this->teiXML = preg_replace($this->user_preg[0], $this->user_preg[1], $this->teiXML);
         }
     }
 
@@ -197,23 +205,23 @@ class Docx extends Zip
      */
     function tmpl(?array $pars = null): void
     {
-        // a local dom with right properties
-        $dom = $this->newDom();
+        // a local DOM with right properties
+        $DOM = $this->newDOM();
         // xml should come from pcre transform
-        Xt::loadXml($this->tei, $dom);
+        Xt::loadXML($this->teiXML, $DOM);
         if (!isset($pars["template" ])) {
             $pars["template" ] = $this->tmpl;
         }
         // TEI regularisations and model fusion
-        $dom = Xt::transformToDoc(
+        $DOM = Xt::transformToDOM(
             Xpack::dir() . 'docx/tei_tmpl.xsl',
-            $dom,
+            $DOM,
             $pars
         );
         // delete old xml
-        $this->tei = null;
-        // set new dom
-        $this->teiDoc = $dom;
+        $this->teiXML = null;
+        // set new DOM
+        $this->teiDOM = $DOM;
     }
 
     /**
@@ -242,65 +250,98 @@ class Docx extends Zip
         Log::info("Docx > tei, user xml template: ". $this->tmpl);
     }
 
-
-
     /**
-     * TODO, extract image from docx
-     * Extract images from  <graphic> elements from a DOM doc, copy linked images in a flat dstdir
-     * copy linked images in an images folder $dstdir, and modify relative link
-     *
-     * $hrefdir : a href prefix to redirest generated links
-     * $dstdir : a folder if images should be copied
-     * return : a doc with updated links to image
+     * Get properies of document
      */
-    public function images($dst_tei, $href_prefix)
+    public function properties()
     {
-        $dom = $this->teiDoc;
-        $count = 1;
-        $nl = $dom->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'graphic');
-        // $pad = strlen('' . $nl->count());
-        foreach ($nl as $el) {
-            $att = $el->getAttributeNode("url");
-            if (!isset($att) || !$att || !$att->value) {
+        $props = [ // =>null == !isset
+            'dcterms:created' => 0,
+            'dcterms:modified' => 0,
+            'TotalTime' => 0,
+            'media' => 0,
+            // app.xml seems poorly updated
+            // 'Pages' => 0,
+            // 'Paragraphs' => 0,
+            // 'Lines' => 0,
+            // 'Words' => 0,
+            // 'Characters' => 0,
+            // 'CharactersWithSpaces' => 0,
+        ];
+        $DOM = new DOMDocument();
+        $DOM->substituteEntities = true;
+        $entries = [
+            'docProps/app.xml',
+            'docProps/core.xml',
+        ];
+        foreach($entries as $entry) {
+            $content = $this->zip->getFromName($entry);
+            // some generators (ABBYY) do not provide stats
+            if ($content === false) {
+                // Log::debug("404 " . $entry);
                 continue;
             }
-            $src = $att->value;
-            // do not modify data image
-            if (strpos($src, 'data:image') === 0) {
-                continue;
+            $DOM->loadXML($content);
+            $root = $DOM->documentElement;
+            foreach( $root->childNodes as $node )
+            {
+                if ($node->nodeType !== 1) continue;
+                $name = $node->nodeName;
+                if (isset($props[$name])) {
+                    $props[$name] = $node->textContent;
+                }
             }
-            // test if coming fron the internet
-            if (substr($src, 0, 4) == 'http') {
-                continue;
-            }
-            // should be an image comming from the docx
-            $no = str_pad(strval($count), 3, '0', STR_PAD_LEFT);
-            $ext = pathinfo($src, PATHINFO_EXTENSION);
-            $dir = dirname($dst_tei) . "/";
-            if ($dir == '/')  {
-                $dir = '';
-            }
-            $href = $href_prefix . $no . '.' . $ext;
-            $dst_file =  $dir . $href;
-            Filesys::mkdir(dirname($dst_file));
-            Log::info($src . " -> " . $dst_file);
-            $contents = $this->zip->getFromName('word/' . $src);
-            file_put_contents($dst_file, $contents);
-            $att->value = $href;
-            // $this->img($el->getAttributeNode("url"), , $hrefdir, $dstdir);
-            $count++;
         }
-        /*
-    do not store images of pages, especially in tif
-    foreach ($doc->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'pb') as $el) {
-      $this->img($el->getAttributeNode("facs"), $hrefTei, $dstdir, $hrefSqlite);
+        // verify signs by looping on document
+        // DOM loop is very very slow
+        // SAX is used instead
+        $counter = new class {
+            public $signs;
+            private $t = false;
+            public function start($parser, $name, $atts)
+            {
+                if($name == 'w:t') $this->t = true;
+            }
+            public function end($parser, $name)
+            {
+                if($name == 'w:t') $this->t = false;
+            }
+            public function text($parser, $data)
+            {
+                if (!$this->t) return;
+                $this->signs += mb_strlen($data);
+            }
+        };
+        $entries = [
+            'word/document.xml',
+            'word/footnotes.xml',
+        ];
+        foreach($entries as $entry) {
+            $content = $this->zip->getFromName($entry);
+            if ($content === false) {
+                continue;
+            }
+            // parser seems to be rebuild each time
+            $parser = xml_parser_create();
+            xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, false);
+            xml_set_character_data_handler($parser, array($counter, "text"));
+            xml_set_element_handler($parser, array($counter, "start"), array($counter, "end"));
+            xml_parse($parser, $content, true);
+            unset($content);
+            xml_parser_free($parser);
+        }
+        $props['signs'] = $counter->signs;
+
+        // count media files
+        for ($i = 0; $i < $this->zip->numFiles; $i++) {
+            $stat = $this->zip->statIndex($i);
+            $name = $stat['name'];
+            if (strpos($name, 'word/media/') !== 0) continue;
+            $props['media']++;
+        }
+
+        return $props;
     }
-    */
-        // return $dom;
-    }
-
-
-
 }
 
 Docx::init();

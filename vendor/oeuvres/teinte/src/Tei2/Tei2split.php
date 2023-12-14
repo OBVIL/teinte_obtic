@@ -11,7 +11,9 @@
 namespace Oeuvres\Teinte\Tei2;
 
 use DOMDocument;
-use Oeuvres\Kit\{Filesys, Log, Xsl};
+use Oeuvres\Kit\{Filesys, Log, Xt};
+use Oeuvres\Xsl\{Xpack};
+
 
 /**
  * Export a TEI document as an html fragment <article>
@@ -26,16 +28,17 @@ class Tei2split extends AbstractTei2
     /**
      * @ override
      */
-    static public function toUri(DOMDocument $dom, string $dstFile, ?array $pars=array())
+    static public function toURI(DOMDocument $dom, string $dst_dir, ?array $pars=array())
     {
         if (!$pars) $pars = array();
-        $dst_dir = Filesys::cleandir($dstFile) . "/";
+        $dst_dir = Filesys::cleandir($dst_dir) . "/";
         if (DIRECTORY_SEPARATOR == "\\") {
             $dst_dir = "file:///" . str_replace('\\', '/', $dst_dir);
         }
         $pars = array_merge($pars, array("dst_dir" => $dst_dir));
         // Log::info("Tei2" . static::NAME . "->toUri() " . $dst_dir);
-        return Xt::transformToXml(
+        // will generate files in dst_dir by xsl:document()
+        return Xt::transformToXML(
             Xpack::dir().static::XSL,
             $dom,
             $pars,
@@ -45,7 +48,7 @@ class Tei2split extends AbstractTei2
     /**
      * @ override
      */
-    static public function toDoc(DOMDocument $dom, ?array $pars=null):?\DOMDocument
+    static public function toDOM(DOMDocument $dom, ?array $pars=null):?\DOMDocument
     {
         Log::error(__METHOD__." dom export not relevant");
         return null;
@@ -53,7 +56,7 @@ class Tei2split extends AbstractTei2
     /**
      * @ override
      */
-    static public function toXml(DOMDocument $dom, ?array $pars=null):?string
+    static public function toXML(DOMDocument $dom, ?array $pars=null):?string
     {
         Log::error(__METHOD__." string export not relevant");
         return null;

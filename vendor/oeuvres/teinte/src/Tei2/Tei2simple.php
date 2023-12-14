@@ -15,7 +15,7 @@ use Oeuvres\Kit\{Filesys, Log, Xt};
 use Oeuvres\Xsl\{Xpack};
 
 /**
- * A sinmple Teidoc exporter, with only one xslt
+ * A sinmple teiDOM exporter, with only one xslt
  */
 abstract class Tei2simple extends AbstractTei2
 {
@@ -23,32 +23,32 @@ abstract class Tei2simple extends AbstractTei2
     const XSL = null;
 
     // static abstract public function toUri(DOMDocument $dom, string $dstFile, ?array $pars = null): void;
-    static public function toUri(DOMDocument $dom, string $dstFile, ?array $pars = null): void
+    static public function toURI(DOMDocument $DOM, string $dst_file, ?array $pars = null): void
     {
-        Log::debug("Tei2" . static::NAME . "->toUri() " . $dstFile);
+        Log::debug("Tei2" . static::NAME . "->toUri() " . $dst_file);
         if ($pars === null) $pars = self::$pars;
-        Xt::transformToUri(
+        Xt::transformToURI(
             Xpack::dir() . static::XSL,
-            $dom,
-            $dstFile,
+            $DOM,
+            $dst_file,
             $pars,
         );
     }
 
-    static public function toXml(DOMDocument $dom, ?array $pars = null): string
+    static public function toXML(DOMDocument $dom, ?array $pars = null): string
     {
         if ($pars === null) $pars = self::$pars;
-        return Xt::transformToXml(
+        return Xt::transformToXML(
             Xpack::dir() . static::XSL,
             $dom,
             $pars,
         );
     }
 
-    static public function toDoc(DOMDocument $dom, ?array $pars = null): DOMDocument
+    static public function toDOM(DOMDocument $dom, ?array $pars = null): DOMDocument
     {
         if ($pars === null) $pars = self::$pars;
-        return Xt::transformToDoc(
+        return Xt::transformToDOM(
             Xpack::dir() . static::XSL,
             $dom,
             $pars,

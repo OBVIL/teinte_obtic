@@ -24,6 +24,7 @@ abstract class AbstractTei2
     /** Parameters for all (?) transformers */
     static protected array $pars = [];
     /** Prefered extension for exported files */
+    // const EXT = self::EXT; //  Would force child class to implement, but init()
     const EXT = null;
     /** Name of the transo for logging */
     const NAME = null;
@@ -83,13 +84,13 @@ abstract class AbstractTei2
         ?string $dst_dir = null
     ): string {
         if (!$dst_dir) {
-            $dstDir = dirname($src_file) . DIRECTORY_SEPARATOR;
+            $dst_dir = dirname($src_file) . DIRECTORY_SEPARATOR;
         } else {
-            $dstDir = Filesys::normdir($dst_dir);
+            $dst_dir = Filesys::normdir($dst_dir);
         }
-        $dstName =  pathinfo($src_file, PATHINFO_FILENAME);
-        $dstFile = $dstDir . $dstName . static::EXT;
-        return $dstFile;
+        $dst_name =  pathinfo($src_file, PATHINFO_FILENAME);
+        $dst_file = $dst_dir . $dst_name . static::EXT;
+        return $dst_file;
     }
 
     /**
@@ -108,17 +109,17 @@ abstract class AbstractTei2
     /**
      * Write transformation as an Uri, which is mainly, a file
      */
-    static abstract public function toUri(DOMDocument $dom, string $dstFile, ?array $pars = null);
+    static abstract public function toURI(DOMDocument $dom, string $dstFile, ?array $pars = null);
     /**
      * Export transformation as an XML string
      * (maybe not relevant for aggregated formats: docx, epub, site…)
      */
-    static abstract public function toXml(DOMDocument $dom, ?array $pars = null): ?string;
+    static abstract public function toXML(DOMDocument $DOM, ?array $pars = null): ?string;
     /**
      * Export transformation as a Dom
      * (maybe not relevant for aggregated formats: docx, epub, site…)
      */
-    static abstract public function toDoc(DOMDocument $dom, ?array $pars = null): ?DOMDocument;
+    static abstract public function toDOM(DOMDocument $DOM, ?array $pars = null): ?DOMDocument;
 }
 AbstractTei2::init();
 

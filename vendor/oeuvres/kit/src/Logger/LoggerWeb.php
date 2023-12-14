@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace Oeuvres\Kit;
+namespace Oeuvres\Kit\Logger;
 
 use Psr\Log\LogLevel;
 
@@ -19,11 +19,20 @@ use Psr\Log\LogLevel;
  *
  * @see https://www.php-fig.org/psr/psr-3/
  */
-class LoggerTxt extends Logger
+class LoggerWeb extends Logger
 {
     protected function write($level, $message)
     {
-        echo $message . "\n";
+        $message = preg_replace('/\n/', "\n<br/>", $message);
+        echo "<div class=\"log $level\">[$level] $message</div>\n";
+    }
+
+    public function __construct(
+        ?string $level = LogLevel::ERROR,
+        ?string $prefix = "",
+        ?string $suffix = ""
+    ) {
+        parent::__construct($level, $prefix, $suffix);
     }
 
 }

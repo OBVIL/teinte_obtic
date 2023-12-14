@@ -130,6 +130,10 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
   </xsl:template>
   <!-- Strip meta -->
   <xsl:template match="/*/tei:index"/>
+  <!-- Strip bold in label -->
+  <xsl:template match="tei:label//tei:b">
+    <xsl:apply-templates/>
+  </xsl:template>
   <!-- typo inlines -->
   <xsl:template match="tei:b | tei:strong | tei:sup | tei:sc | tei:u">
     <hi>
@@ -146,14 +150,50 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
       <xsl:apply-templates/>
     </hi>
   </xsl:template>
+  
   <!-- beter list hierarchy -->
+  
+  <xsl:template match="tei:list">
+    <xsl:copy>
+      <xsl:apply-templates select="@*"/>
+      <xsl:if test="tei:item[@rend]">
+        <xsl:attribute name="rend">
+          <xsl:value-of select="tei:item/@rend"/>
+        </xsl:attribute>
+      </xsl:if>
+      
+      <xsl:for-each select="node()">
+        <xsl:choose>
+          <xsl:when test="self::text()">
+            <xsl:copy/>
+          </xsl:when>
+          <xsl:when test="self::tei:item">
+            <xsl:variable name="next" select="following-sibling::tei:item[1]"/>
+            <xsl:copy>
+              <xsl:apply-templates select="node()|@*[name() != 'rend']"/>
+              <xsl:for-each select="following-sibling::tei:list[following-sibling::tei:item[count(.|$next) = 1]]">
+                <xsl:text>&#10;</xsl:text>
+                <xsl:apply-templates select="."/>
+                <xsl:text>&#10;</xsl:text>
+              </xsl:for-each>
+            </xsl:copy>
+          </xsl:when>
+          <xsl:when test="self::tei:list"/>
+          <xsl:otherwise>
+            <xsl:apply-templates select="."/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each>
+    </xsl:copy>
+  </xsl:template>
+  
+  <!--
   <xsl:template match="tei:item">
     <xsl:variable name="next" select="following-sibling::tei:item[1]"/>
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
       <xsl:for-each select="following-sibling::tei:list[following-sibling::tei:item[count(.|$next) = 1]]">
         <xsl:text>&#10;</xsl:text>
-        <!-- list/ -->
         <xsl:copy>
           <xsl:apply-templates select="node()|@*"/>
         </xsl:copy>
@@ -161,7 +201,9 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
       </xsl:for-each>
     </xsl:copy>
   </xsl:template>
+  -->
   <!-- empty list -->
+  <!--
   <xsl:template match="tei:list">
     <xsl:choose>
       <xsl:when test="normalize-space(.) = ''"/>
@@ -176,16 +218,19 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
   <xsl:template match="tei:list/tei:list">
     <xsl:apply-templates/>
   </xsl:template>
+  -->
   <!-- 
   not logic but possible
   
 * I
     * I.?.1
   * I.2
-  -->
+
   <xsl:template match="tei:list/tei:list[not(preceding-sibling::*[1][self::tei:item])]">
     <xsl:apply-templates/>
   </xsl:template>
+
+  -->
   <xsl:template match="tei:author">
     <xsl:choose>
       <xsl:when test="ancestor::tei:analytic|ancestor::tei:bibl|ancestor::tei:editionStmt|ancestor::tei:monogr|ancestor::tei:msItem|ancestor::tei:msItemStruct|ancestor::tei:titleStmt">
@@ -238,7 +283,6 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
   <!-- Page number -->
   <xsl:template match="tei:pb[text()]">
     <xsl:variable name="n" select="translate(., '[]p.  ', '')"/>
-    <!--  Marc : J'ajoute l'espace insécable  -->
     <xsl:choose>
       <xsl:when test="number($n) &gt; 0">
         <pb n="{$n}">
@@ -257,12 +301,14 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
   <xsl:template match="tei:pb[not(text())][not(@n)]">
     <pb>
       <xsl:copy-of select="@*"/>
+      <!-- No auto numbering, is false from life docx
       <xsl:attribute name="n">
         <xsl:variable name="n">
           <xsl:number level="any"/>
         </xsl:variable>
         <xsl:value-of select="$n - 1 + $pb"/>
       </xsl:attribute>
+      -->
     </pb>
   </xsl:template>
   <!-- Notes candidates -->
@@ -471,6 +517,10 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
       <xsl:attribute name="type">dialogue</xsl:attribute>
       <xsl:apply-templates/>
     </list>
+  </xsl:template>
+  <!-- Para empty except a page break -->
+  <xsl:template match="*[count(*) = 1][tei:pb][not(text()[normalize-space(.) != ''])]">
+    <xsl:apply-templates/>
   </xsl:template>
   <!-- tag page number in index item -->
   <xsl:template match="tei:div[@type='index']">
@@ -799,10 +849,32 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
     </xsl:variable>
     <xsl:copy>
       <xsl:copy-of select="@*"/>
+      <xsl:if test="tei:th|tei:p/tei:th">
+        <xsl:attribute name="role">label</xsl:attribute>
+      </xsl:if>
       <xsl:choose>
         <!-- if only one para in cell, go through -->
-        <xsl:when test="$mixed = '' and count(*) = 1 and tei:p">
-          <xsl:apply-templates select="*/node()"/>
+        <xsl:when test="$mixed = '' and count(*) = 1 and (tei:p|tei:th)">
+          <xsl:for-each select="*">
+            <xsl:choose>
+              <xsl:when test="tei:th">
+                <xsl:variable name="mix2">
+                  <xsl:call-template name="mixed"/>
+                </xsl:variable>
+                <xsl:choose>
+                  <xsl:when test="$mix2 = '' and count(*) = 1">
+                    <xsl:apply-templates select="tei:th/node()"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:apply-templates/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates/>

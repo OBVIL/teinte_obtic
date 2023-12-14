@@ -35,27 +35,49 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <!-- styles to filter -->
   <style level="0" name="ancredenotedebasdepage"/>
   <style level="0" name="ancredenotedefin"/>
+  <style level="0" name="annotationreference"/>
   <style level="0" name="appelnotedebasdep"/>
   <style level="0" name="appeldenotedefin"/>
-  <style level="0" name="caractresdenotedebasdepage"/>
-  <style level="0" name="caractresdenotedefin"/>
+  <style level="0" name="autres"/>
+  <style level="0" name="caracteresdenotedebasdepage"/>
+  <style level="0" name="caracteresdenotedefin"/>
+  <style level="0" name="bodytext"/>
   <style level="0" name="corpsdetexte"/>
   <style level="0" name="corpsdetexte1"/>
   <style level="0" name="corpsdetexte2"/>
   <style level="0" name="corpsdetexte3"/>
   <style level="0" name="defaultparagraphfont"/>
+  <style level="0" name="footnotereference"/>
+  <style level="0" name="freeform"/>
+  <style level="0" name="jjnormal"/>
+  <style level="0" name="jjnormalptsansretrait"/>
+  <style level="0" name="jjnormalhtpage"/>
+  <style level="0" name="jjnormalptgche"/>
+  <style level="0" name="none"/>
   <style level="0" name="normal"/>
   <style level="0" name="normal1"/>
   <style level="0" name="notedebasdepage"/>
   <style level="0" name="notesdebasdepage"/>
   <style level="0" name="notedefin"/>
   <style level="0" name="notesdefin"/>
+  <style level="0" name="style"/>
+  <style level="0" name="texteducorps"/>
+  <style level="0" name="texteducorps0"/>
   <style level="0" name="texteducorps1"/>
   <style level="0" name="texteducorps2"/>
   <style level="0" name="texteducorps3"/>
   <style level="0" name="texteducorps4"/>
   <style level="0" name="texteducorps5"/>
   <style level="0" name="texteducorps6"/>
+  <style level="0" name="texteducorps7"/>
+  <style level="0" name="texteducorps8"/>
+  <style level="0" name="texteducorps9"/>
+  <style level="0" name="texteducorps10"/>
+  <style level="0" name="texteducorps11"/>
+  <style level="0" name="texteducorps20"/>
+  <style level="0" name="texteducorps30"/>
+  <style level="0" name="texteducorps40"/>
+  <style level="0" name="texteducorps50"/>
   <style level="0" name="titre1car"/>
   <style level="0" name="titre2car"/>
   <style level="0" name="titre3car"/>
@@ -115,11 +137,15 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="epigraphl" element="l" parent="epigraph" doc="true"/>
   <style level="p" name="endnote" element="note"/>
   <style level="p" name="entry" element="entry" doc="true"/>
+  <style level="p" name="espce" element="label" attribute="type" value="species"/>
+  <style level="p" name="espece" element="label" attribute="type" value="species"/>
   <style level="p" name="exemple" element="quote" parent="entryFree"/>
   <style level="p" name="figure" element="figure"/>
   <style level="p" name="footnote" element="p"/><!-- in odt, used inside notes -->
+  <style level="p" name="footnotetext" element="note"/><!-- note as a block -->
   <style level="p" name="form" element="form" parent="entryFree"/>
   <style level="p" name="fw" element="fw" doc="true"/>
+  <style level="p" name="genre" element="label" attribute="type" value="genus"/>
   <style level="p" name="heading" element="label" attribute="type" value="head"/>
   <style level="p" name="headsub" element="head" attribute="type" value="sub"/>
   <style level="p" name="headsub1" element="head" attribute="type" value="sub"/>
@@ -131,6 +157,18 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="h3sub" element="head" attribute="type" value="sub"/>
   <style level="p" name="h4sub" element="head" attribute="type" value="sub"/>
   <style level="p" name="index" element="item" parent="index" doc="true"/>
+  <style level="p" name="jjnormalpt" element="p" attribute="type" value="observation"/>
+  <style level="p" name="jjobservations" element="p" attribute="type" value="observation"/>
+  <style level="p" name="jjobservationshtpag" element="p" attribute="type" value="observation"/>
+  <style level="p" name="jjnote" element="note"/>
+  <style level="p" name="jjnote1" element="note"/>
+  <style level="p" name="jjnote2" element="note"/>
+  <style level="p" name="jjnotea" element="note"/>
+  <style level="p" name="jjnoteb" element="note"/>
+  <style level="p" name="jjtitre" element="label" attribute="type" value="head"/>
+  <style level="p" name="jjcellule" element="p"/>
+  <style level="p" name="jjentete" element="fw"/>
+  <style level="p" name="jjnormalcentre" element="label"/>
   <style level="p" name="l" element="l" rend="keep" doc="true"/>
   <style level="p" name="lindent" element="l" attribute="rend" value="indent"/>
   <style level="p" name="legend" element="legend"/>
@@ -149,6 +187,8 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="listcontents" element="item" parent="dl"/>
   <style level="p" name="lg" element="l" parent="lg" doc="true"/>
   <style level="p" name="note" element="p" parent="notep"/>
+  <style level="p" name="obs" element="p" parent="quote" rend="keep" attribute="type" value="observation"/>
+  <style level="p" name="observation" element="p" parent="quote" rend="keep" attribute="type" value="observation"/>
   <style level="p" name="opener" element="opener" doc="true"/>
   <style level="p" name="p" element="p" rend="keep" doc="true"/>
   <style level="p" name="pb" element="pb" doc="true"/>
@@ -203,6 +243,7 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="texteenvers" element="l" parent="lg"/>
   <style level="p" name="term" element="term" parent="index" doc="true"/>
   <style level="p" name="trailer" element="trailer" doc="true"/>
+  <style level="p" name="var" element="label" attribute="type" value="variety"/>
   <style level="p" name="vers" element="l"/>
   <style level="p" name="versrompu" element="l" attribute="type" value="part"/>
   <style level="p" name="xml" element="eg"/>

@@ -20,39 +20,52 @@ use Oeuvres\Xsl\{Xpack};
 trait Teiable
 {
     /** Store XML as a string, maybe reused */
-    protected ?string $tei = null;
+    protected ?string $teiXML = null;
     /** DOM Document to process */
-    protected ?DOMDocument $teiDoc = null;
+    protected ?DOMDocument $teiDOM = null;
     
     /**
      * Return xml state (maybe transformed and diverges from original)
      */
-    function tei(): string
+    function teiXML(): string
     {
-        if ($this->tei === null) {
-            $this->teiDoc();
-            $this->tei = $this->teiDoc->saveXML();
+        if ($this->teiXML === null) {
+            $this->teiDOM();
+            $this->teiXML = $this->teiDOM->saveXML();
         }
-        return $this->tei;
+        return $this->teiXML;
     }
 
     /**
-     * Return dom state
+     * Write to file xml state (maybe transformed and diverges from original)
      */
-    function teiDoc(): DOMDocument
+    function teiURI(string $dstFile): void
     {
-        if ($this->teiDoc === null || !$this->teiDoc->documentElement) {
+        if ($this->teiXML === null) {
+            $this->teiDOM();
+            $this->teiXML = $this->teiDOM->saveXML();
+        }
+        file_put_contents($dstFile, $this->teiXML);
+    }
+
+
+    /**
+     * Return dom state (maybe transformed and diverges from original)
+     */
+    function teiDOM(): DOMDocument
+    {
+        if ($this->teiDOM === null || !$this->teiDOM->documentElement) {
             $this->teiMake();
         }
-        if ($this->teiDoc !== null && $this->teiDoc->documentElement) {
-            return $this->teiDoc;
+        if ($this->teiDOM !== null && $this->teiDOM->documentElement) {
+            return $this->teiDOM;
         }
         // we may have a tei string here ?
         if ($this->tei === null) {
-            throw new ErrorException("No tei or teiDoc produced by teiMake()");
+            throw new ErrorException("No tei or teiDOM produced by teiMake()");
         }
-        $this->teiDoc = Xt::loadXml($this->tei);
-        return $this->teiDoc;
+        $this->teiDOM = Xt::loadXML($this->tei);
+        return $this->teiDOM;
     }
 
     /**
@@ -60,8 +73,8 @@ trait Teiable
      */
     function teiReset(): void
     {
-        $this->tei = null;
-        $this->teiDoc = null;
+        $this->teiXML = null;
+        $this->teiDOM = null;
         // if file
         if (property_exists($this, 'file')) $this->file = null;
         if (property_exists($this, 'filename')) $this->filename = null;

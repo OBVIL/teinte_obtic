@@ -1,17 +1,13 @@
 search	replace	?comment
 # Variables		
 
-($inline)	(author|b|bg_\w+|emph|foreign|em|hi|i|id|phr|ref|sc|seg|strong|sup|tech|title|u)	
+($inline)	(author|b|bg_\w+|emph|foreign|em|hi|i|id|phr|ref|sc|seg|strong|sup|tech|th|title|u)	
 ($atts)	( [^>]*)?	
 ($pun)	([,;:\.!?—–  \s]+)	keep () or [] in inlines
 ($block)	(head|note|p)	
 ($parent)	(address|argument|castItem|castList|entryFree|epigraph|index|lg|notep|postscript|quote|set)	
 		
 # variables ends with the first replacement rule
-
-&lt;	‹	
-&gt;	›	
-&amp;	＆	special unicode amp
 
 # SECTIONS
 
@@ -21,20 +17,45 @@ search	replace	?comment
 
 -[\*]\n	-\n	odd chars from OCR
 
+<pb>(\s*)</pb>	\1
+</pb><pb>		broken pb
+
 <($inline)($atts)>(\s*)(<lb($atts)/>)(\s*)</\1>	\3\4\6	inline around line break
-</([\p{L}\d_\-]+)>( *)<\1($atts)>	\2	linked inline, block tags separed by \n
-</([\p{L}\d_\-]+)>( *)<\1($atts)>	\2	linked inline, 2
+</($inline)>( *)<\1($atts)>	\2	linked inline, block tags separed by \n
+</($inline)>( *)<\1($atts)>	\2	linked inline, 2
+</(hi|i)>([  ’\.!?']*)<\1($atts)>	\2	seen, roman pun among italic
+</(hi|i)>(\P{L}*)<\1($atts)>	\2	seen, roman letters among italic
+
+<($inline)($atts)>(\s+)	\3<\1\2>	spaces at start of inline, put before
+(\s+)</($inline)>	</\2>\1	spaces at end of inline, put after
 <($inline)($atts)>($pun)</\1>	\3	inline without word char
-($pun)(</($inline)>)	\2\1	put ending pun outside</inline>, 
-<($inline)/>		empty inlines
+# ([,: \s])(</($inline)>)	\2\1	soft pun at end,</inline> 
+<($inline)($atts)></($inline)>		empty inlines
+<($inline)($atts)/>		empty inlines
 
 
 
 (<($block)($atts)>) +	\1	<block>   spaces
 <note($atts)>(\s*<p>)?\s*[\[\(]?(nde|NdE)[\]\)\. ] *	"<note\1 resp=""editor"">\2"	note, editor
 <note($atts)>(\s*<p>)?\s*[\[\(]?(nda|NdA)[\]\)\. ] *	"<note\1 resp=""author"">\2"	note, author
+\s*<p>\s*(<pb($atts)/>)\s*</p>\s*	\n\1\n	<p> with only on <pb/>
 \s*(<pb($atts)/>)\s*(</($block)>)	\n\3\n\1	ending <pb/> out of blocks
-[——\-]\s*(<lb($atts)/>) *([^\s<>]+) *	\3\n\1	caesura, 
+\s+([;:?!])	 \1	unbreakable space before caesura resolution
+[——\-]\s*(<lb($atts)/>)\s*([^ <>]+) *	\3\n\1	caesura, /\s/u will match nbsp
 (\s*)(<lb($atts)/>)(</($inline)>)([^ \p{L}<>]*) *	\4\6\1\2	<lb/></hi>.
-		
-＆	&amp;	restore entities
+
+-*[—–]+-*	—
+‹[\-–—]	←
+[\-–—]›	→
+\.\.\.	…
+\s*([»?!])	 $1
+ +([:;])	 $1	caution w:doc, http://, &gt;
+([«–—§])\s*	$1 
+'	’
+(’)[  ]+([«\[])	$1$2
+([^\p{L}]p\.)\s*	$1 	p. ###
+(etc\.)(;)	$1 $2
+
+&([a-zA-Z0-9_]+) ;	&\1;	restore entities
+< ([?!])	<$1	pi
+ \?>	?>	pi

@@ -64,6 +64,8 @@
   <xsl:template match="tei:item">
     <xsl:variable name="level" select="@level"/>
     <xsl:variable name="prev" select="preceding-sibling::*[1][self::tei:item]/@level"/>
+    <xsl:variable name="next" select="following-sibling::*[1][self::tei:item]/@level"/>
+    
     <xsl:choose>
       <xsl:when test="not($prev)">
         <xsl:call-template name="tagOpen">
@@ -79,10 +81,14 @@
         </xsl:call-template>
       </xsl:when>
     </xsl:choose>
+
+    
     <xsl:copy>
-      <xsl:apply-templates select="node() | @*"/>
+      <xsl:apply-templates select="@*"/>
+      <xsl:apply-templates select="node()"/>
     </xsl:copy>
-    <xsl:variable name="next" select="following-sibling::*[1][self::tei:item]/@level"/>
+
+
     <xsl:choose>
       <xsl:when test="not($next)">
         <xsl:call-template name="tagClose">
@@ -101,7 +107,7 @@
   </xsl:template>
 
   <xsl:template match="tei:item/@level"/>
-
+  
 
   <xsl:template match="tei:head[@level]">
     <xsl:choose>

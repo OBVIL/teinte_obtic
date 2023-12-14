@@ -59,7 +59,7 @@ class I18n
     {
         $args = func_get_args();
         if (count($args) < 1) {
-            Log::warning("A message is required");
+            Log::warning("A key is required for a message");
             return '';
         }
         $msg = array_shift($args);

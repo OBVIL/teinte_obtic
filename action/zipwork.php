@@ -7,7 +7,8 @@ include_once(__DIR__ . '/inc.php');
 
 use DirectoryIterator, Exception;
 use Psr\Log\{LogLevel};
-use Oeuvres\Kit\{Config, FileSys, I18n, Http, Log, LoggerWeb, Route};
+use Oeuvres\Kit\{Config, FileSys, I18n, Http, Log, Route};
+use Oeuvres\Kit\Logger\{LoggerWeb};
 use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei, Zip};
 
 
@@ -50,21 +51,21 @@ class Zipwork
         // loop on TEI files ans transform them in $format 
 
         $zip = new Zip();
-        if (!$zip->load($src_zip))  {
+        if (!$zip->open($src_zip))  {
             Log::error(Log::last());
             return false;
         }
         // loop on the todo list to produce tei
         $name = pathinfo($src_zip, PATHINFO_FILENAME);
         $zip_dir = dirname($src_zip) . '/'. $name . '/';
+        Filesys::cleandir($zip_dir);
         $dst_dir = dirname($src_zip) . '/'. $name . '_' . $dst_format . '/';
-        if (!Filesys::mkdir($dst_dir)) {
+        if (!Filesys::cleandir($dst_dir)) {
             Log::error(Log::last());
             return false;
         }
         // Extract all files of the zip (in case of linked images)
         $zip->zip()->extractTo($zip_dir);
-
 
         $tei = new Tei();
         $docx = new Docx();
@@ -77,28 +78,28 @@ class Zipwork
             $path = $entries[0]['path'];
             $src_file = $zip_dir . $path;
             $src_format = File::path2format($src_file);
-            $tei_file = dirname($src_file) . $src_name . '.xml';
+            $tei_file = dirname($src_file) . '/' . $src_name . '.xml';
             $dst_file = $dst_dir . $src_name . '.' . File::format2ext($dst_format);
             Log::info($path . " > " . $src_name . '.' . File::format2ext($dst_format));
             try {
                 if ($src_format === "tei") {
-                    $tei->load($src_file);
+                    $tei->open($src_file);
                 }
                 else if ($src_format === "docx") {
                     // check if docx ?
-                    $docx->load($src_file);
-                    $tei->loadDoc($docx->teiDoc());
-                    file_put_contents($tei_file, $tei->tei());
+                    $docx->open($src_file);
+                    $tei->loadDOM($docx->teiDOM());
+                    file_put_contents($tei_file, $tei->teiXML());
                 }
                 else if ($src_format === "markdown") {
-                    $md->load($src_file);
-                    $tei->loadDoc($md->teiDoc());
-                    file_put_contents($tei_file, $tei->tei());
+                    $md->open($src_file);
+                    $tei->loadDOM($md->teiDOM());
+                    file_put_contents($tei_file, $tei->teiXML());
                 }
                 else if ($src_format === "epub") {
-                    $epub->load($src_file);
-                    $tei->loadDoc($epub->teiDoc());
-                    file_put_contents($tei_file, $tei->tei());
+                    $epub->open($src_file);
+                    $tei->loadDOM($epub->teiDOM());
+                    file_put_contents($tei_file, $tei->teiXML());
                 }
             }
             catch (Exception $e) {

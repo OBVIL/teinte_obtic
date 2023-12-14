@@ -7,7 +7,8 @@ error_reporting(E_ALL);
 include_once(__DIR__ . '/inc.php');
 
 use Psr\Log\LogLevel;
-use Oeuvres\Kit\{Config, Filesys, Http, I18n, Log, LoggerWeb};
+use Oeuvres\Kit\{Config, Filesys, Http, I18n, Log};
+use Oeuvres\Kit\Logger\{LoggerWeb};
 use Oeuvres\Teinte\Format\{Docx, Epub, File, Markdown, Tei, Zip};
 use Oeuvres\Teinte\Tei2\{Tei2article};
 
@@ -81,7 +82,7 @@ if ($format === "zip") {
     ob_flush();
     flush();
     $zip = new Zip();
-    if (!$zip->load($src_file))  {
+    if (!$zip->open($src_file))  {
         echo Log::last();
         die();
     }
@@ -134,21 +135,21 @@ $tei = new Tei();
 
 if ($format === "docx") {
     $docx = new Docx();
-    $docx->load($src_file);
-    $tei->loadDoc($docx->teiDoc());
+    $docx->open($src_file);
+    $tei->loadDOM($docx->teiDOM());
 }
 else if ($format === "tei") {
-    $tei->load($src_file);
+    $tei->open($src_file);
 }
 else if ($format === "markdown") {
     $md = new Markdown();
-    $md->load($src_file);
-    $tei->loadDoc($md->teiDoc());
+    $md->open($src_file);
+    $tei->loadDOM($md->teiDOM());
 }
 else if ($format === "epub") {
     $epub = new Epub();
-    $epub->load($src_file);
-    $tei->loadDoc($epub->teiDoc());
+    $epub->open($src_file);
+    $tei->loadDOM($epub->teiDOM());
 }
 else {
     // no tei loaded
@@ -161,7 +162,7 @@ cookie($cookie);
 ob_flush();
 flush();
 // put file in temp dir
-file_put_contents($tei_file, $tei->tei());
+file_put_contents($tei_file, $tei->teiXML());
 // display html 
 echo  $upload['name'] . "<br/>";
 echo $tei->toXml('article');

@@ -14,6 +14,8 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
   xmlns:tei="http://www.tei-c.org/ns/1.0" 
   exclude-result-prefixes="tei"
 >
+  <xsl:param name="publisher"/>
+  <xsl:param name="licence"/>
   <xsl:variable name="up" >ABCDEFGHIJKLMNOPQRSTUVWXYZÀÂÄÉÈÊÏÎÔÖÛÜÇÆŒàâäéèêëïîöôüûæœ_ ,.'’ #</xsl:variable>
   <xsl:variable name="low">abcdefghijklmnopqrstuvwxyzaaaeeeiioouuceeaaaeeeeiioouuee_</xsl:variable>
   <!-- 
@@ -22,8 +24,88 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
   <xsl:template match="tei:TEI|tei:TEI.2" priority="-1">
     <xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>
   </xsl:template>
+  
   <xsl:template match="tei:teiHeader" priority="-1">
-    <xsl:apply-templates select="tei:fileDesc"/>
+    <header class="center">
+      <xsl:variable name="biblStruct" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:biblStruct[1]"/>
+      <div class="titleresp">
+        <h1 class="title">
+          <xsl:choose>
+            <xsl:when test="$biblStruct/tei:analytic">
+              <xsl:apply-templates select="$biblStruct/tei:analytic/tei:title/node()"/>
+            </xsl:when>
+            <xsl:when test="$biblStruct/tei:monogr">
+              <xsl:apply-templates select="$biblStruct/tei:analytic/tei:title/node()"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title/node()"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </h1>
+        <p class="authors">
+          <xsl:choose>
+            <xsl:when test="$biblStruct/tei:analytic">
+              <xsl:for-each select="$biblStruct/tei:analytic/tei:author">
+                <xsl:if test="position() != 1">, </xsl:if>
+                <xsl:apply-templates select="."/>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:when test="$biblStruct/tei:monogr/tei:author">
+              <xsl:for-each select="$biblStruct/tei:analytic/tei:author">
+                <xsl:if test="position() != 1">, </xsl:if>
+                <xsl:apply-templates select="."/>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:for-each select="$biblStruct/tei:monogr/tei:author">
+                <xsl:if test="position() != 1">, </xsl:if>
+                <xsl:apply-templates select="."/>
+              </xsl:for-each>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:text>.</xsl:text>
+        </p>
+        <p class="date">
+          <xsl:variable name="date" select="/*/tei:teiHeader/tei:profileDesc/tei:creation/tei:date"/>
+          <xsl:text>(</xsl:text>
+          <xsl:choose>
+            <xsl:when test="$biblStruct/@type = 'book' and $date/@when">
+              <xsl:value-of select="substring($date/@when, 1, 4)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates select="$date"/>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:text>)</xsl:text>
+        </p>
+      </div>
+      <xsl:if test="/*/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
+        <p class="bibl">
+          <span>Réf. originale : </span>
+          <xsl:apply-templates select="/*/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl[1]/node()"/>
+        </p>
+      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="$publisher">
+          <p class="publisher">
+            <xsl:copy-of select="$publisher"/>
+          </p>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:publisher"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:choose>
+        <xsl:when test="$licence">
+          <p class="licence">
+            <xsl:copy-of select="$licence"/>
+          </p>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </header>
   </xsl:template>
   <xsl:template match="tei:teiHeader//tei:title" priority="-1">
     <cite>
@@ -31,12 +113,7 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
       <xsl:apply-templates/>
     </cite>
   </xsl:template>
-  <xsl:template match="tei:teiHeader//tei:bibl/tei:* | tei:publisher" priority="-1">
-    <span>
-      <xsl:call-template name="headatts"/>
-      <xsl:apply-templates/>
-    </span>
-  </xsl:template>
+
   <xsl:template match="tei:fileDesc/tei:titleStmt/tei:*" priority="-1">
     <div>
       <xsl:call-template name="headatts"/>
@@ -142,6 +219,11 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
         </h1>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  <xsl:template match="tei:publicationStmt/tei:publisher">
+    <p class="publisher">
+      <xsl:apply-templates/>
+    </p>
   </xsl:template>
   <!-- Bloc de publication, réordonné -->
   <xsl:template match="tei:fileDesc/tei:publicationStmt">
@@ -281,12 +363,10 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
     </span>
   </xsl:template>
   <xsl:template match="tei:licence">
-    <div>
+    <p>
       <xsl:call-template name="headatts"/>
-        <a href="{@target}">
-          <xsl:apply-templates/>
-        </a>
-    </div>
+      <xsl:apply-templates/>
+    </p>
   </xsl:template>
   <!-- Éléments avec intitulé -->
   <xsl:template match="tei:fileDesc/tei:titleStmt/tei:funder | tei:fileDesc/tei:titleStmt/tei:edition | tei:fileDesc/tei:titleStmt/tei:editor | tei:fileDesc/tei:titleStmt/tei:extent">
@@ -399,11 +479,15 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
           <xsl:apply-templates/>
         </sup>
       </xsl:when>
-      <!-- sinon appeler le span général -->
-      <xsl:otherwise>
+      <xsl:when test="@rend != ''">
         <span class="{@rend}">
           <xsl:apply-templates/>
         </span>
+      </xsl:when>
+      <xsl:otherwise>
+        <i>
+          <xsl:apply-templates/>
+        </i>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -416,9 +500,9 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
         <div>
           <xsl:call-template name="headatts"/>
           <!-- Reorder -->
+          <xsl:apply-templates select="tei:title"/>
           <xsl:apply-templates select="tei:author"/>
           <xsl:apply-templates select="/*/tei:teiHeader[1]/tei:profileDesc[1]/tei:creation[1]"/>
-          <xsl:apply-templates select="tei:title"/>
           <xsl:apply-templates select="tei:editor | tei:funder | tei:meeting | tei:principal | tei:sponsor"/>
           <xsl:apply-templates select="tei:respStmt"/>
           <!--
@@ -467,7 +551,7 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
       </div>
     </xsl:if>
   </xsl:template>
-  <xsl:template match="tei:teiHeader//tei:author | tei:teiHeader//tei:biblFull | tei:teiHeader//tei:biblScope | tei:teiHeader//tei:collation | tei:teiHeader//tei:collection | tei:teiHeader//tei:country | tei:teiHeader//tei:dim | tei:teiHeader//tei:editor | tei:teiHeader//tei:edition | tei:teiHeader//tei:extent | tei:teiHeader//tei:funder | tei:teiHeader//tei:institution | tei:teiHeader//tei:name | tei:teiHeader//tei:persName | tei:teiHeader//tei:biblFull/tei:publicationStmt | tei:teiHeader//tei:publisher | tei:teiHeader//tei:pubPlace | tei:teiHeader//tei:repository | tei:teiHeader//tei:settlement | tei:teiHeader//tei:stamp  | tei:teiHeader//tei:biblFull/tei:seriesStmt | tei:teiHeader//tei:biblFull/tei:titleStmt | tei:teiHeader//tei:biblFull/tei:titleStmt/tei:title">
+  <xsl:template match="tei:teiHeader//tei:biblFull | tei:teiHeader//tei:biblScope | tei:teiHeader//tei:collation | tei:teiHeader//tei:collection | tei:teiHeader//tei:country | tei:teiHeader//tei:dim | tei:teiHeader//tei:editor | tei:teiHeader//tei:edition | tei:teiHeader//tei:extent | tei:teiHeader//tei:funder | tei:teiHeader//tei:institution | tei:teiHeader//tei:name | tei:teiHeader//tei:persName | tei:teiHeader//tei:biblFull/tei:publicationStmt | tei:teiHeader//tei:publisher | tei:teiHeader//tei:pubPlace | tei:teiHeader//tei:repository | tei:teiHeader//tei:settlement | tei:teiHeader//tei:stamp  | tei:teiHeader//tei:biblFull/tei:seriesStmt | tei:teiHeader//tei:biblFull/tei:titleStmt | tei:teiHeader//tei:biblFull/tei:titleStmt/tei:title">
     <xsl:variable name="element">
       <xsl:choose>
         <xsl:when test="self::title">cite</xsl:when>
@@ -478,6 +562,33 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
       <xsl:call-template name="headatts"/>
       <xsl:apply-templates/>
     </xsl:element>
+  </xsl:template>
+  <xsl:template match="tei:teiHeader//tei:author">
+    <span>
+      <xsl:call-template name="headatts"/>
+      <xsl:choose>
+        <!-- mixed -->
+        <xsl:when test="../text()[normalize-space(.) != '']">
+          <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:when test="count(*) = 1">
+          <xsl:apply-templates select="*"/>
+        </xsl:when>
+        <xsl:when test="tei:forename and tei:surname and count(*) = 2">
+          <xsl:apply-templates select="tei:forename"/>
+          <xsl:text> </xsl:text>
+          <xsl:apply-templates select="tei:surname"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:for-each select="*">
+            <xsl:apply-templates select="."/>
+            <xsl:if test="position() != last()">
+              <xsl:text> </xsl:text>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:otherwise>
+      </xsl:choose>
+    </span>
   </xsl:template>
   <xsl:template match="tei:msIdentifier">
     <xsl:text> </xsl:text>
@@ -631,18 +742,34 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
     <xsl:variable name="el">
       <xsl:choose>
         <xsl:when test="parent::tei:div">div</xsl:when>
-        <xsl:otherwise>span</xsl:otherwise>
+        <xsl:otherwise>time</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:variable name="att">title</xsl:variable>
     <xsl:variable name="value">
-      <xsl:if test="@cert">~</xsl:if>
-      <xsl:if test="@scope">~</xsl:if>
-      <xsl:variable name="notBefore">
-        <xsl:value-of select="number(substring(@notBefore, 1, 4))"/>
+      <xsl:choose>
+        <xsl:when test="@cert">~</xsl:when>
+        <xsl:when test="@scope">~</xsl:when>
+      </xsl:choose>
+      <xsl:variable name="from">
+        <xsl:choose>
+          <xsl:when test="@from">
+            <xsl:value-of select="number(substring(@from, 1, 4))"/>
+          </xsl:when>
+          <xsl:when test="@notBefore">
+            <xsl:value-of select="number(substring(@notBefore, 1, 4))"/>
+          </xsl:when>
+        </xsl:choose>
       </xsl:variable>
-      <xsl:variable name="notAfter">
-        <xsl:value-of select="number(substring(@notAfter, 1, 4))"/>
+      <xsl:variable name="to">
+        <xsl:choose>
+          <xsl:when test="@to">
+            <xsl:value-of select="number(substring(@to, 1, 4))"/>
+          </xsl:when>
+          <xsl:when test="@notAfter">
+            <xsl:value-of select="number(substring(@notAfter, 1, 4))"/>
+          </xsl:when>
+        </xsl:choose>
       </xsl:variable>
       <xsl:variable name="when">
         <xsl:value-of select="number(substring(@when, 1, 4))"/>
@@ -651,21 +778,21 @@ BSD-3-Clause https://opensource.org/licenses/BSD-3-Clause
         <xsl:when test="$when != 'NaN'">
           <xsl:value-of select="$when"/>
         </xsl:when>
-        <xsl:when test="$notAfter = $notBefore and $notAfter != 'NaN'">
-          <xsl:value-of select="$notAfter"/>
+        <xsl:when test="$from = $to and $from != 'NaN'">
+          <xsl:value-of select="$from"/>
         </xsl:when>
-        <xsl:when test="$notBefore != 'NaN' and $notAfter != 'NaN'">
-          <xsl:value-of select="$notBefore"/>
+        <xsl:when test="$from != 'NaN' and $to != 'NaN'">
+          <xsl:value-of select="$from"/>
           <xsl:text>/</xsl:text>
-          <xsl:value-of select="$notAfter"/>
+          <xsl:value-of select="$to"/>
         </xsl:when>
-        <xsl:when test="$notBefore != 'NaN'">
-          <xsl:value-of select="$notBefore"/>
+        <xsl:when test="$from != 'NaN'">
+          <xsl:value-of select="$from"/>
           <xsl:text>/…</xsl:text>
         </xsl:when>
-        <xsl:when test="$notAfter != 'NaN'">
+        <xsl:when test="$to != 'NaN'">
           <xsl:text>…–</xsl:text>
-          <xsl:value-of select="$notAfter"/>
+          <xsl:value-of select="$to"/>
         </xsl:when>
       </xsl:choose>
     </xsl:variable>

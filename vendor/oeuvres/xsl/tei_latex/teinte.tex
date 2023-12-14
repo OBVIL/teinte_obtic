@@ -6,34 +6,34 @@
 
 \makeatletter % <@@@
 
-\setlength{\parskip}{0pt} % 1pt allow better vertical justification
 \setlength{\parindent}{1.5em}
 
+\usepackage{adjustbox} % powerful 
 \usepackage{alphalph} % for alph couter z, aa, ab…
-\usepackage{blindtext} % generate text for testing
-\usepackage{booktabs} % for tables: \toprule, \midrule…
+\usepackage{booktabs} % better table border
 \usepackage[strict]{changepage} % for modulo 4
 \usepackage{contour} % rounding words
 \usepackage[nodayofweek]{datetime}
 \usepackage{enumitem} % <list>
 \usepackage{etoolbox} % patch commands
 \usepackage{fancyvrb}
-\usepackage{fancyhdr}
-\usepackage{float}
+\usepackage{fancyhdr} % control runing heads
+\usepackage{float} % supposed a better positionning of tables
+\usepackage[stable]{footmisc} % maybe perpage footnote counter
 \usepackage{fontspec} % XeLaTeX mandatory for fonts
-\usepackage{footnote} % used to capture notes in minipage (ex: quote)
-\usepackage{graphicx}
+\usepackage{footnotehyper} % \savenotes \spewnotes
+\usepackage{graphicx} % needed for LuaLaTex to transmit a5paper
+\usepackage{lastpage} % p. # of ## 
 \usepackage{lettrine} % drop caps
-\usepackage{lipsum} % generate text for testing
-\usepackage{relsize} % \smaller \larger (ex: quotes in body and footnotes)
 \usepackage{manyfoot} % for parallel footnote numerotation
-\usepackage[framemethod=tikz,]{mdframed} % maybe used for frame with footnotes inside
+\usepackage[framemethod=tikz,]{mdframed} % maybe used for frame, but with footnotes inside
+\usepackage{multirow} % table, for colspan and rowspan 
 \usepackage[defaultlines=2,all]{nowidow} % at least 2 lines by par (works well!)
+\usepackage[roman]{parnotes} % notes attaches to tables
 \usepackage{pdftexcmds} % needed for tests expressions
 \usepackage{poetry} % <l>, bad for theater
-\usepackage{polyglossia} % bug Warning: "Failed to patch part"
 \usepackage[%
-  indentfirst=false,
+  indentfirst=true,
   vskip=1em,
   noorphanfirst=true,
   noorphanafter=true,
@@ -41,51 +41,50 @@
   rightmargin=0pt,
 ]{quoting}
 \usepackage{ragged2e}
+\usepackage{relsize} % \smaller \larger (ex: quotes in body and footnotes)
 \usepackage{setspace} % \setstretch for <quote>
 \usepackage{scrextend} % KOMA-common, used for addmargin
-\usepackage{tabularx} % <table>
-\usepackage[explicit]{titlesec} % wear titles, !NO implicit
+\usepackage{tabularx, colortbl} % for tables
 \usepackage{tikz} % ornaments
+\usetikzlibrary{tikzmark} % to point tikzmarknode
+\usepackage[most]{tcolorbox}
+\usepackage[explicit]{titlesec} % wear titles, !NO implicit
 \usepackage{tocloft} % styling tocs
-\usepackage[fit]{truncate} % used im runing titles
-\usepackage{unicode-math}
+\usepackage[fit]{truncate} % used in runing titles
+\usepackage{unicode-math} % math for XeLaTeX or LuaLaTeX
 \usepackage[normalem]{ulem} % breakable \uline, normalem is absolutely necessary to keep \emph
 \usepackage{xcolor} % named colors
 \usepackage{xparse} % @ifundefined
-\XeTeXdefaultencoding "iso-8859-1" % bad encoding of xstring
-\usepackage{xstring} % string tests
-\XeTeXdefaultencoding "utf-8"
+\usepackage{xstring} % needed for tests, ex \pn
+
+% for testing, not production
+\usepackage{blindtext} % generate text for testing
+\usepackage{lipsum} % generate text for testing
+
 
 \defaultfontfeatures{
   % Mapping=tex-text, % no effect seen
   Scale=MatchLowercase,
   Ligatures={TeX,Common},
 }
-\newfontfamily\zhfont{Noto Sans CJK SC}
+
+% tabularx 
+\renewcommand\tabularxcolumn[1]{m{#1}} % for vertical centering text in X column
+\setlength{\cmidrulewidth}{0.2pt} 
+% \setlength{\tabcolsep}{3pt} % ?
+\renewcommand{\arraystretch}{1.3} % space between rows
+\newcommand{\tablestart}{\centering\setstretch{0.8}\sffamily}
 
 % Metadata inserted by a program, from the TEI source, for title page and runing heads
+
 %meta%
+
+
 % Default metas
 \newcommand{\colorprovide}[2]{\@ifundefinedcolor{#1}{\colorlet{#1}{#2}}{}}
 \colorprovide{rubric}{red}
 \colorprovide{silver}{lightgray}
 \@ifundefined{syms}{\newfontfamily\syms{DejaVu Sans}}{}
-\newif\ifdev
-\@ifundefined{elbibl}{% No meta defined, maybe dev mode
-  \newcommand{\elbibl}{Titre court ?}
-  \newcommand{\elbook}{Titre du livre source ?}
-  \newcommand{\elabstract}{Résumé\par}
-  \newcommand{\elurl}{http://oeuvres.github.io/elbook/2}
-  \author{Éric Lœchien}
-  \title{Un titre de test assez long pour vérifier le comportement d’une maquette}
-  \date{1566}
-  \devtrue
-}{}
-\let\eltitle\@title
-\let\elauthor\@author
-\let\eldate\@date
-
-
 
 
 % generic typo commands
@@ -174,6 +173,8 @@
 \newcommand\name[1]{#1}
 \newcommand\orig[1]{#1}
 \newcommand\orgName[1]{#1}
+\newcommand\parnoindent{\noindent} % special para
+\newcommand\pb[1]{{\small\sffamily\normalfont [p. #1]}} 
 \newcommand\persName[1]{#1}
 \newcommand\placeName[1]{#1}
 \newcommand{\pn}[1]{\IfSubStr{-—–¶}{#1}% <p n="3"/>
@@ -184,7 +185,6 @@
 \newcommand\sic[1]{#1}
 \newcommand\surname[1]{\textsc{#1}}
 \newcommand\term[1]{\textbf{#1}}
-\newcommand\zh[1]{{\zhfont #1}}
 
 
 \def\mednobreak{\ifdim\lastskip<\medskipamount
@@ -196,10 +196,16 @@
 
 \newcommand{\byline}[1]{\bigskip{\RaggedLeft{#1}\par}\bigskip}
 % \setlength{\RaggedLeftLeftskip}{2em plus \leftskip}
-\newcommand{\bibl}[1]{{\RaggedLeft\normalfont #1\par}}
+\newcommand{\bibl}[1]{{\RaggedLeft\upshape #1\par}}
 \newcommand{\biblitem}[1]{{\noindent\hangindent=\parindent   #1\par}}
 \newcommand{\castItem}[1]{{\noindent\hangindent=\parindent #1\par}}
-\newcommand{\dateline}[1]{\medskip{\RaggedLeft{#1}\par}\bigskip}
+\newcommand{\dateline}[1]{
+  \widowpenalty=-5000\nopagebreak[4]
+  \medskip
+  {\RaggedLeft{#1}\par}
+  \pagebreak[0]
+  \bigskip
+}
 \newcommand{\docAuthor}[1]{{\large\bigskip #1 \par\bigskip}}
 \newcommand{\docDate}[1]{#1 \ifvmode\par\fi }
 \newcommand{\docImprint}[1]{\ifvmode\medskip\fi #1 \ifvmode\par\fi }
@@ -223,6 +229,7 @@
 % environments for block containers
 \newenvironment{argument}{\itshape\parindent0pt}{\bigskip}
 \newenvironment{biblfree}{}{\ifvmode\par\fi }
+% memoir has already bibitemlist
 \newenvironment{bibitemlist}[1]{%
   \list{\@biblabel{\@arabic\c@enumiv}}%
   {%
@@ -246,59 +253,33 @@
 \newenvironment{docTitle}{\LARGE\bigskip\bfseries\onehalfspacing}{\bigskip}
 % leftskip makes big bugs in Lexmark printing \sffamily
 \newenvironment{epigraph}{\begin{addmargin}[2\parindent]{0em}\sffamily\large\setstretch{0.95}}{\end{addmargin}\bigskip}
+
+% tcolorbox is bad for footnotes in quotes
+\definecolor{bordercolor}{HTML}{CCCCCC}
+
 \newenvironment{quoteblock}
-  {\begin{quoting}\setstretch{0.9}} %
-  {\end{quoting}}
+  {
+    \medskip
+    \sffamily
+  }
+  {
+    \medskip
+  }
+
 \newenvironment{frametext}
   {\begin{mdframed}[default]} %
   {\end{mdframed}}
 
-\quotingsetup{vskip=0pt}
-\newcommand{\quoteskip}{\medskip}
 \newenvironment{titlePage}
   {\Centering}
   {}
 
 
-
-
-
-
-% table () is preceded and finished by custom command
-\renewcommand\tabularxcolumn[1]{m{#1}}% for vertical centering text in X column
-\newcommand{\tableopen}[1]{%
-  \ifnum\strcmp{#1}{wide}=0{%
-    \begin{center}
-  }
-  \else\ifnum\strcmp{#1}{long}=0{%
-    \begin{center}
-  }
-  \else{%
-    \begin{center}
-  }
-  \fi\fi
-}
-\newcommand{\tableclose}[1]{%
-  \ifnum\strcmp{#1}{wide}=0{%
-    \end{center}
-  }
-  \else\ifnum\strcmp{#1}{long}=0{%
-    \end{center}
-  }
-  \else{%
-    \end{center}
-  }
-  \fi\fi
-}
-
-
 % text structure
-\newcommand\chapteropen{} % before chapter title
-\newcommand\chaptercont{} % after title, argument, epigraph…
-\newcommand\chapterclose{} % maybe useful for multicol settings
+\newenvironment{chapterhead}{}{} % a container for chapter headings and more
 \setcounter{secnumdepth}{-2} % no counters for hierarchy titles
 \setcounter{tocdepth}{5} % deep toc
-\renewcommand\tableofcontents{\@starttoc{toc}}
+\def\chaptermark#1{\markboth{#1}{}} % no upper case for running header
 % toclof format
 % \renewcommand{\@tocrmarg}{0.1em} % Useless command?
 % \renewcommand{\@pnumwidth}{0.5em} % {1.75em}
@@ -310,31 +291,39 @@
 }{%
   \renewcommand{\cftchapfont}{}
   \renewcommand{\cftchapdotsep}{\cftdotsep}
-  \renewcommand{\cftchapleader}{\normalfont\cftdotfill{\cftchapdotsep}}
-  \renewcommand{\cftchappagefont}{\bfseries}
+  \renewcommand{\cftchapleader}{\mdseries\cftdotfill{\cftchapdotsep}}
+  \renewcommand{\cftchappagefont}{\mdseries}
   \setlength{\cftbeforechapskip}{0pt}
   \setlength{\cftchapnumwidth}{1em}
 }
-\renewcommand{\cftsecfont}{\normalfont}
-\renewcommand{\cftsecpagefont}{\normalfont}
-% \renewcommand{\cftsubsecfont}{\small\relax}
+% section
+\renewcommand{\cftsecfont}{\mdseries}
 \renewcommand{\cftsecdotsep}{\cftdotsep}
-\renewcommand{\cftsecpagefont}{\normalfont}
-\renewcommand{\cftsecleader}{\normalfont\cftdotfill{\cftsecdotsep}}
+\renewcommand{\cftsecpagefont}{\mdseries}
+\renewcommand{\cftsecleader}{\mdseries\cftdotfill{\cftsecdotsep}}
 \setlength{\cftsecindent}{1em}
-\setlength{\cftsubsecindent}{2em}
-\setlength{\cftsubsubsecindent}{3em}
 \setlength{\cftsecnumwidth}{1em}
+
+% sub section
+\renewcommand{\cftsubsecfont}{}
+\renewcommand{\cftsubsecpagefont}{}
+\setlength{\cftsubsecindent}{2em}
 \setlength{\cftsubsecnumwidth}{1em}
+
+% sub sub section
+\setlength{\cftsubsubsecindent}{3em}
 \setlength{\cftsubsubsecnumwidth}{1em}
 
 % footnotes
 \newif\ifheading
-\newcommand*{\fnmarkscale}{\ifheading 0.70 \else 1 \fi}
-\renewcommand\footnoterule{\vspace*{0.3cm}\hrule height \arrayrulewidth width 3cm \vspace*{0.3cm}}
+% \newcommand*{\fnmarkscale}{\ifheading 0.70 \else 1 \fi}
+\renewcommand\footnoterule{
+  \vspace*{0.5em}
+  {\color{gray}\hrule height \arrayrulewidth width .2\linewidth} 
+  \vspace*{0.5em}
+}
 \setlength\footnotesep{1.5\footnotesep} % footnote separator
-\renewcommand\@makefntext[1]{\parindent 1.5em \noindent \hb@xt@1.8em{\hss{\normalfont\@thefnmark . }}#1} % no superscipt in foot
-\patchcmd{\@footnotetext}{\footnotesize}{\footnotesize\sffamily}{}{} % before scrextend, hyperref
+\DeclareNewFootnote{N}[arabic]
 \DeclareNewFootnote{A}[alph] % for editor notes
 \renewcommand*{\thefootnoteA}{\alphalph{\value{footnoteA}}} % z, aa, ab…
 
@@ -360,16 +349,21 @@
 \displaywidowpenalty=1602
 \hyphenpenalty=400
 % report h or v overfull ?
-\hbadness=4000
-\vbadness=4000
+% \hbadness=4000
+% \vbadness=4000
+% https://tex.stackexchange.com/questions/62296/how-to-suppress-underfull-vbox-badness-10000-while-output-is-active
+\def\@textbottom{\vskip \z@ \@plus 1pt}
+\let\@texttop\relax
 % good to avoid lines too wide
 \emergencystretch 3em
 \pretolerance=750
 \tolerance=2000
-\def\Gin@extensions{.pdf,.png,.jpg,.mps,.tif}
+\def\Gin@extensions{.pdf,.png,.jpg,.jpeg,.mps,.tif}
 
 \PassOptionsToPackage{hyphens}{url} % before hyperref and biblatex, which load url package
-\usepackage{hyperref} % supposed to be the last one, :o) except for the ones to follow
+\usepackage[
+  linkbordercolor={0 0 0}, % hyperlink borderscolor
+]{hyperref} % supposed to be the last one, :o) except for the ones to follow
 \hypersetup{
   % pdftex, % no effect
   pdftitle={\elbibl},
@@ -390,7 +384,14 @@
 }
 \urlstyle{same} % after hyperref
 
-
+% uppercase fallback if small caps not available in font
+% https://tex.stackexchange.com/questions/233569
+\newcommand\detectsc{%
+  \setbox0=\hbox{\textsc{i}}%
+  \setbox2=\hbox{\textup{i}}%
+  % \let\textsc\svtextsc%
+  \ifdim\wd0=\wd2\ifdim\ht0=\ht2\let\textsc\uppercase\fi\fi
+}
 
 \makeatother % /@@@>
 %%%%%%%%%%%%%%

@@ -10,8 +10,11 @@
 
 namespace Oeuvres\Teinte\Tei2;
 
-use DOMDocument;
-use Oeuvres\Kit\{Filesys, Log};
+use DOMDocument, DOMNode;
+use Oeuvres\Kit\{Filesys, Log, Xt};
+use Oeuvres\Teinte\Format\{Tei};
+use Oeuvres\Xsl\{Xpack};
+
 
 
 /**
@@ -30,64 +33,66 @@ class Tei2latex  extends AbstractTei2
     protected $srcfile;
     static protected $latex_xsl;
     static protected $latex_meta_xsl;
-    // escape all text nodes
-    static protected $latex_esc = array(
-        '@\\\@u' => '\textbackslash', //before adding \ for escapings
-        '@(&amp;)@u' => '\\\$1',
-        '@([%\$#_{}])@u' => '\\\$1',
-        '@~@u' => '\textasciitilde',
-        '@\^@u' => '\textasciicircum',
-        '@(\p{Han}[\p{Han} ]*)@u' => '\zh{$1}',
+    // escape all text nodes, use on text node in dom, not through xml &
+    const LATEX_ESC = array(
+        '@\\\@u' => '\textbackslash ', // before adding \ for escapings
+        '@([%\$#&_{}])@u' => '\\\$1', // be careful of & through XML
+        '@~@u' => '\textasciitilde{}',
+        '@\^@u' => '\textasciicircum{}',
+        // '@(\p{Han}[\p{Han} ]*)@u' => '\zh{$1}',
         '@\s+@' => ' ', // not unicode \s, keep unbreakable space
     );
-
-
 
 
     /**
      * resolve tex inclusions and image links
      *
-     * $texfile: ! path to a tex file
-     * $workdir: ? destination dir place where the tex will be processed.
-     * $grafdir: ? a path where to put graphics, relative to workdir or absolute.
+     * $tex_file: ! path to a tex file
+     * $work_dir: ? destination dir place where the tex will be processed.
+     * $img_dir: ? a path where to put graphics, relative to workdir or absolute.
      *
-     * If resources are found, they are copied in grafdir, and tex is rewrite in consequence.
+     * If resources are found, they are copied in img_dir, and tex is rewrite in consequence.
      * No suport for \graphicspath{⟨dir⟩+}
      */
-    static function includes($texfile, $workdir = null, $grafdir = "")
+    static function includes($tex_file, $work_dir = "", $img_dir = "")
     {
-        $srcdir = dirname($texfile);
-        if ($srcdir) $srcdir = rtrim($srcdir, '/\\') . '/';
-        if ($workdir) $workdir = rtrim($workdir, '/\\') . '/';
-        if ($grafdir) $grafdir = rtrim($grafdir, '/\\') . '/';
-        $tex = file_get_contents($texfile);
+        $src_dir = dirname($tex_file);
+        if ($src_dir) $src_dir = rtrim($src_dir, '/\\') . '/';
+        if ($work_dir) $work_dir = rtrim($work_dir, '/\\') . '/';
+        if ($img_dir) $img_dir = rtrim($img_dir, '/\\') . '/';
+        $tex = file_get_contents($tex_file);
 
-        // rewrite graphix links and copy resources
+        // rewrite graphics links and copy resources
         // \includegraphics[width=\columnwidth]{bandeau.pdf}
-        $grafabs = null;
-        if ($workdir) {
+        $img_abs = null;
+        if ($work_dir) {
             // same folder
-            if (!$grafdir);
+            if (!$img_dir);
             // absolute path
-            else if (Filesys::isPathAbs($grafdir)) {
-                $grafabs = $grafdir;
+            else if (Filesys::isabs($img_dir)) {
+                $img_abs = $img_dir;
             } else {
-                $grafabs = $workdir . $grafdir;
+                $img_abs = $work_dir . $img_dir;
             }
         }
         $tex = preg_replace_callback(
             '@(\\\includegraphics[^{]*){(.*?)}@',
-            function ($matches) use ($srcdir, $workdir, $grafdir, $grafabs) {
-                $imgfile = $matches[2];
-                if (!Filesys::isPathAbs($grafdir)) $imgfile = $srcdir . $imgfile;
-                $imgbname = basename($imgfile);
+            function ($matches) 
+            use ($src_dir, $work_dir, $img_dir, $img_abs) {
+                $img_file = $matches[2];
+                if (!Filesys::isabs($img_file)) {
+                    $img_file = $src_dir . $img_file;
+                }
+                $img_basename = basename($img_file);
                 $replace = $matches[0];
-                if (!file_exists($imgfile)) {
-                    fwrite(STDERR, "graphics not found: $imgfile\n");
-                } else if ($workdir) {
-                    if (!is_dir($grafabs)) mkdir($grafabs, 0777, true); // create img folder only if needed
-                    copy($imgfile, $grafabs . $imgbname);
-                    $replace = $matches[1] . '{' . $grafdir . $imgbname . '}';
+                if (!file_exists($img_file)) {
+                    fwrite(STDERR, "graphics not found: $img_file\n");
+                } 
+                else if ($work_dir) {
+                    // create img folder only if needed
+                    Filesys::mkdir($img_abs);
+                    copy($img_file, $img_abs . $img_basename);
+                    $replace = $matches[1] . '{' . $img_dir . $img_basename . '}';
                 }
                 return $replace;
             },
@@ -96,9 +101,9 @@ class Tei2latex  extends AbstractTei2
         // \input{../latex/teinte}
         $tex = preg_replace_callback(
             '@\\\input *{(.*?)}@',
-            function ($matches) use ($srcdir, $workdir, $grafdir) {
-                $inc = $srcdir . $matches[1] . '.tex';
-                return self::includes($inc, $workdir, $grafdir);
+            function ($matches) use ($src_dir, $work_dir, $img_dir) {
+                $inc = $src_dir . $matches[1] . '.tex';
+                return self::includes($inc, $work_dir, $img_dir);
             },
             $tex
         );
@@ -107,175 +112,75 @@ class Tei2latex  extends AbstractTei2
     }
 
     /**
-     * Escape XML/TEI for LaTeX
+     * Return a configured template or default
      */
-    static function dom($teifile)
+    static private function template(?array $pars=null):string
     {
-        $dom = new DOMDocument("1.0", "UTF-8");
-        $dom->preserveWhiteSpace = true;
-        // $dom->formatOutput=true; // bug on some nodes LIBERTÉ 9 mai. ÉGALITÉ
-        $dom->substituteEntities = true;
-        $xml = file_get_contents($teifile);
-        $xml = preg_replace(array_keys(self::$latex_esc), array_values(self::$latex_esc), $xml);
-        $dom->loadXML($xml,  LIBXML_NOENT | LIBXML_NONET | LIBXML_NOWARNING); // no warn for <?xml-model
-        return $dom;
-    }
-
-    /**
-     * Extract <graphic> elements from a DOM doc, copy images in a flat dstdir
-     * $dom : a TEI dom doc, image links will be modified
-     * $dstdir : a folder where to copy images
-     * $basehref : a basehref prefix to rewrite image link, user knows how to resolve links to image
-     * return : a doc with updated links to image
-     */
-    public function teigraf($grafdir = null, $grafhref = null)
-    {
-        if ($grafdir) $grafdir = rtrim($grafdir, '/\\') . '/';
-        // copy linked images in an images folder, and modify relative link
-        // $dom=$dom->cloneNode(true); // if we want to keep original dom
-        foreach ($this->dom->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'graphic') as $el) {
-            $this->teigrafatt($el->getAttributeNode("url"), $grafdir, $grafhref);
+        if ($pars && isset($pars['template'])) {
+            return $pars['template'];
         }
-        /*
-    do not store images of pages, especially in tif
-    foreach ($doc->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'pb') as $el) {
-      $this->img($el->getAttributeNode("facs"), $hrefTei, $dstdir, $hrefSqlite);
-    }
-    */
-    }
-    /**
-     * Process one image
-     */
-    public function teigrafatt($att, $grafdir = null, $grafhref = "")
-    {
-        if (!isset($att) || !$att || !$att->value) return;
-        $url = $att->value;
-        $url = str_replace('\\', '', $url);
-        // image data, do nothing
-        if (strpos($url, 'data:image') === 0) return;
-
-        // if abolute url, OK
-        if (strpos($url, 'http') === 0) {
-        }
-        // test if relative file path
-        else if (file_exists($test = dirname($this->srcfile) . '/' . $url)) {
-            $url = $test;
-        }
-        /*
-      // vendor specific etc/filename.jpg
-    else if ( $this->p['srcdir']
-      && file_exists( $test = $this->p['srcdir'].$this->p['filename'].'/'.substr($src, strpos($src, '/')+1) )
-    ) $src = $test;
-    */
-        // if not file exists, escape and alert (?)
-        else if (!file_exists($url)) {
-            $this->logger->warning(__METHOD__." image not found: " . $url);
-            return;
-        }
-        $srcParts = pathinfo($url);
-        // if dstdir requested, copy
-        if (isset($grafdir)) {
-            // destination
-            $i = 2;
-            // avoid duplicated files
-            while (file_exists($grafdir . $srcParts['basename'])) {
-                $srcParts['basename'] = $srcParts['filename'] . '-' . $i . '.' . $srcParts['extension'];
-                $i++;
-            }
-            copy($url, $grafdir . $srcParts['basename']);
-        }
-        // changes links in TEI so that straight transform will point on the right files
-        $att->value = $grafhref . $srcParts['basename'];
-        // resize ?
-        // NO delete of <graphic> element if broken link
-    }
-
-
-    function load($srcfile)
-    {
-        $this->srcfile = $srcfile;
-        $this->dom = self::dom($srcfile);
-    }
-
-    static function workdir($teifile)
-    {
-        // tmp directory, will be kept for a while for debug
-        // temp_name is unique by file, avoid parallel
-        $filename = pathinfo($teifile, PATHINFO_FILENAME);
-        $workdir = sys_get_temp_dir() . '/teinte/' . $filename . '/';
-        if (!is_dir($workdir)) mkdir($workdir, 0777, true);
-        return $workdir;
-    }
-
-    /**
-     * Setup pdf compilation : generate a tex from tei
-     * $skelfile is a requested tex template
-     */
-    function setup($skelfile, $texname = '')
-    {
-        $teiname = pathinfo($this->srcfile, PATHINFO_FILENAME);
-        if (!$texname) $texname = $teiname;
-        $workdir = self::workdir($this->srcfile);
-
-        $grafdir = $workdir . $texname . '/';
-        Filesys::cleandir($grafdir); // empty graf dir
-
-        // resolve includes and graphics of tex template
-        $tex = self::includes($skelfile, $workdir, $grafdir);
-        // resolve image links in tei source
-        $this->teigraf($grafdir, $texname . '/');
-        $this->dom->save($workdir . $texname . '.xml'); // for debug, save a copy of XML
-
-
-        $meta = self::$latex_meta_xsl->transformToXml($this->dom);
-        $text = self::$latex_xsl->transformToXml($this->dom);
-
-
-        $texfile = $workdir . $texname . '.tex';
-        file_put_contents(
-            $texfile,
-            str_replace(
-                array('%meta%', '%text%'),
-                array($meta, $text),
-                $tex,
-            )
-        );
-        // create a special tex with meta only ?
-        file_put_contents(
-            $workdir . $texname . '_cover.tex',
-            str_replace('%meta%', $meta, $tex),
-        );
-        return $texfile;
-    }
-
-    /*
-
-        $latex = new Latex();
-        while ($glob = array_shift($_SERVER['argv'])) {
-            foreach (glob($glob) as $teifile) {
-                $latex->load($teifile); // load tei
-                $texfile = $latex->setup(dirname(__FILE__) . '/test.tex'); // install tex template
-                $texname = pathinfo($texfile, PATHINFO_FILENAME);
-                $workdir = dirname($texfile) . '/';
-                echo "$teifile > $workdir/$texname(.tex|.pdf)\n";
-                chdir($workdir); // change working directory
-                // exec CLI xelatex
-                exec("latexmk -xelatex -quiet -f " . $texname . '.tex');
-            }
-        }
-    */
-    /**
-     * @ override
-     */
-    static public function toUri(DOMDocument $dom, string $dstFile, ?array $pars = null)
-    {
-        Log::error(__METHOD__." Not yet implemented");
+        return Xpack::dir() . '/tei_latex/template.tex';
     }
 
     /**
      * @ override
      */
-    static function toDoc(DOMDocument $dom, ?array $pars=null):?\DOMDocument
+    static public function toURI(
+        DOMDocument $docOrig, 
+        string $latex_file, 
+        ?array $pars = null
+    ) {
+        Log::debug("Tei2" . static::NAME ." $latex_file");
+
+        // install template in the destination directory where TeX will work
+        $latex_name = pathinfo($latex_file, PATHINFO_FILENAME);
+        $latex_template = self::template($pars);
+        $latex_dir = dirname($latex_file) . "/";
+        $img_href = "img/";
+        $img_dir = $latex_dir . $img_href;
+
+
+        // get latex as a string installed in $latex_dir
+        $latex_string = self::includes($latex_template, $latex_dir, $img_dir);
+
+
+        // clone dom, clean text nodes
+        $doc = $docOrig->cloneNode(true);
+        Xt::replaceText(
+            $doc, 
+            array_keys(self::LATEX_ESC), 
+            array_values(self::LATEX_ESC),
+            ['formula'] // formula may contain LaTeX
+        );
+        Tei::imagesCopy($doc, $img_dir, $img_href);
+        // for debug, copy of XML
+        Filesys::mkdir($latex_dir);
+        file_put_contents("$latex_dir/$latex_name.xml", $doc->saveXML());
+
+        $meta = Xt::transformToXml(
+            Xpack::dir() . 'tei_latex/tei_meta_latex.xsl',
+            $doc,
+            $pars,
+        );
+        $xsl = Xpack::dir() . 'tei_latex/tei_latex.xsl';
+        if (isset($pars['latex.xsl'])) $xsl = $pars['latex.xsl'];
+        $text = Xt::transformToXml(
+            $xsl,
+            $doc,
+            $pars,
+        );
+        $latex_string = str_replace(
+            array('%meta%', '%text%'),
+            array($meta, $text),
+            $latex_string,
+        );
+        file_put_contents($latex_file, $latex_string);
+    }
+
+    /**
+     * @ override
+     */
+    static function toDOM(DOMDocument $dom, ?array $pars=null):?\DOMDocument
     {
         Log::error(__METHOD__." dom export not relevant");
         return null;
@@ -283,7 +188,7 @@ class Tei2latex  extends AbstractTei2
     /**
      * @ override
      */
-    static function toXml(DOMDocument $dom, ?array $pars=null):?string
+    static function toXML(DOMDocument $dom, ?array $pars=null):?string
     {
         Log::error(__METHOD__." xml export not relevant");
         return null;

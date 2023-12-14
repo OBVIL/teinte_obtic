@@ -22,7 +22,7 @@ trait Htmlable
     /** Store an html string */
     protected ?string $html = null;
     /** DOM Document to process */
-    protected ?DOMDocument $htmlDoc = null;
+    protected ?DOMDocument $htmlDOM = null;
     
     /**
      * Return xml state (maybe transformed and diverges from original)
@@ -36,28 +36,28 @@ trait Htmlable
         if ($this->html !== null) {
             return $this->html;
         }
-        $this->htmlDoc();
-        $this->html = $this->htmlDoc->saveXML();
+        $this->htmlDOM();
+        $this->html = $this->htmlDOM->saveXML();
         return $this->html;
     }
 
     /**
      * Return dom state
      */
-    function htmlDoc(): DOMDocument
+    function htmlDOM(): DOMDocument
     {
-        if ($this->htmlDoc === null || !$this->htmlDoc->documentElement) {
+        if ($this->htmlDOM === null || !$this->htmlDOM->documentElement) {
             $this->htmlMake();
         }
-        if ($this->htmlDoc !== null && $this->htmlDoc->documentElement) {
-            return $this->htmlDoc;
+        if ($this->htmlDOM !== null && $this->htmlDOM->documentElement) {
+            return $this->htmlDOM;
         }
         // problem
         if ($this->html === null) {
-            throw new ErrorException("No html or htmlDoc produced by htmlMake()");
+            throw new ErrorException("No html or htmlDOM produced by htmlMake()");
         }
-        $this->htmlDoc = Xt::loadXml($this->html);
-        return $this->htmlDoc;
+        $this->htmlDOM = Xt::loadXML($this->html);
+        return $this->htmlDOM;
     }
 
     /**
@@ -66,7 +66,7 @@ trait Htmlable
     function htmlReset(): void
     {
         $this->html = null;
-        $this->htmlDoc = null;
+        $this->htmlDOM = null;
         // if file
         if (property_exists($this, 'file')) $this->file = null;
         if (property_exists($this, 'filename')) $this->filename = null;

@@ -14,6 +14,7 @@ Epub.chop.to.anchor404	“%s”, from %s to %s, “%s” anchor not found
 File.contents	File::contents(), no contents, no file loaded, use File::load()
 File.noload	“%s”, have you load something ? Markdown::load()
 Zip.404	“%s!%s”, entry not found
+Zip.writefail	“%s!%s”, write failure: %s
 ZipArchive::ER_EXISTS	“%s”, file already exists
 ZipArchive::ER_INCONS	“%s”, zip archive inconsistent
 ZipArchive::ER_INVAL	“%s”, invalid argument

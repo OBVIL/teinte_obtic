@@ -26,23 +26,23 @@ class Tei2checkurl extends AbstractTei2
     /**
      * Write transformation as an Uri, which is mainly, a file
      */
-    static public function toUri(DOMDocument $dom, string $dst_file, ?array $pars=null) {
-        $dom = self::toDoc($dom, $pars);
-        if ($dom) $dom->save($dst_file);
+    static public function toURI(DOMDocument $DOM, string $dst_file, ?array $pars=null) {
+        $dom = self::toDOM($DOM, $pars);
+        if ($DOM) $DOM->save($dst_file);
     }
     /**
      * Export transformation as an XML string
      * (maybe not relevant for aggregated formats: docx, epub, site…)
      */
-    static public function toXml(DOMDocument $dom, ?array $pars=null):?string
+    static public function toXML(DOMDocument $DOM, ?array $pars=null):?string
     {
-        $dom = self::toDoc($dom, $pars);
+        $dom = self::toDOM($DOM, $pars);
         return $dom->saveXML();
     }
     /**
      * Verify DOM
      */
-    static public function toDoc(DOMDocument $dom, ?array $pars=null):?DOMDocument 
+    static public function toDOM(DOMDocument $DOM, ?array $pars=null):?DOMDocument 
     {
 
         $context = stream_context_create(
@@ -53,7 +53,7 @@ class Tei2checkurl extends AbstractTei2
                 )
             )
         );
-        $nl = $dom->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'ref');
+        $nl = $DOM->getElementsByTagNameNS('http://www.tei-c.org/ns/1.0', 'ref');
         $att = "target";
         foreach ($nl as $link) {
             if (!$link->hasAttribute($att)) {
@@ -67,7 +67,7 @@ class Tei2checkurl extends AbstractTei2
             // anchor link @xml:id, check dest
             if (substr($target, 0, 1) == '#') {
                 $id = substr($target, 1);
-                $el = $dom->getElementById($id);
+                $el = $DOM->getElementById($id);
                 if ($el) continue;
                 Log::error(
                     "\033[91mxml:id=\"$id\"\033[0m target element not found "
@@ -117,7 +117,7 @@ class Tei2checkurl extends AbstractTei2
                 continue;
             }
         }
-        return $dom;
+        return $DOM;
     }
     /**
      * Format log message
