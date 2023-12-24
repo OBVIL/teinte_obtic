@@ -93,13 +93,14 @@ final class BitSetTest
     public static function test()
     {
         foreach (["BitBool", "BitInt", "BitIntFull", "BitString"] as $className) {
-            $set = [1];
+            // $set = [8, 0];
+            $set = [7, 15];
             echo str_pad($className, 15);
             $obj = 'Oeuvres\Kit\Bitset\\'.$className;
             $bitSet = new $obj();
-            echo implode(',', $set) . "  ";
+            echo "(" . implode(',', $set) . ") ";
             foreach ($set as $bit) $bitSet->set($bit);
-            echo $bitSet->toBase64();
+            echo "0x" . bin2hex($bitSet->toBytes()) . " = " . $bitSet->toBase64();
             $n = 10;
             foreach ($bitSet as $key => $bit) {
                 echo " $key:$bit";

@@ -195,11 +195,12 @@ class Epub extends Zip
 " . $this->style->asXml() . "
   </template>
   <style title=\"epub\">
-" . $css . "
+" . preg_replace("/--/", "—", $css) . "
   </style>
 " . $sections . "
 </article>
 ";
+        // css will be included as XML comment, clean here the '--'
         // a no indent dom, work is done upper
         $DOM = self::DOM();
         Xt::loadXML($xhtml, $DOM);
@@ -271,7 +272,6 @@ class Epub extends Zip
     {
         // ensure xhtml generation
         $this->htmlDOM();
-
         // to produce a <teiHeader>, make a new doc to transform with opf
         $metadata = $this->opfDOM->getElementsByTagName('metadata')->item(0);
         $metaDoc = Xt::dom();
@@ -282,11 +282,15 @@ class Epub extends Zip
             Xpack::dir() . 'html_tei/epub_dc_tei.xsl', 
             $metaDoc
         );
+
+
         // toDom for indent-
         $this->teiDOM = Xt::transformToDOM(
             Xpack::dir() . 'html_tei/html_tei.xsl', 
             $this->htmlDOM
         );
+
+
         $teiHeader = $this->teiDOM->importNode($teiHeader->documentElement, true);
         $text = Xt::firstElementChild($this->teiDOM->documentElement);
         $this->teiDOM->documentElement->insertBefore($teiHeader, $text);
@@ -400,6 +404,7 @@ class Epub extends Zip
         if (!$contents) {
             $msg = I18n::_("Epub.chop.404", $this->file, $from_file);
             Log::warning($msg);
+            $msg = preg_replace("/--/", "—", $msg); // if filename with --
             $html .= "<!-- $msg -->\n";
             return $html;
         }
@@ -414,6 +419,7 @@ class Epub extends Zip
         if (!preg_match('@<body[^>]*>@', $contents, $matches, PREG_OFFSET_CAPTURE)) {
             $msg = I18n::_("Epub.chop.body", $this->file, $from_file);
             Log::warning($msg);
+            $msg = preg_replace("/--/", "—", $msg); // if filename with --
             $html .= "<!-- $msg -->\n";
         } else {
             $pos_start = $matches[0][1] + strlen($matches[0][0]);
@@ -424,6 +430,7 @@ class Epub extends Zip
             if (!preg_match('@\n.*id="' . $from_anchor . '"@', $contents, $matches, PREG_OFFSET_CAPTURE)) {
                 $msg = I18n::_("Epub.chop.anchor", $this->file, $from_file, $from_anchor);
                 Log::warning($msg);
+                $msg = preg_replace("/--/", "—", $msg); // if filename with --
                 $html .= "<!-- $msg -->\n";
             } else {
                 $pos_start = $matches[0][1];
@@ -440,12 +447,14 @@ class Epub extends Zip
             if (!$to_anchor) {
                 $msg = I18n::_("Epub.chop.to.no_anchor", $this->file, $from_file, $from, $to);
                 Log::warning($msg);
+                $msg = preg_replace("/--/", "—", $msg); // if filename with --
                 $html .= "<!-- $msg -->\n";
             } 
             // anchor not found
             else if (!preg_match('@\n.*id="' . $to_anchor . '"@', $contents, $matches, PREG_OFFSET_CAPTURE)) {
                 $msg = I18n::_("Epub.chop.to.anchor404", $this->file, $from_file, $from, $to, $to_anchor);
                 Log::warning($msg);
+                $msg = preg_replace("/--/", "—", $msg); // if filename with --
                 $html .= "<!-- $msg -->\n";
             } 
             // end index found

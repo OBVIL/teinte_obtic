@@ -32,7 +32,8 @@ class CssModel
     /** A filter of rules */
     private array $filter = [
         "font-style" => ["italic"],
-        "text-align" => ["center", "right"]
+        "text-align" => ["center", "right"],
+        "font-variant"  => ['small-caps']
     ];
     /** The model to append rules */
     private array $model = [];

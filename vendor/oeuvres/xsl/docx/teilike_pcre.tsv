@@ -35,7 +35,7 @@ search	replace	?comment
 
 
 
-(<($block)($atts)>) +	\1	<block>   spaces
+(<($block)($atts)>) +	\1	<block>   spaces at start of block
 <note($atts)>(\s*<p>)?\s*[\[\(]?(nde|NdE)[\]\)\. ] *	"<note\1 resp=""editor"">\2"	note, editor
 <note($atts)>(\s*<p>)?\s*[\[\(]?(nda|NdA)[\]\)\. ] *	"<note\1 resp=""author"">\2"	note, author
 \s*<p>\s*(<pb($atts)/>)\s*</p>\s*	\n\1\n	<p> with only on <pb/>
@@ -43,19 +43,20 @@ search	replace	?comment
 \s+([;:?!])	 \1	unbreakable space before caesura resolution
 [——\-]\s*(<lb($atts)/>)\s*([^ <>]+) *	\3\n\1	caesura, /\s/u will match nbsp
 (\s*)(<lb($atts)/>)(</($inline)>)([^ \p{L}<>]*) *	\4\6\1\2	<lb/></hi>.
+\s+(</(head|p)>)	\1	<block>   spaces at end of block
+
 
 -*[—–]+-*	—
 ‹[\-–—]	←
 [\-–—]›	→
 \.\.\.	…
-\s*([»?!])	 $1
- +([:;])	 $1	caution w:doc, http://, &gt;
+\s*([»])	 $1
+\s+([:;?!])	 $1	caution w:doc, http://, &gt;, <?pi ?>
 ([«–—§])\s*	$1 
 '	’
 (’)[  ]+([«\[])	$1$2
 ([^\p{L}]p\.)\s*	$1 	p. ###
 (etc\.)(;)	$1 $2
-
-&([a-zA-Z0-9_]+) ;	&\1;	restore entities
-< ([?!])	<$1	pi
- \?>	?>	pi
+# maths
+(\) *)(</hi>)	$2$1
+(<hi>)(\( *)	$2$1

@@ -59,6 +59,10 @@ abstract class Cliglob
                 Log::info("=== " . $arg . " ===");
             }
             foreach ($glob as $src_file) {
+                if (is_dir($src_file)) continue;
+                if (!Filesys::readable($src_file)) {
+                    continue;
+                }
                 $dst_file = static::destination($src_file);
                 // test freshness
                 if (isset(static::$options['f'])); // force

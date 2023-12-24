@@ -3,7 +3,8 @@ https://www.alanwood.net/unicode/private_use_area.html
 http://www.unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
 -->
 <charmap name="MS.Symbol" xmlns="https://github.com/oeuvres/teinte_xsl" >
-    <c symbol="F020" unicode="0020"> </c>
+    <c symbol="00A2" unicode="2032">′</c>
+    <!-- <c symbol="F020" unicode="0020"> </c> -->
     <c symbol="F020" unicode="00A0"> </c>
     <c symbol="F021" unicode="0021">!</c>
     <c symbol="F022" unicode="2200">∀</c>

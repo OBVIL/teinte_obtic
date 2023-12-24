@@ -36,6 +36,7 @@ class Zip extends File
         $this->zip = new ZipArchive();
         if (($code = $this->zip->open($file, $flags)) !== TRUE) {
             Log::warning(self::message($code, $file));
+            $this->open = false;
             return false;
         }
         return true;

@@ -118,6 +118,11 @@ Clean html extracted from epub of some oddities
           <xsl:apply-templates select="node()|@*[name() != 'class']"/>
         </i>
       </xsl:when>
+      <xsl:when test="contains($props, ' small-caps ')">
+        <sc>
+          <xsl:apply-templates select="node()|@*[name() != 'class']"/>
+        </sc>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:copy>
           <xsl:apply-templates select="node()|@*"/>
@@ -239,6 +244,20 @@ Clean html extracted from epub of some oddities
         </p>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <!-- Anchors should be merged -->
+  <xsl:template match="html:a">
+    <a>
+      <xsl:apply-templates select="@*"/>
+      <xsl:if test="@href and contains(@href, '#')">
+        <xsl:attribute name="href">
+          <xsl:text>#</xsl:text>
+          <xsl:value-of select="substring-after(@href, '#')"/>
+        </xsl:attribute>
+      </xsl:if>
+      <xsl:apply-templates/>
+    </a>
   </xsl:template>
 
   <xsl:template match="html:body">

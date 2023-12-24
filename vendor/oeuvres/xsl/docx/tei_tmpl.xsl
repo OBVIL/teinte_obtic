@@ -708,7 +708,9 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
       <xsl:when test="count(*) = 1 and tei:hi">
         <xsl:copy>
           <xsl:apply-templates select="@*"/>
-          <xsl:attribute name="rend">i</xsl:attribute>
+          <xsl:attribute name="rend">
+            <xsl:value-of select="normalize-space(concat('i ', @rend))"/>
+          </xsl:attribute>
           <xsl:apply-templates select="tei:hi/node()"/>
         </xsl:copy>
       </xsl:when>
@@ -792,7 +794,7 @@ s#</(bg|color|font|mark)_[^>]+>#</hi>#g
     <xsl:apply-templates select=".//tei:pb | .//tei:ref[starts-with(., 'p.') or starts-with(., '[p.')]"/>
     <xsl:value-of select="$lf"/>
     <xsl:copy>
-      <xsl:copy-of select="@*[local-name() != 'type']"/>
+      <xsl:copy-of select="@*[local-name() != 'type'][local-name() != 'level']"/>
       <xsl:if test="@type='sub'">
         <xsl:copy-of select="@type"/>
       </xsl:if>

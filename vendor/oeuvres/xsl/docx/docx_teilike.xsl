@@ -60,7 +60,7 @@
     </xsl:copy>
   </xsl:template>
   <xsl:template match="/">
-    <xsl:apply-templates select="/pkg:package/pkg:part[@pkg:name = '/word/document.xml']/pkg:xmlData"/>
+    <xsl:apply-templates select="/pkg:package/pkg:part[@pkg:name = '/word/document.xml']/pkg:xmlData/w:document"/>
   </xsl:template>
   <!-- root element -->
   <xsl:template match="w:document">
@@ -133,27 +133,8 @@
     </xsl:variable>
     <xsl:variable name="rend" select="normalize-space($_rend)"/>
     <xsl:choose>
-      <xsl:when test="$lvl != '' and not(ancestor::w:tc|ancestor::w:footnote)">
-        <head level="{$lvl+1}">
-          <xsl:apply-templates select="w:hyperlink | w:r"/>
-        </head>
-      </xsl:when>
-      <!-- list item, TODO listStyle, see in w:pPr/w:numPr/w:numId/@w:val -->
-      <xsl:when test="w:pPr/w:numPr">
-        <xsl:variable name="w:ilvl" select="number(w:pPr/w:numPr/w:ilvl/@w:val)"/>
-        <xsl:variable name="w:numId" select="number(w:pPr/w:numPr/w:numId/@w:val)"/>
-        <!-- 
-  <w:num w:numId="4">
-    <w:abstractNumId w:val="36"/>
-  </w:num>
-  -->
-        <xsl:variable name="w:abstractNumId" select="number(key('w:num', $w:numId)/w:abstractNumId/@w:val)"/>
-        <xsl:variable name="w:abstractNum" select="key('w:abstractNum', $w:abstractNumId)"/>
-        <item level="{$w:ilvl + 1}" rend="{$w:abstractNum/w:lvl[@w:ilvl = $w:ilvl]/w:numFmt/@w:val}">
-          <xsl:apply-templates select="w:hyperlink | w:r"/>
-        </item>
-      </xsl:when>
-      <xsl:when test="$style_name = '' or key('teinte_0', $style_name)">
+      <!-- Some normal style may have level set to 9 (?) -->
+      <xsl:when test="$style_name = '' or key('teinte_0', $style_name) or key('teinte_0', translate($style_name, '0123456789', ''))">
         <p>
           <xsl:if test="$rend != ''">
             <xsl:attribute name="rend">
@@ -163,6 +144,7 @@
           <xsl:apply-templates select="w:hyperlink | w:r"/>
         </p>
       </xsl:when>
+      <!-- known semantic style names, should not be structuring heading -->
       <xsl:when test="$teinte_p/@parent != ''">
         <xsl:element name="{$teinte_p/@parent}">
           <xsl:text>&#10;  </xsl:text>
@@ -191,6 +173,27 @@
           </xsl:if>
           <xsl:apply-templates select="w:hyperlink | w:r"/>
         </xsl:element>
+      </xsl:when>
+      <!-- Bug lev -->
+      <xsl:when test="number($lvl) &gt; 0 and number($lvl) &lt; 9 and not(ancestor::w:tc|ancestor::w:footnote)">
+        <head level="{$lvl+1}">
+          <xsl:apply-templates select="w:hyperlink | w:r"/>
+        </head>
+      </xsl:when>
+      <!-- some heading may hav set list item, TODO listStyle, see in w:pPr/w:numPr/w:numId/@w:val -->
+      <xsl:when test="w:pPr/w:numPr">
+        <xsl:variable name="w:ilvl" select="number(w:pPr/w:numPr/w:ilvl/@w:val)"/>
+        <xsl:variable name="w:numId" select="number(w:pPr/w:numPr/w:numId/@w:val)"/>
+        <!-- 
+  <w:num w:numId="4">
+    <w:abstractNumId w:val="36"/>
+  </w:num>
+  -->
+        <xsl:variable name="w:abstractNumId" select="number(key('w:num', $w:numId)/w:abstractNumId/@w:val)"/>
+        <xsl:variable name="w:abstractNum" select="key('w:abstractNum', $w:abstractNumId)"/>
+        <item level="{$w:ilvl + 1}" rend="{$w:abstractNum/w:lvl[@w:ilvl = $w:ilvl]/w:numFmt/@w:val}">
+          <xsl:apply-templates select="w:hyperlink | w:r"/>
+        </item>
       </xsl:when>
       <!-- Output unknown style -->
       <xsl:when test="$style_name != ''">
@@ -276,9 +279,7 @@
 </w:pict>
 -->
   <xsl:template match="w:drawing | w:pict">
-    <xsl:if test="not(wp:anchor)">
-      <xsl:text>&#10;</xsl:text>
-    </xsl:if>
+    <!-- Do not add spaces around figure, may be a sign -->
     <figure>
       <xsl:if test="wp:anchor">
         <xsl:attribute name="place">anchor</xsl:attribute>
@@ -326,9 +327,6 @@
       <xsl:apply-templates select="v:shape/v:imagedata/@o:title"/>
       <xsl:text>&#10;</xsl:text>
     </figure>
-    <xsl:if test="not(wp:anchor)">
-      <xsl:text>&#10;</xsl:text>
-    </xsl:if>
   </xsl:template>
 
   <!-- Image size
@@ -457,18 +455,18 @@ Seen
       </xsl:choose>
     </xsl:variable>
     <!-- bold, dangerous in titles, to think -->
+    <xsl:variable name="bval" select="string(w:rPr/w:b/@w:val)"/>
+    <xsl:variable name="bCsval" select="string(w:rPr/w:bCs/@w:val)"/>
     <xsl:variable name="b">
-      <xsl:variable name="val1" select="w:rPr/w:b"/>
-      <xsl:variable name="val2" select="w:rPr/w:bCs"/>
       <xsl:choose>
         <xsl:when test="not(w:rPr/w:b) and not(w:rPr/w:bCs)"/>
-        <xsl:when test="$val1 = '0' or $val1 ='false' or $val1 = 'off'"/>
-        <xsl:when test="$val1 != ''">
-          <xsl:value-of select="$val1"/>
+        <xsl:when test="$bval = '0' or $bval ='false' or $bval = 'off'"/>
+        <xsl:when test="$bval != ''">
+          <xsl:value-of select="$bval"/>
         </xsl:when>
-        <xsl:when test="$val2 = '0' or $val2 ='false' or $val2 = 'off'"/>
-        <xsl:when test="$val2 != ''">
-          <xsl:value-of select="$val2"/>
+        <xsl:when test="$bCsval = '0' or $bCsval ='false' or $bCsval = 'off'"/>
+        <xsl:when test="$bCsval != ''">
+          <xsl:value-of select="$bCsval"/>
         </xsl:when>
         <!-- silent presence -->
         <xsl:when test="w:rPr/w:b">b</xsl:when>
@@ -489,9 +487,9 @@ Seen
           </sup>
         </xsl:when>
         <xsl:when test="$subsup = 'subscript'">
-          <sup>
+          <sub>
             <xsl:copy-of select="$t"/>
-          </sup>
+          </sub>
         </xsl:when>
         <xsl:otherwise>
           <xsl:copy-of select="$t"/>
@@ -565,7 +563,7 @@ Seen
     </xsl:variable>
     <xsl:variable name="xml10">
       <xsl:choose>
-        <xsl:when test="$style_name = ''">
+        <xsl:when test="$style_name = '' or string($teinte_c/@element) = ''">
           <xsl:copy-of select="$xml5"/>
         </xsl:when>
         <!-- redundant -->
@@ -577,7 +575,7 @@ Seen
             <xsl:copy-of select="$xml5"/>
           </xsl:element>
         </xsl:when>
-        <xsl:when test="key('teinte_0', $style_name)">
+        <xsl:when test="key('teinte_0', $style_name) or key('teinte_0', translate($style_name, '0123456789', ''))">
           <xsl:copy-of select="$xml5"/>
         </xsl:when>
         <!-- auto style Calibre -->
@@ -596,7 +594,7 @@ Seen
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
-        <xsl:when test="$style_name != ''">
+        <xsl:when test="$el != ''">
           <xsl:element name="{$el}">
             <xsl:copy-of select="$xml5"/>
           </xsl:element>
@@ -653,17 +651,24 @@ Seen
     <xsl:text>&#10;    </xsl:text>
     <cell>
       <xsl:variable name="jc" select="normalize-space(w:p/w:pPr/w:jc/@w:val)"/>
-      <xsl:choose>
-        <xsl:when test="$jc = ''"/>
-        <xsl:when test="$jc = 'both'"/>
-        <xsl:when test="$jc = 'left'"/>
-        <xsl:when test="$jc = 'right'"> right</xsl:when>
-        <xsl:otherwise>
-          <xsl:attribute name="rend">
-            <xsl:value-of select="$jc"/>
-          </xsl:attribute>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:variable name="rend">
+        <xsl:choose>
+          <xsl:when test="$jc = ''"/>
+          <xsl:when test="$jc = 'both'"/>
+          <xsl:when test="$jc = 'left'"/>
+          <xsl:when test="$jc = 'right'"> right</xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="rend">
+              <xsl:value-of select="$jc"/>
+            </xsl:attribute>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:if test="normalize-space($rend) != ''">
+        <xsl:attribute name="rend">
+          <xsl:value-of select="normalize-space($rend)"/>
+        </xsl:attribute>
+      </xsl:if>
       <xsl:apply-templates/>
     <xsl:text>&#10;    </xsl:text>
     </cell>
@@ -770,4 +775,5 @@ Seen
   </xsl:template>
   <!-- Comments -->
   <xsl:template match="w:commentReference"/>
+  <xsl:template match="w:object">[MS:object]</xsl:template>
 </xsl:transform>

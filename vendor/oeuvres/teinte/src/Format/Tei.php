@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Oeuvres\Teinte\Format;
 
-use Exception, DOMDocument, DOMXpath;
+use Exception, DOMDocument, DOMNode, DOMXpath;
 use Oeuvres\Kit\{Filesys,Log, Xt};
 use Oeuvres\Teinte\Tei2\{AbstractTei2};
 
@@ -22,6 +22,45 @@ use Oeuvres\Teinte\Tei2\{AbstractTei2};
 class Tei extends File
 {
     use Teiable;
+    const BLOCKS = [
+        "ab"=>true,
+        "bibl"=>true,
+        "byline"=>true,
+        "castList"=>true,
+        "cit"=>true,
+        "desc"=>true,
+        "eg"=>true,
+        "dateline"=>true,
+        "entryFree"=>true,
+        "epigraph"=>true,
+        "figure"=>true,
+        "fw"=>true,
+        "l"=>true,
+        "label"=>true,
+        "list"=>true,
+        "listBibl"=>true,
+        "lg"=>true,
+        "p"=>true,
+        "q"=>true,
+        "quote"=>true,
+        "salute"=>true,
+        "signed"=>true,
+        "stage"=>true,
+        "sp"=>true,
+        "table"=>true,
+    ];
+    const DIVS = [
+        "div"=>true,
+        "div1"=>true,
+        "div2"=>true,
+        "div3"=>true,
+        "div4"=>true,
+        "div5"=>true,
+        "div6"=>true,
+        "div7"=>true,
+    ];
+
+
     /** Array of templates, registred by format when relevant */
     protected array $templates = [];
 
@@ -29,16 +68,17 @@ class Tei extends File
     /**
      * Load XML/TEI as a file (preferred way to hav some metas).
      */
-    public function open(string $src_file): bool
+    public function open(string $file): bool
     {
         $this->teiReset();
-        if (!parent::open($src_file)) {
+        if (!parent::open($file)) {
             // parent has return false, probably an error 
             return false;
         }
+        // shall we break or inform on malformed file ?
         $this->loadXML($this->contents());
         // set DocumentURI for xi:include resolution
-        $this->teiDOM->documentURI = "file:///" . str_replace('\\', '/', realpath($src_file));
+        $this->teiDOM->documentURI = "file:///" . str_replace('\\', '/', realpath($file));
         // inclusions done, XML has change
         if ($this->teiDOM->xinclude()) {
             $this->teiXML = $this->teiDOM->saveXML();
@@ -354,7 +394,6 @@ class Tei extends File
             }
             $data = Filesys::loadURL($url, $dom_dir);
             if (!$data) {
-                // something went wrong and should have been logged
                 continue;
             }
             if ($counter) {

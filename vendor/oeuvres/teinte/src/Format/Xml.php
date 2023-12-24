@@ -39,11 +39,12 @@ class Xml extends File
      */
     public function open(string $src_file): bool
     {
+        $this->dom = null;
+        $this->xml = null;
         if (!parent::open($src_file)) {
             return false;
         }
-        $this->dom = null;
-        $this->xml = null;
+        // load on demand ?
         $this->loadXML($this->contents());
         return true;
     }

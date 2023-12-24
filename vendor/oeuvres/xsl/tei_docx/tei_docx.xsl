@@ -96,6 +96,7 @@
     <xsl:value-of select="$lf"/>
     <xsl:comment> <xsl:value-of select="$forged"/> </xsl:comment>
     <xsl:value-of select="$lf"/>
+    <!-- bad TEI, coming from conversion, may have inline here -->
     <xsl:apply-templates select="*|comment()"/>
   </xsl:template>
   <!-- forged title -->
@@ -457,10 +458,12 @@
     <xsl:choose>
       <!-- conteneur de blocs -->
       <xsl:when test=" tei:byline | tei:closer | tei:dateline | tei:l | tei:label | tei:lg | tei:opener | tei:p | tei:salute | tei:signed  ">
-        <xsl:apply-templates select="*">
-          <xsl:with-param name="border" select="$border"/>
-          <xsl:with-param name="parent" select="local-name(.)"/>
-        </xsl:apply-templates>
+        <xsl:for-each select="*">
+          <xsl:call-template name="par">
+            <xsl:with-param name="border" select="$border"/>
+            <xsl:with-param name="parent" select="local-name(.)"/>
+          </xsl:call-template>
+        </xsl:for-each>
       </xsl:when>
       <!-- 
 ancestor::tei:p or ancestor::tei:l or parent::tei:cell
@@ -566,7 +569,7 @@ ancestor::tei:p or ancestor::tei:l or parent::tei:cell
   
   <xsl:template match="tei:figure">
     <xsl:choose>
-      <xsl:when test="parent::tei:back | parent::tei:body | parent::tei:div | parent::tei:div1 | parent::tei:div2 | parent::tei:div3 | parent::tei:div4 | parent::tei:div5 | parent::tei:div6 | parent::tei:div7 | parent::tei:div8 | parent::tei:div9 | tei:front">
+      <xsl:when test="parent::tei:back | parent::tei:body | parent::tei:div | parent::tei:div1 | parent::tei:div2 | parent::tei:div3 | parent::tei:div4 | parent::tei:div5 | parent::tei:div6 | parent::tei:div7 | parent::tei:div8 | parent::tei:div9 | parent::tei:front | parent::tei:quote">
         <w:p>
           <xsl:apply-templates/>
         </w:p>
@@ -577,35 +580,6 @@ ancestor::tei:p or ancestor::tei:l or parent::tei:cell
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="tei:graphic">
-    <w:r>
-      <w:drawing>
-        <wp:inline>
-          <!--
-          <wp:extent cx="1040130" cy="1040130"/>
-          -->
-          <a:graphic>
-            <a:graphicData>
-              <pic:pic>
-                <pic:blipFill>
-                  <a:blip>
-                    <xsl:attribute name="r:embed">
-                      <xsl:call-template name="id"/>
-                    </xsl:attribute>
-                  </a:blip>
-                  <!--
-                  <a:stretch>
-                    <a:fillRect/>
-                  </a:stretch>
-                  -->
-                </pic:blipFill>
-              </pic:pic>
-            </a:graphicData>
-          </a:graphic>
-        </wp:inline>
-      </w:drawing>
-    </w:r>
-  </xsl:template>
   
   <xsl:template match="tei:entry">
     <xsl:value-of select="$lf"/>
@@ -772,7 +746,7 @@ ancestor::tei:p or ancestor::tei:l or parent::tei:cell
     </xsl:choose>
   </xsl:template>
   <!-- Style sémantique de niveau bloc ou caractère -->
-  <xsl:template match="tei:bibl | tei:stage">
+  <xsl:template match="tei:bibl | tei:formula | tei:stage">
     <xsl:value-of select="$lf"/>
     <xsl:choose>
       <!-- niveau bloc -->
@@ -781,6 +755,9 @@ ancestor::tei:p or ancestor::tei:l or parent::tei:cell
           <w:pPr>
             <xsl:variable name="style">
               <xsl:choose>
+                <xsl:when test="self::tei:bibl">biblblock</xsl:when>
+                <xsl:when test="self::tei:formula">formulablock</xsl:when>
+                <xsl:when test="self::tei:stage">stageblock</xsl:when>
                 <xsl:when test="$libreO != ''">
                   <xsl:value-of select="translate(substring(local-name(), 1, 1), $lc, $uc)"/>
                   <xsl:value-of select="substring(local-name(), 2)"/>
@@ -802,8 +779,9 @@ ancestor::tei:p or ancestor::tei:l or parent::tei:cell
         <xsl:call-template name="char">
           <xsl:with-param name="style">
             <xsl:choose>
-              <xsl:when test="self::tei:bibl">bibl-c</xsl:when>
-              <xsl:when test="self::tei:stage">stage-c</xsl:when>
+              <xsl:when test="self::tei:bibl">biblchar</xsl:when>
+              <xsl:when test="self::tei:formula">formulachar</xsl:when>
+              <xsl:when test="self::tei:stage">stagechar</xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="local-name(.)"/>
               </xsl:otherwise>
@@ -817,6 +795,9 @@ ancestor::tei:p or ancestor::tei:l or parent::tei:cell
           <w:pPr>
             <xsl:variable name="style">
               <xsl:choose>
+                <xsl:when test="self::tei:bibl">biblblock</xsl:when>
+                <xsl:when test="self::tei:formula">formulablock</xsl:when>
+                <xsl:when test="self::tei:stage">stageblock</xsl:when>
                 <xsl:when test="$libreO != ''">
                   <xsl:value-of select="translate(substring(local-name(), 1, 1), $lc, $uc)"/>
                   <xsl:value-of select="substring(local-name(), 2)"/>
@@ -1229,72 +1210,84 @@ ancestor::tei:p or ancestor::tei:l or parent::tei:cell
   </xsl:template>
   <!-- image -->
   <xsl:template match="tei:graphic" name="graphic">
-    <w:r>
-      <xsl:value-of select="$lf"/>
-      <w:drawing>
-        <wp:inline>
-          <xsl:variable name="cx">
-            <xsl:choose>
-              <xsl:when test="contains(@width, 'mm')">
-                <xsl:value-of select="substring-before(@width, 'mm') * 36000"/>
-              </xsl:when>
-              <xsl:otherwise>6840000</xsl:otherwise>
-            </xsl:choose>
-          </xsl:variable>
-          <xsl:variable name="cy">
-            <xsl:choose>
-              <xsl:when test="contains(@height, 'mm')">
-                <xsl:value-of select="substring-before(@height, 'mm') * 36000"/>
-              </xsl:when>
-              <xsl:otherwise>5130000</xsl:otherwise>
-            </xsl:choose>
-          </xsl:variable>
-          <wp:extent cx="{$cx}" cy="{$cy}"/>
-          <wp:effectExtent l="0" t="0" r="0" b="0"/>
-          <xsl:variable name="image_id">
-            <xsl:number level="any"/>
-          </xsl:variable>
-          <xsl:variable name="image_name">
-            <xsl:call-template name="filename">
-              <xsl:with-param name="path" select="@url"/>
-            </xsl:call-template>
-          </xsl:variable>
-          <wp:docPr id="{$image_id}" name="{$image_name}"/>
-          <a:graphic>
-            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-              <pic:pic>
-                <pic:nvPicPr>
-                  <pic:cNvPr id="{$image_id}" name="{$image_name}"/>
-                  <pic:cNvPicPr>
-                    <a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>
-                  </pic:cNvPicPr>
-                </pic:nvPicPr>
-                <pic:blipFill>
-                  <a:blip>
-                    <xsl:attribute name="r:embed">
-                      <xsl:call-template name="id"/>
-                    </xsl:attribute>
-                  </a:blip>
-                  <a:stretch>
-                    <a:fillRect/>
-                  </a:stretch>
-                </pic:blipFill>
-                <pic:spPr bwMode="auto">
-                  <a:xfrm>
-                    <a:off x="0" y="0"/>
-                    <a:ext cx="{$cx}" cy="{$cy}"/>
-                  </a:xfrm>
-                  <a:prstGeom prst="rect">
-                    <a:avLst/>
-                  </a:prstGeom>
-                </pic:spPr>
-              </pic:pic>
-            </a:graphicData>
-          </a:graphic>
-        </wp:inline>
-      </w:drawing>
-      <xsl:value-of select="$lf"/>
-    </w:r>
+    <xsl:variable name="w:r">
+      <w:r>
+        <xsl:value-of select="$lf"/>
+        <w:drawing>
+          <wp:inline>
+            <xsl:variable name="cx">
+              <xsl:choose>
+                <xsl:when test="contains(@width, 'mm')">
+                  <xsl:value-of select="substring-before(@width, 'mm') * 36000"/>
+                </xsl:when>
+                <xsl:otherwise>6840000</xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+            <xsl:variable name="cy">
+              <xsl:choose>
+                <xsl:when test="contains(@height, 'mm')">
+                  <xsl:value-of select="substring-before(@height, 'mm') * 36000"/>
+                </xsl:when>
+                <xsl:otherwise>5130000</xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+            <wp:extent cx="{$cx}" cy="{$cy}"/>
+            <wp:effectExtent l="0" t="0" r="0" b="0"/>
+            <xsl:variable name="image_id">
+              <xsl:number level="any"/>
+            </xsl:variable>
+            <xsl:variable name="image_name">
+              <xsl:call-template name="filename">
+                <xsl:with-param name="path" select="@url"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <wp:docPr id="{$image_id}" name="{$image_name}"/>
+            <a:graphic>
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic>
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="{$image_id}" name="{$image_name}"/>
+                    <pic:cNvPicPr>
+                      <a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>
+                    </pic:cNvPicPr>
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip>
+                      <xsl:attribute name="r:embed">
+                        <xsl:call-template name="id"/>
+                      </xsl:attribute>
+                    </a:blip>
+                    <a:stretch>
+                      <a:fillRect/>
+                    </a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr bwMode="auto">
+                    <a:xfrm>
+                      <a:off x="0" y="0"/>
+                      <a:ext cx="{$cx}" cy="{$cy}"/>
+                    </a:xfrm>
+                    <a:prstGeom prst="rect">
+                      <a:avLst/>
+                    </a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:inline>
+        </w:drawing>
+        <xsl:value-of select="$lf"/>
+      </w:r>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="parent::tei:div or parent::tei:body">
+        <w:p>
+          <xsl:copy-of select="$w:r"/>
+        </w:p>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="$w:r"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   <!-- 
         <w:hyperlink r:id="rId2">
