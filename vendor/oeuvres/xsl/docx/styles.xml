@@ -90,6 +90,7 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="byline" element="byline" doc="true"/>
   <style level="p" name="camera" element="camera" doc="true"/>
   <style level="p" name="chant" element="l" attribute="type" value="chant"/>
+  <style level="p" name="chapo" element="p" parent="argument" attribute="type" value="chapo"/>
   <style level="p" name="caption" element="caption" doc="true"/>
   <style level="p" name="castitem" element="castItem" parent="castList" doc="true"/>
   <style level="p" name="castlist" element="castList" doc="true"/>

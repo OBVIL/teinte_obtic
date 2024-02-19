@@ -117,12 +117,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "0b90f2afe7e98645e4b61b764a39c21ac48817bb"
+                "reference": "cccbdf1a21fe19bbbb4b96486259642a292116d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/0b90f2afe7e98645e4b61b764a39c21ac48817bb",
-                "reference": "0b90f2afe7e98645e4b61b764a39c21ac48817bb",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/cccbdf1a21fe19bbbb4b96486259642a292116d3",
+                "reference": "cccbdf1a21fe19bbbb4b96486259642a292116d3",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,7 @@
                 "psr/log": "1.1.4"
             },
             "require-dev": {
-                "phpunit/phpunit": "9"
+                "phpunit/phpunit": ">=9"
             },
             "default-branch": true,
             "type": "library",
@@ -168,7 +168,7 @@
                 "issues": "https://github.com/oeuvres/kit/issues",
                 "source": "https://github.com/oeuvres/kit/tree/main"
             },
-            "time": "2023-12-17T20:50:30+00:00"
+            "time": "2024-02-18T23:17:43+00:00"
         },
         {
             "name": "oeuvres/teinte",
@@ -176,23 +176,24 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_php.git",
-                "reference": "9c132558971b4705d6162975ce42e3c74acaca59"
+                "reference": "d788d00810bc9381cf956c3a61d76bb53b84ec5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/9c132558971b4705d6162975ce42e3c74acaca59",
-                "reference": "9c132558971b4705d6162975ce42e3c74acaca59",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/d788d00810bc9381cf956c3a61d76bb53b84ec5a",
+                "reference": "d788d00810bc9381cf956c3a61d76bb53b84ec5a",
                 "shasum": ""
             },
             "require": {
                 "erusev/parsedown-extra": "dev-master",
                 "ext-tidy": "*",
+                "ext-xsl": "*",
                 "oeuvres/kit": "dev-main",
                 "oeuvres/xsl": "dev-main",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "9"
+                "phpunit/phpunit": ">=9"
             },
             "default-branch": true,
             "bin": [
@@ -214,12 +215,12 @@
                     "email": "frederic.glorieux@fictif.org"
                 }
             ],
-            "description": "Transform texts from and to : TEI, DOCX, HTML, EPUB, MD…",
+            "description": "Transform texts from and to : TEI, DOCX, HTML, EPUB, MD.",
             "support": {
                 "issues": "https://github.com/oeuvres/teinte_php/issues",
                 "source": "https://github.com/oeuvres/teinte_php/tree/main"
             },
-            "time": "2023-12-24T11:49:56+00:00"
+            "time": "2024-02-18T23:26:04+00:00"
         },
         {
             "name": "oeuvres/xsl",
@@ -227,12 +228,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_xsl.git",
-                "reference": "e81452f4586819df5ba3af3336757674104d45c8"
+                "reference": "3d87778ff2f9bffcbfb3920601538c4269a5bf3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/e81452f4586819df5ba3af3336757674104d45c8",
-                "reference": "e81452f4586819df5ba3af3336757674104d45c8",
+                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/3d87778ff2f9bffcbfb3920601538c4269a5bf3f",
+                "reference": "3d87778ff2f9bffcbfb3920601538c4269a5bf3f",
                 "shasum": ""
             },
             "default-branch": true,
@@ -257,7 +258,7 @@
                 "issues": "https://github.com/oeuvres/teinte_xsl/issues",
                 "source": "https://github.com/oeuvres/teinte_xsl/tree/main"
             },
-            "time": "2023-12-24T11:42:57+00:00"
+            "time": "2024-02-12T13:23:42+00:00"
         },
         {
             "name": "psr/log",
@@ -320,5 +321,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.6.0"
 }

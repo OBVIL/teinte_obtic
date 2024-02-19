@@ -147,16 +147,18 @@
       <!-- known semantic style names, should not be structuring heading -->
       <xsl:when test="$teinte_p/@parent != ''">
         <xsl:element name="{$teinte_p/@parent}">
+          <!-- atts on parent -->
+          <xsl:if test="$teinte_p/@attribute">
+            <xsl:attribute name="{$teinte_p/@attribute}">
+              <xsl:value-of select="$teinte_p/@value"/>
+            </xsl:attribute>
+          </xsl:if>
           <xsl:text>&#10;  </xsl:text>
           <xsl:element name="{$teinte_p/@element}">
+            <!-- rend in parent, ex, bibliographic line on right -->
             <xsl:if test="$rend != ''">
               <xsl:attribute name="rend">
                 <xsl:value-of select="$rend"/>
-              </xsl:attribute>
-            </xsl:if>
-            <xsl:if test="$teinte_p/@attribute">
-              <xsl:attribute name="{$teinte_p/@attribute}">
-                <xsl:value-of select="$teinte_p/@value"/>
               </xsl:attribute>
             </xsl:if>
             <xsl:apply-templates select="w:hyperlink | w:r"/>

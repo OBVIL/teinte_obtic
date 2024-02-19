@@ -20,7 +20,7 @@ class Config
     /** The initialisation variables */
     static private $config=[];
     /** Avoid multiple initialisation */
-    static private bool $init = false;
+    static private $init = false;
     /**
      * Inialize static vars
      */
@@ -29,7 +29,7 @@ class Config
         if (self::$init) return;
         // getcwd is quite robust on most server, where is index.php
         $config_file = getcwd() . DIRECTORY_SEPARATOR .'/config.php';
-        if (!is_readable($config_file)) {
+        if (is_readable($config_file)) {
             self::load($config_file);
         }
     }

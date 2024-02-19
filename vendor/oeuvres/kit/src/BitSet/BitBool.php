@@ -19,7 +19,7 @@ class BitBool extends BitSet
     /**
      * Array of booleans
      */
-    private array $data = [];
+    private $data = [];
 
     public function __construct()
     {

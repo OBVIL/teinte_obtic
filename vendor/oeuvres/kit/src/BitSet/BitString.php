@@ -17,19 +17,19 @@ class BitString extends BitSet
     /**
      * String implementation
      */
-    private string $data;
+    private $data;
     /**
      * Biggest char index
      */
-    private int $charLength = -1;
+    private $charLength = -1;
     /**
      * Allocated chars
      */
-    private int $charAlloc = 8;
+    private $charAlloc = 8;
     /**
      * For iterator
      */
-    private int $itChar = -1;
+    private $itChar = -1;
 
 
     public function __construct()

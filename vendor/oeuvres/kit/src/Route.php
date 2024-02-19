@@ -35,7 +35,7 @@ class Route {
     /** Default php template */
     static private $tmpl_file;
     /** Template applied to the content */
-    static private ?string $template = null; 
+    static private $template = null; 
     /** Html content to include, may be to parse */
     static private $html;
     /** Contents captured */
