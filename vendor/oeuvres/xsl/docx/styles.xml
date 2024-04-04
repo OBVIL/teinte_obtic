@@ -48,6 +48,7 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="0" name="corpsdetexte"/>
   <style level="0" name="corpsdutexte"/>
   <style level="0" name="defaultparagraphfont"/>
+  <style level="0" name="footnotecharacters"/>
   <style level="0" name="footnotereference"/>
   <style level="0" name="freeform"/>
   <style level="0" name="legendedelimage"/>
@@ -59,6 +60,7 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="0" name="notesdebasdepage"/>
   <style level="0" name="notedefin"/>
   <style level="0" name="notesdefin"/>
+  <style level="0" name="standard"/>
   <style level="0" name="style"/>
   <style level="0" name="texte"/>
   <style level="0" name="texteducorps"/>
@@ -90,6 +92,7 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="byline" element="byline" doc="true"/>
   <style level="p" name="camera" element="camera" doc="true"/>
   <style level="p" name="chant" element="l" attribute="type" value="chant"/>
+  <style level="p" name="chapo" element="p" parent="argument" attribute="type" value="chapo"/>
   <style level="p" name="caption" element="caption" doc="true"/>
   <style level="p" name="castitem" element="castItem" parent="castList" doc="true"/>
   <style level="p" name="castlist" element="castList" doc="true"/>
@@ -200,7 +203,7 @@ LGPL  http://www.gnu.org/licenses/lgpl.html
   <style level="p" name="signed" element="signed" doc="true"/>
   <style level="p" name="signature" element="signed"/>
   <style level="p" name="soustitre" element="head" attribute="type" value="sub"/>
-  <style level="p" name="speaker"  element="speaker" doc="true"/>
+  <style level="p" name="speaker" element="speaker" doc="true"/>
   <style level="p" name="stage" element="stage" doc="true"/>
   <style level="p" name="stageromain" element="stage" attribute="rend" value="not-i"/>
   <style level="p" name="stageitaliquecourt" element="stage" attribute="rend" value="right"/>  

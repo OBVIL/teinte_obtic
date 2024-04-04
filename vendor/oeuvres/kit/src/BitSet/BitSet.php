@@ -87,19 +87,19 @@ abstract class BitSet implements Iterator
     /**
      * Biggest bit index
      */
-    protected int $length = 0;
+    protected $length = 0;
     /**
      * Iterator, current value
      */
-    protected int $itBit = -1;
+    protected $itBit = -1;
     /**
      * Iterator, current key, count of bit = 1
      */
-    protected int $itKey = -1;
+    protected $itKey = -1;
     /**
      * Iterator, end is reached
      */
-    protected bool $itValid; 
+    protected $itValid; 
     /**
      * Returns the highest set bit plus one
      *

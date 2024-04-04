@@ -118,12 +118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/kit.git",
-                "reference": "0b90f2afe7e98645e4b61b764a39c21ac48817bb"
+                "reference": "5ceeff4a8f3b05c80521c60d7720e9a8d93986b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/kit/zipball/0b90f2afe7e98645e4b61b764a39c21ac48817bb",
-                "reference": "0b90f2afe7e98645e4b61b764a39c21ac48817bb",
+                "url": "https://api.github.com/repos/oeuvres/kit/zipball/5ceeff4a8f3b05c80521c60d7720e9a8d93986b3",
+                "reference": "5ceeff4a8f3b05c80521c60d7720e9a8d93986b3",
                 "shasum": ""
             },
             "require": {
@@ -134,9 +134,9 @@
                 "psr/log": "1.1.4"
             },
             "require-dev": {
-                "phpunit/phpunit": "9"
+                "phpunit/phpunit": ">=9"
             },
-            "time": "2023-12-17T20:50:30+00:00",
+            "time": "2024-03-31T11:01:23+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",
@@ -180,25 +180,26 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_php.git",
-                "reference": "9c132558971b4705d6162975ce42e3c74acaca59"
+                "reference": "ad2244283f88b0b04e38fe8255a026bf617f6c61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/9c132558971b4705d6162975ce42e3c74acaca59",
-                "reference": "9c132558971b4705d6162975ce42e3c74acaca59",
+                "url": "https://api.github.com/repos/oeuvres/teinte_php/zipball/ad2244283f88b0b04e38fe8255a026bf617f6c61",
+                "reference": "ad2244283f88b0b04e38fe8255a026bf617f6c61",
                 "shasum": ""
             },
             "require": {
                 "erusev/parsedown-extra": "dev-master",
                 "ext-tidy": "*",
+                "ext-xsl": "*",
                 "oeuvres/kit": "dev-main",
                 "oeuvres/xsl": "dev-main",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "9"
+                "phpunit/phpunit": ">=9"
             },
-            "time": "2023-12-24T11:49:56+00:00",
+            "time": "2024-04-04T13:03:20+00:00",
             "default-branch": true,
             "bin": [
                 "bin/teinte"
@@ -220,7 +221,7 @@
                     "email": "frederic.glorieux@fictif.org"
                 }
             ],
-            "description": "Transform texts from and to : TEI, DOCX, HTML, EPUB, MD…",
+            "description": "Transform texts from and to : TEI, DOCX, HTML, EPUB, MD.",
             "support": {
                 "issues": "https://github.com/oeuvres/teinte_php/issues",
                 "source": "https://github.com/oeuvres/teinte_php/tree/main"
@@ -234,15 +235,15 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oeuvres/teinte_xsl.git",
-                "reference": "e81452f4586819df5ba3af3336757674104d45c8"
+                "reference": "27f70eed4003f79d37028ad3493858a3049d0999"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/e81452f4586819df5ba3af3336757674104d45c8",
-                "reference": "e81452f4586819df5ba3af3336757674104d45c8",
+                "url": "https://api.github.com/repos/oeuvres/teinte_xsl/zipball/27f70eed4003f79d37028ad3493858a3049d0999",
+                "reference": "27f70eed4003f79d37028ad3493858a3049d0999",
                 "shasum": ""
             },
-            "time": "2023-12-24T11:42:57+00:00",
+            "time": "2024-04-04T13:10:34+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",

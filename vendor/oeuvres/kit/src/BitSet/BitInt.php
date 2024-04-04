@@ -17,19 +17,19 @@ class BitInt extends BitSet
     /**
      * @var array of int
      */
-    protected array $data = [];
+    protected $data = [];
     /**
      * Biggest int index
      */
-    protected int $intLength = -1;
+    protected $intLength = -1;
     /**
      * PHP integer, number of bits to shift from bitIndex to get intIndex
      */
-    static int $intShift;
+    static $intShift;
     /**
      * PHP integer, modulo
      */
-    static int $intModulo;
+    static $intModulo;
 
 
     public function __construct()
