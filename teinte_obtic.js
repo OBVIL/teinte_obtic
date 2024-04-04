@@ -163,7 +163,7 @@ function dropInit() {
                 dropPreview.classList.add("active");
                 return response.text();    
             }
-            else if (response.status = 404) {
+            else if (response.status == 404) {
                 return "Erreur de développement, la page de téléchargement n’a pas été trouvée."
             }
             else {
