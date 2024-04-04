@@ -113,11 +113,7 @@ class Cliglob
         list($called) = get_included_files();
         $help = "
 Tranform " . self::get('src_format')." files in ". self::get('dst_format') ."
-<<<<<<< HEAD
     php ".basename($called)." (options)* \"src_dir/*" . self::get('src_ext') . "\"
-=======
-    php ".basename($called)." (options)* \"src_dir/*." . self::get('src_ext') . "\"
->>>>>>> 9157f328b5f5d728870aeb9e2f174b01e18b91f9
 
 PARAMETERS
 globs           : + files or globs
@@ -126,11 +122,7 @@ OPTIONS
 -h              : ? print this help
 -f              : ? force deletion of destination file (no test of freshness)
 -d dst_dir      : ? destination directory for generated files
-<<<<<<< HEAD
 -t template" . self::get('dst_ext') . " : * template files
-=======
--t template." . self::get('dst_ext') . " : * template files
->>>>>>> 9157f328b5f5d728870aeb9e2f174b01e18b91f9
 -v              : ? verbose mode
 ";
         return $help;
@@ -143,11 +135,7 @@ OPTIONS
     {
         $dst_dir = Filesys::normdir(self::get('d', dirname($src_file) . DIRECTORY_SEPARATOR));
         $dst_name =  pathinfo($src_file, PATHINFO_FILENAME);
-<<<<<<< HEAD
         $dst_file = $dst_dir . self::get('dst_prefix', '') . $dst_name . self::get('dst_ext');
-=======
-        $dst_file = $dst_dir . self::get('dst_prefix', '') . $dst_name . '.' . self::get('dst_ext');
->>>>>>> 9157f328b5f5d728870aeb9e2f174b01e18b91f9
         return $dst_file;
 
     }
